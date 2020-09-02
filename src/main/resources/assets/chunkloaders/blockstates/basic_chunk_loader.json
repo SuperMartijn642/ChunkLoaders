@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "chunkloaders:basic_chunk_loader" }
+  }
+}

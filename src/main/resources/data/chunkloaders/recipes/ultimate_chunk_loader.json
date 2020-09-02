@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RDR",
+    "ECE",
+    "RDR"
+  ],
+  "key": {
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "D": {
+      "tag": "forge:gems/diamond"
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "C": {
+      "item": "chunkloaders:advanced_chunk_loader"
+    }
+  },
+  "result": {
+    "item": "chunkloaders:ultimate_chunk_loader"
+  }
+}
