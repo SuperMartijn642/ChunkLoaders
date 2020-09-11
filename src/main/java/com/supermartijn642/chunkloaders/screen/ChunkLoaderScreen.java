@@ -1,12 +1,11 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.supermartijn642.chunkloaders.ChunkLoaderTile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -75,7 +74,7 @@ public class ChunkLoaderScreen extends Screen {
         if(tile == null)
             return;
 
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         Minecraft.getInstance().getTextureManager().bindTexture(this.background);
         this.drawTexture(this.left, this.top, this.backgroundSize, this.backgroundSize);
@@ -117,15 +116,14 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     private void drawTexture(int x, int y, int width, int height){
-        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        int z = this.getBlitOffset();
+        int z = this.blitOffset;
         bufferbuilder.pos(x, y + height, z).tex(1, 0).endVertex();
         bufferbuilder.pos(x + width, y + height, z).tex(1, 1).endVertex();
         bufferbuilder.pos(x + width, y, z).tex(0, 1).endVertex();
         bufferbuilder.pos(x, y, z).tex(0, 0).endVertex();
-        bufferbuilder.finishDrawing();
-        RenderSystem.enableAlphaTest();
-        WorldVertexBufferUploader.draw(bufferbuilder);
+        tessellator.draw();
     }
 }

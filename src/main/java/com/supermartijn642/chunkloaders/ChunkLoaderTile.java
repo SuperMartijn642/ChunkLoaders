@@ -15,6 +15,31 @@ import java.util.Random;
  */
 public class ChunkLoaderTile extends TileEntity {
 
+    public static class SingleChunkLoaderTile extends ChunkLoaderTile {
+        public SingleChunkLoaderTile(){
+            super(ChunkLoaders.single_chunk_loader_tile, 1);
+        }
+    }
+
+    public static class BasicChunkLoaderTile extends ChunkLoaderTile {
+        public BasicChunkLoaderTile(){
+            super(ChunkLoaders.basic_chunk_loader_tile, 3);
+        }
+    }
+
+    public static class AdvancedChunkLoaderTile extends ChunkLoaderTile {
+        public AdvancedChunkLoaderTile(){
+            super(ChunkLoaders.advanced_chunk_loader_tile, 5);
+        }
+    }
+
+    public static class UltimateChunkLoaderTile extends ChunkLoaderTile {
+        public UltimateChunkLoaderTile(){
+            super(ChunkLoaders.ultimate_chunk_loader_tile, 7);
+        }
+    }
+
+
     public final int animationOffset = new Random().nextInt(20000);
 
     private final int gridSize;

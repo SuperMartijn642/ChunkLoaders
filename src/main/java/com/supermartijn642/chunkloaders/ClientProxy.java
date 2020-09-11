@@ -16,10 +16,10 @@ public class ClientProxy {
 
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e){
-        ClientRegistry.bindTileEntityRenderer(ChunkLoaders.single_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.single_chunk_loader, false));
-        ClientRegistry.bindTileEntityRenderer(ChunkLoaders.basic_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.basic_chunk_loader, false));
-        ClientRegistry.bindTileEntityRenderer(ChunkLoaders.advanced_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.advanced_chunk_loader, true));
-        ClientRegistry.bindTileEntityRenderer(ChunkLoaders.ultimate_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.ultimate_chunk_loader, true));
+        ClientRegistry.bindTileEntitySpecialRenderer(ChunkLoaderTile.SingleChunkLoaderTile.class, new ChunkLoaderTileRenderer(ChunkLoaders.single_chunk_loader, false));
+        ClientRegistry.bindTileEntitySpecialRenderer(ChunkLoaderTile.BasicChunkLoaderTile.class, new ChunkLoaderTileRenderer(ChunkLoaders.basic_chunk_loader, false));
+        ClientRegistry.bindTileEntitySpecialRenderer(ChunkLoaderTile.AdvancedChunkLoaderTile.class, new ChunkLoaderTileRenderer(ChunkLoaders.advanced_chunk_loader, true));
+        ClientRegistry.bindTileEntitySpecialRenderer(ChunkLoaderTile.UltimateChunkLoaderTile.class, new ChunkLoaderTileRenderer(ChunkLoaders.ultimate_chunk_loader, true));
     }
 
     public static void openScreen(Screen screen){

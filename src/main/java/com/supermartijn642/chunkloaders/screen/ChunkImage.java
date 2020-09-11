@@ -2,7 +2,6 @@ package com.supermartijn642.chunkloaders.screen;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -28,7 +27,7 @@ public class ChunkImage {
     }
 
     public void createTexture(){
-        this.textureId = TextureUtil.generateTextureId();
+        this.textureId = GlStateManager.genTexture();
     }
 
     public void updateTexture(){

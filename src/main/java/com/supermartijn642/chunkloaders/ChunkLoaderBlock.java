@@ -8,7 +8,6 @@ import net.minecraft.block.material.MaterialColor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -46,10 +45,10 @@ public class ChunkLoaderBlock extends Block {
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult p_225533_6_){
+    public boolean onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult p_225533_6_){
         if(worldIn.isRemote)
             ClientProxy.openScreen(this.screenProvider.apply(worldIn, pos));
-        return ActionResultType.SUCCESS;
+        return true;
     }
 
     @Override
