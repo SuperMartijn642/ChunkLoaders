@@ -51,7 +51,7 @@ public class ChunkImage {
 
         for(int x = 0; x < width; x++){
             for(int z = 0; z < height; z++){
-                BlockPos pos = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, this.chunkPos.getBlock(x, 0, z)).down();
+                BlockPos pos = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, new BlockPos(this.chunkPos.getXStart() + x, 0, this.chunkPos.getZStart() + z)).down();
                 int northY = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, pos.getX(), pos.getZ() - 1) - 1;
                 int westY = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, pos.getX() - 1, pos.getZ()) - 1;
 
