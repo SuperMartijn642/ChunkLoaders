@@ -1,5 +1,6 @@
 package com.supermartijn642.chunkloaders.screen;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.supermartijn642.chunkloaders.ChunkLoaderTile;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 import java.util.function.Supplier;
@@ -30,7 +32,7 @@ public class ChunkButton extends AbstractButton {
     private final ChunkImage image;
 
     public ChunkButton(int x, int y, int xOffset, int zOffset, Supplier<ChunkLoaderTile> tileSupplier, World world, ChunkPos chunk){
-        super(x, y, 15, 15, "");
+        super(x, y, 15, 15, new StringTextComponent(""));
         this.xOffset = xOffset;
         this.zOffset = zOffset;
         this.tileSupplier = tileSupplier;
@@ -46,7 +48,7 @@ public class ChunkButton extends AbstractButton {
     }
 
     @Override
-    public void renderButton(int mouseX, int mouseY, float partialTicks){
+    public void renderButton(MatrixStack matrix, int mouseX, int mouseY, float partialTicks){
         ChunkLoaderTile tile = this.tileSupplier.get();
         if(tile == null)
             return;
@@ -62,7 +64,7 @@ public class ChunkButton extends AbstractButton {
         GlStateManager.bindTexture(this.image.textureId);
         this.drawTexture(this.x + 2, this.y + 2, 11, 11);
 
-        this.renderBg(minecraft, mouseX, mouseY);
+        this.renderBg(matrix, minecraft, mouseX, mouseY);
     }
 
     private void drawTexture(int x, int y, int width, int height){

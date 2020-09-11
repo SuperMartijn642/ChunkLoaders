@@ -1,5 +1,6 @@
 package com.supermartijn642.chunkloaders;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -117,8 +118,8 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     @Override
-    public void read(CompoundNBT compound){
-        super.read(compound);
+    public void read(BlockState state, CompoundNBT compound){
+        super.read(state, compound);
         this.handleData(compound.getCompound("data"));
     }
 
@@ -130,8 +131,8 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundNBT tag){
-        super.handleUpdateTag(tag);
+    public void handleUpdateTag(BlockState state, CompoundNBT tag){
+        super.handleUpdateTag(state, tag);
         this.handleData(tag.getCompound("data"));
     }
 

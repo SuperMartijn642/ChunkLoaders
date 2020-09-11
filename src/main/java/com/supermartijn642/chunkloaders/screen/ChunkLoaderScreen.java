@@ -1,5 +1,6 @@
 package com.supermartijn642.chunkloaders.screen;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.supermartijn642.chunkloaders.ChunkLoaderTile;
 import net.minecraft.client.Minecraft;
@@ -12,7 +13,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
@@ -55,10 +56,10 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks){
-        this.renderBackground();
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks){
+        this.renderBackground(matrixStack);
         this.drawBackgroundLayer(partialTicks, mouseX, mouseY);
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
 
         ChunkLoaderTile tile = this.getTileOrClose();
         if(tile == null)
@@ -66,7 +67,7 @@ public class ChunkLoaderScreen extends Screen {
 
         this.buttons.stream().filter(ChunkButton.class::isInstance).map(ChunkButton.class::cast).forEach(button -> {
             if(button.isHovered())
-                this.renderToolTip(true, "chunkloaders.gui." + (tile.isLoaded(button.xOffset, button.zOffset) ? "loaded" : "unloaded"), mouseX, mouseY);
+                this.renderToolTip(matrixStack, true, "chunkloaders.gui." + (tile.isLoaded(button.xOffset, button.zOffset) ? "loaded" : "unloaded"), mouseX, mouseY);
         });
     }
 
@@ -81,24 +82,8 @@ public class ChunkLoaderScreen extends Screen {
         this.drawTexture(this.left, this.top, this.backgroundSize, this.backgroundSize);
     }
 
-    protected void drawCenteredString(ITextComponent text, float x, float y){
-        this.drawCenteredString(text.getFormattedText(), x, y);
-    }
-
-    protected void drawCenteredString(String s, float x, float y){
-        this.font.drawString(s, this.left + x - this.font.getStringWidth(s) / 2f, this.top + y, 4210752);
-    }
-
-    protected void drawString(ITextComponent text, float x, float y){
-        this.drawString(text.getFormattedText(), x, y);
-    }
-
-    protected void drawString(String s, float x, float y){
-        this.font.drawString(s, this.left + x, this.top + y, 4210752);
-    }
-
-    public void renderToolTip(boolean translate, String string, int x, int y){
-        super.renderTooltip(translate ? new TranslationTextComponent(string).getFormattedText() : string, x, y);
+    public void renderToolTip(MatrixStack matrixStack, boolean translate, String string, int x, int y){
+        super.renderTooltip(matrixStack, translate ? new TranslationTextComponent(string) : new StringTextComponent(string), x, y);
     }
 
     public ChunkLoaderTile getTileOrClose(){
