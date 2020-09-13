@@ -1,10 +1,10 @@
 package com.supermartijn642.chunkloaders;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.ChunkPos;
 
 import javax.annotation.Nullable;
@@ -17,25 +17,25 @@ public class ChunkLoaderTile extends TileEntity {
 
     public static class SingleChunkLoaderTile extends ChunkLoaderTile {
         public SingleChunkLoaderTile(){
-            super(ChunkLoaders.single_chunk_loader_tile, 1);
+            super(1);
         }
     }
 
     public static class BasicChunkLoaderTile extends ChunkLoaderTile {
         public BasicChunkLoaderTile(){
-            super(ChunkLoaders.basic_chunk_loader_tile, 3);
+            super(3);
         }
     }
 
     public static class AdvancedChunkLoaderTile extends ChunkLoaderTile {
         public AdvancedChunkLoaderTile(){
-            super(ChunkLoaders.advanced_chunk_loader_tile, 5);
+            super(5);
         }
     }
 
     public static class UltimateChunkLoaderTile extends ChunkLoaderTile {
         public UltimateChunkLoaderTile(){
-            super(ChunkLoaders.ultimate_chunk_loader_tile, 7);
+            super(7);
         }
     }
 
@@ -48,47 +48,50 @@ public class ChunkLoaderTile extends TileEntity {
 
     private boolean dataChanged = false;
 
-    public ChunkLoaderTile(TileEntityType<?> tileEntityTypeIn, int gridSize){
-        super(tileEntityTypeIn);
+    public ChunkLoaderTile(int gridSize){
+        super();
         this.gridSize = gridSize;
         this.radius = (gridSize - 1) / 2;
         this.grid = new boolean[gridSize][gridSize];
     }
 
     public void unloadAll(){
-        this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
-            ChunkPos pos = this.world.getChunk(this.pos).getPos();
+        ChunkLoaderUtil.ChunkTracker tracker = this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY, null);
+        if(tracker != null){
+            ChunkPos pos = this.world.getChunkFromBlockCoords(this.pos).getPos();
             for(int x = 0; x < this.gridSize; x++){
                 for(int z = 0; z < this.gridSize; z++){
                     if(this.grid[x][z])
                         tracker.remove(new ChunkPos(pos.x + x - radius, pos.z + z - radius), this.pos);
                 }
             }
-        });
+        }
     }
 
     public void loadAll(){
-        this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
-            ChunkPos pos = this.world.getChunk(this.pos).getPos();
+        ChunkLoaderUtil.ChunkTracker tracker = this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY, null);
+        if(tracker != null){
+            ChunkPos pos = this.world.getChunkFromBlockCoords(this.pos).getPos();
             for(int x = 0; x < this.gridSize; x++){
                 for(int z = 0; z < this.gridSize; z++){
                     this.grid[x][z] = true;
                     tracker.add(new ChunkPos(pos.x + x - radius, pos.z + z - radius), this.pos);
                 }
             }
-        });
+        }
         this.dataChanged();
     }
 
     public void toggle(int xOffset, int zOffset){
-        this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
-            ChunkPos pos = this.world.getChunk(this.pos).getPos();
+        ChunkLoaderUtil.ChunkTracker tracker = this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY, null);
+        if(tracker != null){
+            ChunkPos pos = this.world.getChunkFromBlockCoords(this.pos).getPos();
             if(this.grid[xOffset + radius][zOffset + radius])
                 tracker.remove(new ChunkPos(pos.x + xOffset, pos.z + zOffset), this.pos);
             else
                 tracker.add(new ChunkPos(pos.x + xOffset, pos.z + zOffset), this.pos);
             this.grid[xOffset + radius][zOffset + radius] = !this.grid[xOffset + radius][zOffset + radius];
-        });
+        }
         this.dataChanged();
     }
 
@@ -108,7 +111,7 @@ public class ChunkLoaderTile extends TileEntity {
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
     }
 
-    private CompoundNBT getChangedData(){
+    private NBTTagCompound getChangedData(){
         if(this.dataChanged){
             this.dataChanged = false;
             return this.getData();
@@ -116,59 +119,63 @@ public class ChunkLoaderTile extends TileEntity {
         return null;
     }
 
-    private CompoundNBT getData(){
-        CompoundNBT tag = new CompoundNBT();
+    private NBTTagCompound getData(){
+        NBTTagCompound tag = new NBTTagCompound();
         for(int x = 0; x < this.gridSize; x++){
             for(int z = 0; z < this.gridSize; z++){
-                tag.putBoolean(x + ";" + z, this.grid[x][z]);
+                tag.setBoolean(x + ";" + z, this.grid[x][z]);
             }
         }
         return tag;
     }
 
-    private void handleData(CompoundNBT tag){
+    private void handleData(NBTTagCompound tag){
         for(int x = 0; x < this.gridSize; x++){
             for(int z = 0; z < this.gridSize; z++){
-                this.grid[x][z] = tag.contains(x + ";" + z) && tag.getBoolean(x + ";" + z);
+                this.grid[x][z] = tag.hasKey(x + ";" + z) && tag.getBoolean(x + ";" + z);
             }
         }
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound){
-        super.write(compound);
-        compound.put("data", this.getData());
+    public NBTTagCompound writeToNBT(NBTTagCompound compound){
+        super.writeToNBT(compound);
+        compound.setTag("data", this.getData());
         return compound;
     }
 
     @Override
-    public void read(CompoundNBT compound){
-        super.read(compound);
-        this.handleData(compound.getCompound("data"));
+    public void readFromNBT(NBTTagCompound compound){
+        super.readFromNBT(compound);
+        this.handleData(compound.getCompoundTag("data"));
     }
 
     @Override
-    public CompoundNBT getUpdateTag(){
-        CompoundNBT tag = super.getUpdateTag();
-        tag.put("data", this.getData());
+    public NBTTagCompound getUpdateTag(){
+        NBTTagCompound tag = super.getUpdateTag();
+        tag.setTag("data", this.getData());
         return tag;
     }
 
     @Override
-    public void handleUpdateTag(CompoundNBT tag){
+    public void handleUpdateTag(NBTTagCompound tag){
         super.handleUpdateTag(tag);
-        this.handleData(tag.getCompound("data"));
+        this.handleData(tag.getCompoundTag("data"));
     }
 
     @Nullable
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket(){
-        CompoundNBT tag = this.getChangedData();
-        return tag == null || tag.isEmpty() ? null : new SUpdateTileEntityPacket(this.pos, 0, tag);
+    public SPacketUpdateTileEntity getUpdatePacket(){
+        NBTTagCompound tag = this.getChangedData();
+        return tag == null || tag.hasNoTags() ? null : new SPacketUpdateTileEntity(this.pos, 0, tag);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt){
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt){
         this.handleData(pkt.getNbtCompound());
+    }
+
+    private IBlockState getBlockState(){
+        return this.world.getBlockState(this.pos);
     }
 }

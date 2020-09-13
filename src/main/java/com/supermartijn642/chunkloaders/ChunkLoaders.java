@@ -3,67 +3,57 @@ package com.supermartijn642.chunkloaders;
 import com.supermartijn642.chunkloaders.packet.PacketToggleChunk;
 import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
 import net.minecraft.block.Block;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * Created 7/7/2020 by SuperMartijn642
  */
-@Mod("chunkloaders")
+@Mod(modid = ChunkLoaders.MODID, name = ChunkLoaders.NAME, version = ChunkLoaders.VERSION, acceptedMinecraftVersions = ChunkLoaders.MC_VERSIONS)
 public class ChunkLoaders {
 
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("chunkloaders", "main"), () -> "1", "1"::equals, "1"::equals);
+    public static final String MODID = "chunkloaders";
+    public static final String NAME = "Chunk Loaders";
+    public static final String MC_VERSIONS = "[1.12.2]";
+    public static final String VERSION = "1.0.0";
 
-    @ObjectHolder("chunkloaders:single_chunk_loader")
+    public static ChunkLoaders instance;
+
+    public static SimpleNetworkWrapper channel;
+
+    @GameRegistry.ObjectHolder("chunkloaders:single_chunk_loader")
     public static Block single_chunk_loader;
-    @ObjectHolder("chunkloaders:basic_chunk_loader")
+    @GameRegistry.ObjectHolder("chunkloaders:basic_chunk_loader")
     public static Block basic_chunk_loader;
-    @ObjectHolder("chunkloaders:advanced_chunk_loader")
+    @GameRegistry.ObjectHolder("chunkloaders:advanced_chunk_loader")
     public static Block advanced_chunk_loader;
-    @ObjectHolder("chunkloaders:ultimate_chunk_loader")
+    @GameRegistry.ObjectHolder("chunkloaders:ultimate_chunk_loader")
     public static Block ultimate_chunk_loader;
 
-    @ObjectHolder("chunkloaders:single_chunk_loader_tile")
-    public static TileEntityType<ChunkLoaderTile> single_chunk_loader_tile;
-    @ObjectHolder("chunkloaders:basic_chunk_loader_tile")
-    public static TileEntityType<ChunkLoaderTile> basic_chunk_loader_tile;
-    @ObjectHolder("chunkloaders:advanced_chunk_loader_tile")
-    public static TileEntityType<ChunkLoaderTile> advanced_chunk_loader_tile;
-    @ObjectHolder("chunkloaders:ultimate_chunk_loader_tile")
-    public static TileEntityType<ChunkLoaderTile> ultimate_chunk_loader_tile;
-
-    @ObjectHolder("chunkloaders:single_chunk_loader_container")
-    public static ContainerType<?> single_chunk_loader_container;
-    @ObjectHolder("chunkloaders:basic_chunk_loader_container")
-    public static ContainerType<?> basic_chunk_loader_container;
-    @ObjectHolder("chunkloaders:advanced_chunk_loader_container")
-    public static ContainerType<?> advanced_chunk_loader_container;
-    @ObjectHolder("chunkloaders:ultimate_chunk_loader_container")
-    public static ContainerType<?> ultimate_chunk_loader_container;
-
     public ChunkLoaders(){
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+        instance = this;
 
-        CHANNEL.registerMessage(0, PacketToggleChunk.class, PacketToggleChunk::encode, PacketToggleChunk::decode, PacketToggleChunk::handle);
+        channel = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+
+        channel.registerMessage(PacketToggleChunk.class, PacketToggleChunk.class, 0, Side.SERVER);
     }
 
-    public void init(FMLCommonSetupEvent e){
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent e){
         ChunkLoaderUtil.register();
     }
 
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+    @Mod.EventBusSubscriber
     public static class RegistryEvents {
         @SubscribeEvent
         public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
@@ -71,30 +61,18 @@ public class ChunkLoaders {
             e.getRegistry().register(new ChunkLoaderBlock("basic_chunk_loader", ChunkLoaderBlock.BASIC_SHAPE, ChunkLoaderTile.BasicChunkLoaderTile::new, ((world, pos) -> new ChunkLoaderScreen("basic_chunk_loader", world, pos, 63))));
             e.getRegistry().register(new ChunkLoaderBlock("advanced_chunk_loader", ChunkLoaderBlock.ADVANCED_SHAPE, ChunkLoaderTile.AdvancedChunkLoaderTile::new, ((world, pos) -> new ChunkLoaderScreen("advanced_chunk_loader", world, pos, 95))));
             e.getRegistry().register(new ChunkLoaderBlock("ultimate_chunk_loader", ChunkLoaderBlock.ULTIMATE_SHAPE, ChunkLoaderTile.UltimateChunkLoaderTile::new, ((world, pos) -> new ChunkLoaderScreen("ultimate_chunk_loader", world, pos, 127))));
-        }
-
-        @SubscribeEvent
-        public static void onTileRegistry(final RegistryEvent.Register<TileEntityType<?>> e){
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new ChunkLoaderTile(single_chunk_loader_tile, 1), single_chunk_loader).build(null).setRegistryName("single_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new ChunkLoaderTile(basic_chunk_loader_tile, 3), basic_chunk_loader).build(null).setRegistryName("basic_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new ChunkLoaderTile(advanced_chunk_loader_tile, 5), advanced_chunk_loader).build(null).setRegistryName("advanced_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new ChunkLoaderTile(ultimate_chunk_loader_tile, 7), ultimate_chunk_loader).build(null).setRegistryName("ultimate_chunk_loader_tile"));
+            GameRegistry.registerTileEntity(ChunkLoaderTile.SingleChunkLoaderTile.class, new ResourceLocation("single_chunk_loader_tile"));
+            GameRegistry.registerTileEntity(ChunkLoaderTile.BasicChunkLoaderTile.class, new ResourceLocation("basic_chunk_loader_tile"));
+            GameRegistry.registerTileEntity(ChunkLoaderTile.AdvancedChunkLoaderTile.class, new ResourceLocation("advanced_chunk_loader_tile"));
+            GameRegistry.registerTileEntity(ChunkLoaderTile.UltimateChunkLoaderTile.class, new ResourceLocation("ultimate_chunk_loader_tile"));
         }
 
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> e){
-            e.getRegistry().register(new BlockItem(single_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("single_chunk_loader"));
-            e.getRegistry().register(new BlockItem(basic_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("basic_chunk_loader"));
-            e.getRegistry().register(new BlockItem(advanced_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("advanced_chunk_loader"));
-            e.getRegistry().register(new BlockItem(ultimate_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("ultimate_chunk_loader"));
-        }
-
-        @SubscribeEvent
-        public static void onContainerRegistry(final RegistryEvent.Register<ContainerType<?>> e){
-//            e.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new ItemTrashCanContainer(windowId, inv.player, data.readBlockPos())).setRegistryName("item_trash_can_container"));
-//            e.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new LiquidTrashCanContainer(windowId, inv.player, data.readBlockPos())).setRegistryName("liquid_trash_can_container"));
-//            e.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new EnergyTrashCanContainer(windowId, inv.player, data.readBlockPos())).setRegistryName("energy_trash_can_container"));
-//            e.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new UltimateTrashCanContainer(windowId, inv.player, data.readBlockPos())).setRegistryName("ultimate_trash_can_container"));
+            e.getRegistry().register(new ItemBlock(single_chunk_loader).setRegistryName("single_chunk_loader"));
+            e.getRegistry().register(new ItemBlock(basic_chunk_loader).setRegistryName("basic_chunk_loader"));
+            e.getRegistry().register(new ItemBlock(advanced_chunk_loader).setRegistryName("advanced_chunk_loader"));
+            e.getRegistry().register(new ItemBlock(ultimate_chunk_loader).setRegistryName("ultimate_chunk_loader"));
         }
     }
 

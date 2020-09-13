@@ -1,10 +1,11 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.supermartijn642.chunkloaders.ChunkLoaderTile;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
@@ -12,13 +13,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 /**
  * Created 7/11/2020 by SuperMartijn642
  */
-public class ChunkLoaderScreen extends Screen {
+public class ChunkLoaderScreen extends GuiScreen {
 
     protected World world;
     protected BlockPos pos;
@@ -28,7 +29,6 @@ public class ChunkLoaderScreen extends Screen {
     private final int backgroundSize;
 
     public ChunkLoaderScreen(String type, World world, BlockPos pos, int backgroundSize){
-        super(new TranslationTextComponent("block.chunkloaders." + type));
         this.world = world;
         this.pos = pos;
         this.background = new ResourceLocation("chunkloaders", "textures/gui/" + type + ".png");
@@ -36,7 +36,7 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     @Override
-    protected void init(){
+    public void initGui(){
         ChunkLoaderTile tile = this.getTileOrClose();
         if(tile == null)
             return;
@@ -47,23 +47,24 @@ public class ChunkLoaderScreen extends Screen {
         int radius = (tile.getGridSize() - 1) / 2;
         for(int x = 0; x < tile.getGridSize(); x++){
             for(int y = 0; y < tile.getGridSize(); y++){
-                this.addButton(new ChunkButton(this.left + 8 + x * 16, this.top + 8 + y * 16, -radius + x, -radius + y,
+                int index = x * tile.getGridSize() + y;
+                this.addButton(new ChunkButton(index, this.left + 8 + x * 16, this.top + 8 + y * 16, -radius + x, -radius + y,
                     this::getTileOrClose, this.world, new ChunkPos((pos.getX() >> 4) - radius + x, (pos.getZ() >> 4) - radius + y)));
             }
         }
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks){
-        this.renderBackground();
+    public void drawScreen(int mouseX, int mouseY, float partialTicks){
+        this.drawDefaultBackground();
         this.drawBackgroundLayer(partialTicks, mouseX, mouseY);
-        super.render(mouseX, mouseY, partialTicks);
+        super.drawScreen(mouseX, mouseY, partialTicks);
 
         ChunkLoaderTile tile = this.getTileOrClose();
         if(tile == null)
             return;
 
-        this.buttons.stream().filter(ChunkButton.class::isInstance).map(ChunkButton.class::cast).forEach(button -> {
+        this.buttonList.stream().filter(ChunkButton.class::isInstance).map(ChunkButton.class::cast).forEach(button -> {
             if(button.isHovered())
                 this.renderToolTip(true, "chunkloaders.gui." + (tile.isLoaded(button.xOffset, button.zOffset) ? "loaded" : "unloaded"), mouseX, mouseY);
         });
@@ -74,9 +75,9 @@ public class ChunkLoaderScreen extends Screen {
         if(tile == null)
             return;
 
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-        Minecraft.getInstance().getTextureManager().bindTexture(this.background);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(this.background);
         this.drawTexture(this.left, this.top, this.backgroundSize, this.backgroundSize);
     }
 
@@ -85,7 +86,7 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     protected void drawCenteredString(String s, float x, float y){
-        this.font.drawString(s, this.left + x - this.font.getStringWidth(s) / 2f, this.top + y, 4210752);
+        this.fontRenderer.drawString(s, (int)(this.left + x - this.fontRenderer.getStringWidth(s) / 2f), (int)(this.top + y), 4210752);
     }
 
     protected void drawString(ITextComponent text, float x, float y){
@@ -93,11 +94,11 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     protected void drawString(String s, float x, float y){
-        this.font.drawString(s, this.left + x, this.top + y, 4210752);
+        this.fontRenderer.drawString(s, (int)(this.left + x), (int)(this.top + y), 4210752);
     }
 
     public void renderToolTip(boolean translate, String string, int x, int y){
-        super.renderTooltip(translate ? new TranslationTextComponent(string).getFormattedText() : string, x, y);
+        super.drawHoveringText(translate ? new TextComponentTranslation(string).getFormattedText() : string, x, y);
     }
 
     public ChunkLoaderTile getTileOrClose(){
@@ -106,20 +107,26 @@ public class ChunkLoaderScreen extends Screen {
             if(tile instanceof ChunkLoaderTile)
                 return (ChunkLoaderTile)tile;
         }
-        Minecraft.getInstance().player.closeScreen();
+        Minecraft.getMinecraft().player.closeScreen();
         return null;
     }
 
     @Override
-    public boolean isPauseScreen(){
+    public boolean doesGuiPauseGame(){
         return false;
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button){
+        if(button instanceof ChunkButton)
+            ((ChunkButton)button).onPress();
     }
 
     private void drawTexture(int x, int y, int width, int height){
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        int z = this.blitOffset;
+        int z = 0;
         bufferbuilder.pos(x, y + height, z).tex(1, 0).endVertex();
         bufferbuilder.pos(x + width, y + height, z).tex(1, 1).endVertex();
         bufferbuilder.pos(x + width, y, z).tex(0, 1).endVertex();

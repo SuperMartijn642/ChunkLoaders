@@ -1,3 +1,3 @@
 {
-    "parent": "chunkloaders:single_chunk_loader"
+    "parent": "chunkloaders:block/single_chunk_loader"
 }

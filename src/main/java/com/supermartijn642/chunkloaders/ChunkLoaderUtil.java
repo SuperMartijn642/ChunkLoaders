@@ -1,32 +1,31 @@
 package com.supermartijn642.chunkloaders;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.LongArrayNBT;
-import net.minecraft.util.Direction;
+import javafx.util.Pair;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created 8/18/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber
 public class ChunkLoaderUtil {
 
     @CapabilityInject(ChunkTracker.class)
@@ -34,49 +33,85 @@ public class ChunkLoaderUtil {
 
     public static void register(){
         CapabilityManager.INSTANCE.register(ChunkTracker.class, new Capability.IStorage<ChunkTracker>() {
-            public CompoundNBT writeNBT(Capability<ChunkTracker> capability, ChunkTracker instance, Direction side){
+            @Override
+            public NBTBase writeNBT(Capability<ChunkTracker> capability, ChunkTracker instance, EnumFacing side){
                 return instance.write();
             }
 
-            public void readNBT(Capability<ChunkTracker> capability, ChunkTracker instance, Direction side, INBT nbt){
-                instance.read((CompoundNBT)nbt);
+            @Override
+            public void readNBT(Capability<ChunkTracker> capability, ChunkTracker instance, EnumFacing side, NBTBase nbt){
+                instance.read((NBTTagCompound)nbt);
             }
         }, ChunkTracker::new);
+        ForgeChunkManager.setForcedChunkLoadingCallback(ChunkLoaders.instance, (tickets, world) -> {
+            if(tickets.size() > 0){
+                ChunkTracker tracker = world.getCapability(TRACKER_CAPABILITY, null);
+                if(tracker != null){
+                    tracker.invalidateTicket();
+                    tracker.ticket = tickets.get(0);
+                }
+            }
+        });
     }
 
     @SubscribeEvent
     public static void attachCapabilities(AttachCapabilitiesEvent<World> e){
         World world = e.getObject();
-        if(world.isRemote || !(world instanceof ServerWorld))
+        if(world.isRemote || !(world instanceof WorldServer))
             return;
 
-        LazyOptional<ChunkTracker> tracker = LazyOptional.of(() -> new ChunkTracker((ServerWorld)world));
-        e.addCapability(new ResourceLocation("chunkloaders", "chunk_tracker"), new ICapabilitySerializable<INBT>() {
-            @Nonnull
+        ChunkTracker tracker = new ChunkTracker((WorldServer)world);
+        e.addCapability(new ResourceLocation("chunkloaders", "chunk_tracker"), new ICapabilitySerializable<NBTBase>() {
             @Override
-            public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side){
-                return cap == TRACKER_CAPABILITY ? tracker.cast() : LazyOptional.empty();
+            public NBTBase serializeNBT(){
+                return TRACKER_CAPABILITY.writeNBT(tracker, null);
             }
 
             @Override
-            public INBT serializeNBT(){
-                return TRACKER_CAPABILITY.writeNBT(tracker.orElse(null), null);
+            public void deserializeNBT(NBTBase nbt){
+                TRACKER_CAPABILITY.readNBT(tracker, null, nbt);
             }
 
             @Override
-            public void deserializeNBT(INBT nbt){
-                TRACKER_CAPABILITY.readNBT(tracker.orElse(null), null, nbt);
+            public boolean hasCapability(Capability<?> capability, EnumFacing facing){
+                return capability == TRACKER_CAPABILITY;
+            }
+
+            @Override
+            public <T> T getCapability(Capability<T> capability, EnumFacing facing){
+                return capability == TRACKER_CAPABILITY ? TRACKER_CAPABILITY.cast(tracker) : null;
             }
         });
-        e.addListener(tracker::invalidate);
+    }
+
+    @SubscribeEvent
+    public static void onWorldLoad(WorldEvent.Load e){
+        ChunkTracker tracker = e.getWorld().getCapability(TRACKER_CAPABILITY, null);
+        if(tracker != null){
+            for(Pair<ChunkPos,BlockPos> pair : tracker.pending)
+                tracker.add(pair.getKey(),pair.getValue());
+            tracker.pending.clear();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onWorldUnload(WorldEvent.Unload e){
+        World world = e.getWorld();
+        ChunkTracker tracker = world.getCapability(TRACKER_CAPABILITY, null);
+        if(tracker != null)
+            tracker.invalidateTicket();
     }
 
     public static class ChunkTracker {
 
-        private final ServerWorld world;
+        private final WorldServer world;
         private final Map<ChunkPos,List<BlockPos>> chunks = new HashMap<>();
 
-        public ChunkTracker(ServerWorld world){
+        private final LinkedList<Pair<ChunkPos,BlockPos>> pending = new LinkedList<>();
+
+        private ForgeChunkManager.Ticket ticket;
+
+        public ChunkTracker(WorldServer world){
             this.world = world;
         }
 
@@ -90,7 +125,9 @@ public class ChunkLoaderUtil {
 
             if(!this.chunks.containsKey(chunk)){
                 this.chunks.put(chunk, new LinkedList<>());
-                this.world.forceChunk(chunk.x, chunk.z, true);
+                if(this.ticket == null)
+                    this.ticket = ForgeChunkManager.requestTicket(ChunkLoaders.instance, this.world, ForgeChunkManager.Type.NORMAL);
+                ForgeChunkManager.forceChunk(this.ticket, chunk);
             }
 
             this.chunks.get(chunk).add(loader);
@@ -101,33 +138,48 @@ public class ChunkLoaderUtil {
                 return;
 
             if(this.chunks.get(chunk).size() == 1){
-                this.world.forceChunk(chunk.x, chunk.z, false);
+                if(this.ticket == null)
+                    this.ticket = ForgeChunkManager.requestTicket(ChunkLoaders.instance, this.world, ForgeChunkManager.Type.NORMAL);
+                ForgeChunkManager.unforceChunk(this.ticket, chunk);
                 this.chunks.remove(chunk);
             }else
                 this.chunks.get(chunk).remove(loader);
         }
 
-        public CompoundNBT write(){
-            CompoundNBT compound = new CompoundNBT();
+        public NBTTagCompound write(){
+            NBTTagCompound compound = new NBTTagCompound();
             for(Map.Entry<ChunkPos,List<BlockPos>> entry : this.chunks.entrySet()){
-                CompoundNBT chunkTag = new CompoundNBT();
-                chunkTag.putLong("chunk", entry.getKey().asLong());
+                NBTTagCompound chunkTag = new NBTTagCompound();
+                chunkTag.setInteger("chunkX", entry.getKey().x);
+                chunkTag.setInteger("chunkY", entry.getKey().z);
 
-                LongArrayNBT blocks = new LongArrayNBT(entry.getValue().stream().map(BlockPos::toLong).collect(Collectors.toList()));
-                chunkTag.put("blocks", blocks);
+                List<Integer> coords = new ArrayList<>(entry.getValue().size() * 3);
+                entry.getValue().forEach(pos -> {
+                    coords.add(pos.getX()); coords.add(pos.getY()); coords.add(pos.getZ());
+                });
+                NBTTagIntArray blocks = new NBTTagIntArray(coords);
+                chunkTag.setTag("blocks", blocks);
 
-                compound.put(entry.getKey().x + ";" + entry.getKey().z, chunkTag);
+                compound.setTag(entry.getKey().x + ";" + entry.getKey().z, chunkTag);
             }
             return compound;
         }
 
-        public void read(CompoundNBT compound){
-            for(String key : compound.keySet()){
-                CompoundNBT chunkTag = compound.getCompound(key);
-                ChunkPos chunk = new ChunkPos(chunkTag.getLong("chunk"));
+        public void read(NBTTagCompound compound){
+            for(String key : compound.getKeySet()){
+                NBTTagCompound chunkTag = compound.getCompoundTag(key);
+                ChunkPos chunk = new ChunkPos(chunkTag.getInteger("chunkX"), chunkTag.getInteger("chunkY"));
 
-                LongArrayNBT blocks = (LongArrayNBT)chunkTag.get("blocks");
-                Arrays.stream(blocks.getAsLongArray()).mapToObj(BlockPos::fromLong).forEach(pos -> this.add(chunk, pos));
+                NBTTagIntArray blocks = (NBTTagIntArray)chunkTag.getTag("blocks");
+                int[] arr = blocks.getIntArray();
+                for(int i = 0; i < arr.length; i += 3)
+                    this.pending.add(new Pair<>(chunk, new BlockPos(arr[i], arr[i + 1], arr[i + 2])));
+            }
+        }
+
+        public void invalidateTicket(){
+            if(this.ticket != null){
+                this.ticket = null;
             }
         }
 

@@ -7,10 +7,12 @@
   ],
   "key": {
     "R": {
-      "tag": "forge:dusts/redstone"
+      "type": "forge:ore_dict",
+      "ore": "dustRedstone"
     },
     "D": {
-      "tag": "forge:gems/diamond"
+      "type": "forge:ore_dict",
+      "ore": "gemDiamond"
     },
     "E": {
       "item": "minecraft:ender_eye"

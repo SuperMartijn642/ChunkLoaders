@@ -10,7 +10,8 @@
       "item": "minecraft:blaze_powder"
     },
     "G": {
-      "tag": "forge:ingots/gold"
+      "type": "forge:ore_dict",
+      "ore": "ingotGold"
     },
     "C": {
       "item": "chunkloaders:basic_chunk_loader"

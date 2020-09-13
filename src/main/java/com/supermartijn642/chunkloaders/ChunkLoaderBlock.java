@@ -1,24 +1,21 @@
 package com.supermartijn642.chunkloaders;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
 
-import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -27,63 +24,77 @@ import java.util.function.Supplier;
  */
 public class ChunkLoaderBlock extends Block {
 
-    public static final VoxelShape SINGLE_SHAPE = VoxelShapes.create(5 / 16d, 5 / 16d, 5 / 16d, 11 / 16d, 11 / 16d, 11 / 16d);
-    public static final VoxelShape BASIC_SHAPE = VoxelShapes.create(4 / 16d, 4 / 16d, 4 / 16d, 12 / 16d, 12 / 16d, 12 / 16d);
-    public static final VoxelShape ADVANCED_SHAPE = VoxelShapes.create(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
-    public static final VoxelShape ULTIMATE_SHAPE = VoxelShapes.create(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
+    public static final AxisAlignedBB SINGLE_SHAPE = new AxisAlignedBB(5 / 16d, 5 / 16d, 5 / 16d, 11 / 16d, 11 / 16d, 11 / 16d);
+    public static final AxisAlignedBB BASIC_SHAPE = new AxisAlignedBB(4 / 16d, 4 / 16d, 4 / 16d, 12 / 16d, 12 / 16d, 12 / 16d);
+    public static final AxisAlignedBB ADVANCED_SHAPE = new AxisAlignedBB(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
+    public static final AxisAlignedBB ULTIMATE_SHAPE = new AxisAlignedBB(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
 
-    private final VoxelShape shape;
+    private final AxisAlignedBB shape;
     private final Supplier<? extends TileEntity> tileProvider;
-    private final BiFunction<World,BlockPos,Screen> screenProvider;
+    private final BiFunction<World,BlockPos,GuiScreen> screenProvider;
 
-    public ChunkLoaderBlock(String registryName, VoxelShape shape, Supplier<? extends TileEntity> tileProvider, BiFunction<World,BlockPos,Screen> screenProvider){
-        super(Properties.create(Material.IRON, MaterialColor.GRAY).hardnessAndResistance(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
+    public ChunkLoaderBlock(String registryName, AxisAlignedBB shape, Supplier<? extends TileEntity> tileProvider, BiFunction<World,BlockPos,GuiScreen> screenProvider){
+        super(Material.IRON, MapColor.GRAY);
         this.setRegistryName(registryName);
+        this.setUnlocalizedName(ChunkLoaders.MODID + "." + registryName);
+        this.setHardness(1.5f);
+        this.setResistance(6);
+        this.setHarvestLevel("pickaxe", 1);
+        this.setCreativeTab(CreativeTabs.SEARCH);
         this.shape = shape;
         this.tileProvider = tileProvider;
         this.screenProvider = screenProvider;
     }
 
     @Override
-    public boolean onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult p_225533_6_){
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ){
         if(worldIn.isRemote)
             ClientProxy.openScreen(this.screenProvider.apply(worldIn, pos));
         return true;
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context){
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos){
         return this.shape;
     }
 
     @Override
-    public boolean hasTileEntity(BlockState state){
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos){
+        return this.shape;
+    }
+
+    @Override
+    public boolean hasTileEntity(IBlockState state){
         return true;
     }
 
-    @Nullable
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world){
+    public TileEntity createTileEntity(World world, IBlockState state){
         return this.tileProvider.get();
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state){
-        return BlockRenderType.ENTITYBLOCK_ANIMATED;
+    public EnumBlockRenderType getRenderType(IBlockState state){
+        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
-    public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving){
+    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state){
         TileEntity tile = worldIn.getTileEntity(pos);
         if(tile instanceof ChunkLoaderTile)
             ((ChunkLoaderTile)tile).loadAll();
     }
 
     @Override
-    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving){
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state){
         TileEntity tile = worldIn.getTileEntity(pos);
         if(tile instanceof ChunkLoaderTile)
             ((ChunkLoaderTile)tile).unloadAll();
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
+        super.breakBlock(worldIn, pos, state);
+    }
+
+    @Override
+    public boolean isOpaqueCube(IBlockState state){
+        return false;
     }
 }
