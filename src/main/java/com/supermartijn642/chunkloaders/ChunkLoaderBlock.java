@@ -5,7 +5,6 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
@@ -20,7 +19,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -35,20 +33,18 @@ public class ChunkLoaderBlock extends Block {
 
     private final VoxelShape shape;
     private final Supplier<? extends TileEntity> tileProvider;
-    private final BiFunction<World,BlockPos,Screen> screenProvider;
 
-    public ChunkLoaderBlock(String registryName, VoxelShape shape, Supplier<? extends TileEntity> tileProvider, BiFunction<World,BlockPos,Screen> screenProvider){
+    public ChunkLoaderBlock(String registryName, VoxelShape shape, Supplier<? extends TileEntity> tileProvider){
         super(Properties.create(Material.IRON, MaterialColor.GRAY).hardnessAndResistance(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
         this.setRegistryName(registryName);
         this.shape = shape;
         this.tileProvider = tileProvider;
-        this.screenProvider = screenProvider;
     }
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult p_225533_6_){
         if(worldIn.isRemote)
-            ClientProxy.openScreen(this.screenProvider.apply(worldIn, pos));
+            ClientProxy.openScreen(this, worldIn, pos);
         return ActionResultType.SUCCESS;
     }
 
