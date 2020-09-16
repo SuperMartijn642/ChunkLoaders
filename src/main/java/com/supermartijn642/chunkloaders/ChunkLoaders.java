@@ -3,6 +3,7 @@ package com.supermartijn642.chunkloaders;
 import com.supermartijn642.chunkloaders.packet.PacketToggleChunk;
 import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
 import net.minecraft.block.Block;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
