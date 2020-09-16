@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -16,7 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -31,9 +29,8 @@ public class ChunkLoaderBlock extends Block {
 
     private final AxisAlignedBB shape;
     private final Supplier<? extends TileEntity> tileProvider;
-    private final BiFunction<World,BlockPos,GuiScreen> screenProvider;
 
-    public ChunkLoaderBlock(String registryName, AxisAlignedBB shape, Supplier<? extends TileEntity> tileProvider, BiFunction<World,BlockPos,GuiScreen> screenProvider){
+    public ChunkLoaderBlock(String registryName, AxisAlignedBB shape, Supplier<? extends TileEntity> tileProvider){
         super(Material.IRON, MapColor.GRAY);
         this.setRegistryName(registryName);
         this.setUnlocalizedName(ChunkLoaders.MODID + "." + registryName);
@@ -43,13 +40,12 @@ public class ChunkLoaderBlock extends Block {
         this.setCreativeTab(CreativeTabs.SEARCH);
         this.shape = shape;
         this.tileProvider = tileProvider;
-        this.screenProvider = screenProvider;
     }
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ){
         if(worldIn.isRemote)
-            ClientProxy.openScreen(this.screenProvider.apply(worldIn, pos));
+            ClientProxy.openScreen(this, worldIn, pos);
         return true;
     }
 
