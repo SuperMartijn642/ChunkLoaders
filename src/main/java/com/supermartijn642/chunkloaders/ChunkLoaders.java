@@ -1,7 +1,6 @@
 package com.supermartijn642.chunkloaders;
 
 import com.supermartijn642.chunkloaders.packet.PacketToggleChunk;
-import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
@@ -58,10 +57,10 @@ public class ChunkLoaders {
     public static class RegistryEvents {
         @SubscribeEvent
         public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
-            e.getRegistry().register(new ChunkLoaderBlock("single_chunk_loader", ChunkLoaderBlock.SINGLE_SHAPE, () -> new ChunkLoaderTile(single_chunk_loader_tile, 1), ((world, pos) -> new ChunkLoaderScreen("single_chunk_loader", world, pos, 31))));
-            e.getRegistry().register(new ChunkLoaderBlock("basic_chunk_loader", ChunkLoaderBlock.BASIC_SHAPE, () -> new ChunkLoaderTile(basic_chunk_loader_tile, 3), ((world, pos) -> new ChunkLoaderScreen("basic_chunk_loader", world, pos, 63))));
-            e.getRegistry().register(new ChunkLoaderBlock("advanced_chunk_loader", ChunkLoaderBlock.ADVANCED_SHAPE, () -> new ChunkLoaderTile(advanced_chunk_loader_tile, 5), ((world, pos) -> new ChunkLoaderScreen("advanced_chunk_loader", world, pos, 95))));
-            e.getRegistry().register(new ChunkLoaderBlock("ultimate_chunk_loader", ChunkLoaderBlock.ULTIMATE_SHAPE, () -> new ChunkLoaderTile(ultimate_chunk_loader_tile, 7), ((world, pos) -> new ChunkLoaderScreen("ultimate_chunk_loader", world, pos, 127))));
+            e.getRegistry().register(new ChunkLoaderBlock("single_chunk_loader", ChunkLoaderBlock.SINGLE_SHAPE, () -> new ChunkLoaderTile(single_chunk_loader_tile, 1)));
+            e.getRegistry().register(new ChunkLoaderBlock("basic_chunk_loader", ChunkLoaderBlock.BASIC_SHAPE, () -> new ChunkLoaderTile(basic_chunk_loader_tile, 3)));
+            e.getRegistry().register(new ChunkLoaderBlock("advanced_chunk_loader", ChunkLoaderBlock.ADVANCED_SHAPE, () -> new ChunkLoaderTile(advanced_chunk_loader_tile, 5)));
+            e.getRegistry().register(new ChunkLoaderBlock("ultimate_chunk_loader", ChunkLoaderBlock.ULTIMATE_SHAPE, () -> new ChunkLoaderTile(ultimate_chunk_loader_tile, 7)));
         }
 
         @SubscribeEvent
