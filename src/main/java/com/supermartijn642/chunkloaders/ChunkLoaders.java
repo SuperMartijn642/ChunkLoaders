@@ -88,14 +88,6 @@ public class ChunkLoaders {
             e.getRegistry().register(new BlockItem(advanced_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("advanced_chunk_loader"));
             e.getRegistry().register(new BlockItem(ultimate_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("ultimate_chunk_loader"));
         }
-
-        @SubscribeEvent
-        public static void onContainerRegistry(final RegistryEvent.Register<ContainerType<?>> e){
-//            e.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new ItemTrashCanContainer(windowId, inv.player, data.readBlockPos())).setRegistryName("item_trash_can_container"));
-//            e.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new LiquidTrashCanContainer(windowId, inv.player, data.readBlockPos())).setRegistryName("liquid_trash_can_container"));
-//            e.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new EnergyTrashCanContainer(windowId, inv.player, data.readBlockPos())).setRegistryName("energy_trash_can_container"));
-//            e.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new UltimateTrashCanContainer(windowId, inv.player, data.readBlockPos())).setRegistryName("ultimate_trash_can_container"));
-        }
     }
 
 }
