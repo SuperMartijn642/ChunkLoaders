@@ -43,15 +43,6 @@ public class ChunkLoaders {
     @ObjectHolder("chunkloaders:ultimate_chunk_loader_tile")
     public static TileEntityType<ChunkLoaderTile> ultimate_chunk_loader_tile;
 
-    @ObjectHolder("chunkloaders:single_chunk_loader_container")
-    public static ContainerType<?> single_chunk_loader_container;
-    @ObjectHolder("chunkloaders:basic_chunk_loader_container")
-    public static ContainerType<?> basic_chunk_loader_container;
-    @ObjectHolder("chunkloaders:advanced_chunk_loader_container")
-    public static ContainerType<?> advanced_chunk_loader_container;
-    @ObjectHolder("chunkloaders:ultimate_chunk_loader_container")
-    public static ContainerType<?> ultimate_chunk_loader_container;
-
     public ChunkLoaders(){
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
 
