@@ -1,6 +1,8 @@
 package com.supermartijn642.chunkloaders;
 
 import javafx.util.Pair;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
@@ -10,6 +12,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
@@ -19,6 +23,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.*;
 
@@ -89,7 +94,7 @@ public class ChunkLoaderUtil {
         ChunkTracker tracker = e.getWorld().getCapability(TRACKER_CAPABILITY, null);
         if(tracker != null){
             for(Pair<ChunkPos,BlockPos> pair : tracker.pending)
-                tracker.add(pair.getKey(),pair.getValue());
+                tracker.add(pair.getKey(), pair.getValue());
             tracker.pending.clear();
         }
     }
@@ -183,6 +188,44 @@ public class ChunkLoaderUtil {
             }
         }
 
+    }
+
+    @SubscribeEvent
+    public static void onTick(TickEvent.WorldTickEvent e){
+        if(e.phase != TickEvent.Phase.END || !(e.world instanceof WorldServer))
+            return;
+
+        WorldServer world = (WorldServer)e.world;
+        int tickSpeed = world.getGameRules().getInt("randomTickSpeed");
+        ChunkTracker tracker = world.getCapability(TRACKER_CAPABILITY, null);
+        if(tickSpeed > 0 && tracker != null){
+            for(ChunkPos pos : tracker.chunks.keySet()){
+                if(!world.getPlayerChunkMap().contains(pos.x, pos.z))
+                    tickEnvironment(world, pos, tickSpeed);
+            }
+        }
+    }
+
+    private static void tickEnvironment(WorldServer world, ChunkPos pos, int tickSpeed){
+        Chunk chunk = world.getChunkFromChunkCoords(pos.x, pos.z);
+        int j = chunk.x * 16;
+        int k = chunk.z * 16;
+
+        for(ExtendedBlockStorage extendedblockstorage : chunk.getBlockStorageArray()){
+            if(extendedblockstorage != Chunk.NULL_BLOCK_STORAGE && extendedblockstorage.needsRandomTick()){
+                for(int i1 = 0; i1 < tickSpeed; ++i1){
+                    int x = world.rand.nextInt(16);
+                    int y = world.rand.nextInt(16);
+                    int z = world.rand.nextInt(16);
+                    IBlockState iblockstate = extendedblockstorage.get(x, y, z);
+                    Block block = iblockstate.getBlock();
+
+                    if(block.getTickRandomly()){
+                        block.randomTick(world, new BlockPos(j + x, extendedblockstorage.getYLocation() + y, k + z), iblockstate, world.rand);
+                    }
+                }
+            }
+        }
     }
 
 }
