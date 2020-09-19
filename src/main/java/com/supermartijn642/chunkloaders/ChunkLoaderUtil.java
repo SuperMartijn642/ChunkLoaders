@@ -7,7 +7,9 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
@@ -15,6 +17,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -131,6 +134,24 @@ public class ChunkLoaderUtil {
             }
         }
 
+    }
+
+    @SubscribeEvent
+    public static void onTick(TickEvent.WorldTickEvent e){
+        if(e.phase != TickEvent.Phase.END || !(e.world instanceof ServerWorld))
+            return;
+
+        ServerWorld world = (ServerWorld)e.world;
+        ServerChunkProvider chunkProvider = world.getChunkProvider();
+        int tickSpeed = world.getGameRules().getInt(GameRules.RANDOM_TICK_SPEED);
+        if(tickSpeed > 0){
+            world.getCapability(TRACKER_CAPABILITY).ifPresent(tracker -> {
+                for(ChunkPos pos : tracker.chunks.keySet()){
+                    if(chunkProvider.chunkManager.getTrackingPlayers(pos, false).count() == 0)
+                        world.tickEnvironment(world.getChunk(pos.x, pos.z), tickSpeed);
+                }
+            });
+        }
     }
 
 }
