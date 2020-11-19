@@ -33,17 +33,18 @@ public class ChunkImage {
     }
 
     public void updateTexture(){
-        if(this.buffer == null)
+        if(this.buffer == null){
             this.buffer = this.createBuffer();
 
-        GlStateManager.bindTexture(this.textureId);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-        ByteBuffer buffer = ByteBuffer.allocateDirect(this.buffer.length);
-        buffer.put(this.buffer).flip();
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, 16, 16, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
+            GlStateManager.bindTexture(this.textureId);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+            ByteBuffer buffer = ByteBuffer.allocateDirect(this.buffer.length);
+            buffer.put(this.buffer).flip();
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, 16, 16, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
+        }
     }
 
     private byte[] createBuffer(){
@@ -70,8 +71,8 @@ public class ChunkImage {
 
                 int index = (x * height + z) * 3;
                 rgbArray[index] = (byte)((rgb >> 16) & 255);
-                rgbArray[index + 1] = (byte)(double)((rgb >> 8) & 255);
-                rgbArray[index + 2] = (byte)(double)(rgb & 255);
+                rgbArray[index + 1] = (byte)((rgb >> 8) & 255);
+                rgbArray[index + 2] = (byte)(rgb & 255);
             }
         }
 
