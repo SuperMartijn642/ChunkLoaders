@@ -59,6 +59,7 @@ public class ChunkButton extends AbstractButton {
         drawTexture(this.x, this.y, 15, 15);
 
         this.image.updateTexture();
+        GlStateManager.enableTexture();
         GlStateManager.bindTexture(this.image.textureId);
         this.drawTexture(this.x + 2, this.y + 2, 11, 11);
 
