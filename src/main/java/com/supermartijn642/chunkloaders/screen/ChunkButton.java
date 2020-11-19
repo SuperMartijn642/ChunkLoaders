@@ -57,6 +57,7 @@ public class ChunkButton extends GuiButton {
         drawTexture(this.x, this.y, 15, 15);
 
         this.image.updateTexture();
+        GlStateManager.enableTexture2D();
         GlStateManager.bindTexture(this.image.textureId);
         this.drawTexture(this.x + 2, this.y + 2, 11, 11);
     }
