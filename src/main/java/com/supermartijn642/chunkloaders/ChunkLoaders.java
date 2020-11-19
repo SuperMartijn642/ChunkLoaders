@@ -23,7 +23,7 @@ public class ChunkLoaders {
     public static final String MODID = "chunkloaders";
     public static final String NAME = "Chunk Loaders";
     public static final String MC_VERSIONS = "[1.12.2]";
-    public static final String VERSION = "1.1.0";
+    public static final String VERSION = "1.1.1";
 
     public static ChunkLoaders instance;
 
