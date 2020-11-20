@@ -41,7 +41,10 @@ public class ClientProxy {
         ClientRegistry.bindTileEntitySpecialRenderer(ChunkLoaderTile.BasicChunkLoaderTile.class, new ChunkLoaderTileRenderer(() -> ChunkLoaders.basic_chunk_loader, false));
         ClientRegistry.bindTileEntitySpecialRenderer(ChunkLoaderTile.AdvancedChunkLoaderTile.class, new ChunkLoaderTileRenderer(() -> ChunkLoaders.advanced_chunk_loader, true));
         ClientRegistry.bindTileEntitySpecialRenderer(ChunkLoaderTile.UltimateChunkLoaderTile.class, new ChunkLoaderTileRenderer(() -> ChunkLoaders.ultimate_chunk_loader, true));
+    }
 
+    @SubscribeEvent
+    public static void registerScreens(RegistryEvent.Register<Item> e){
         screens.put(ChunkLoaders.single_chunk_loader, (world, pos) -> new ChunkLoaderScreen("single_chunk_loader", world, pos, 31));
         screens.put(ChunkLoaders.basic_chunk_loader, (world, pos) -> new ChunkLoaderScreen("basic_chunk_loader", world, pos, 63));
         screens.put(ChunkLoaders.advanced_chunk_loader, (world, pos) -> new ChunkLoaderScreen("advanced_chunk_loader", world, pos, 95));
