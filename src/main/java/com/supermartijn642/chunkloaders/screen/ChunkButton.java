@@ -49,11 +49,8 @@ public class ChunkButton extends AbstractButton {
 
     @Override
     public void renderButton(MatrixStack matrix, int mouseX, int mouseY, float partialTicks){
-        ChunkLoaderTile tile = this.tileSupplier.get();
-        if(tile == null)
-            return;
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bindTexture(tile.isLoaded(this.xOffset, this.zOffset) ? BUTTON_ON : BUTTON_OFF);
+        minecraft.getTextureManager().bindTexture(this.isLoaded() ? BUTTON_ON : BUTTON_OFF);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -65,7 +62,15 @@ public class ChunkButton extends AbstractButton {
         GlStateManager.bindTexture(this.image.textureId);
         this.drawTexture(this.x + 2, this.y + 2, 11, 11);
 
+        if(!this.isLoaded())
+            fillGradient(matrix, this.x + 2, this.y + 2, this.x + 13, this.y + 13, 0xaa000000, 0xaa000000);
+
         this.renderBg(matrix, minecraft, mouseX, mouseY);
+    }
+
+    public boolean isLoaded(){
+        ChunkLoaderTile tile = this.tileSupplier.get();
+        return tile != null && tile.isLoaded(this.xOffset, this.zOffset);
     }
 
     private void drawTexture(int x, int y, int width, int height){
