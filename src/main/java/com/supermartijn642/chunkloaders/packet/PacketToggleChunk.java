@@ -38,6 +38,6 @@ public class PacketToggleChunk extends ChunkLoaderPacket<PacketToggleChunk> {
 
     @Override
     protected void handle(PacketToggleChunk message, EntityPlayer player, World world, ChunkLoaderTile tile){
-        tile.toggle(this.xOffset, this.zOffset);
+        tile.toggle(message.xOffset, message.zOffset);
     }
 }
