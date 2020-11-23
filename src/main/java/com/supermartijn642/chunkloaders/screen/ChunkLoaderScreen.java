@@ -3,6 +3,7 @@ package com.supermartijn642.chunkloaders.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.supermartijn642.chunkloaders.ChunkLoaderTile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -16,6 +17,9 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created 7/11/2020 by SuperMartijn642
  */
@@ -27,6 +31,10 @@ public class ChunkLoaderScreen extends Screen {
 
     private final ResourceLocation background;
     private final int backgroundSize;
+
+    private boolean doDrag = false;
+    private boolean dragState = false;
+    private List<ChunkButton> draggedButtons = new ArrayList<>();
 
     public ChunkLoaderScreen(String type, World world, BlockPos pos, int backgroundSize){
         super(new TranslationTextComponent("block.chunkloaders." + type));
@@ -113,6 +121,50 @@ public class ChunkLoaderScreen extends Screen {
 
     @Override
     public boolean isPauseScreen(){
+        return false;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button){
+        if(button == 0){
+            for(IGuiEventListener listener : this.children){
+                if(listener instanceof ChunkButton){
+                    ChunkButton chunkButton = (ChunkButton)listener;
+                    if(chunkButton.isMouseOver(mouseX, mouseY)){
+                        this.doDrag = true;
+                        this.dragState = !chunkButton.isLoaded();
+                        this.draggedButtons.clear();
+                        this.draggedButtons.add(chunkButton);
+                        chunkButton.onPress();
+                        return true;
+                    }
+                }
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY){
+        if(this.doDrag && button == 0){
+            for(IGuiEventListener listener : this.children){
+                if(listener instanceof ChunkButton && !this.draggedButtons.contains(listener)){
+                    ChunkButton chunkButton = (ChunkButton)listener;
+                    if(chunkButton.isMouseOver(mouseX, mouseY) && chunkButton.isLoaded() != this.dragState){
+                        chunkButton.onPress();
+                        this.draggedButtons.add(chunkButton);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button){
+        if(button == 0)
+            this.doDrag = false;
         return false;
     }
 
