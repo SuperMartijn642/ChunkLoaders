@@ -45,11 +45,8 @@ public class ChunkButton extends GuiButton {
 
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks){
-        ChunkLoaderTile tile = this.tileSupplier.get();
-        if(tile == null)
-            return;
         this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-        Minecraft.getMinecraft().getTextureManager().bindTexture(tile.isLoaded(this.xOffset, this.zOffset) ? BUTTON_ON : BUTTON_OFF);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(this.isLoaded() ? BUTTON_ON : BUTTON_OFF);
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -60,10 +57,23 @@ public class ChunkButton extends GuiButton {
         GlStateManager.enableTexture2D();
         GlStateManager.bindTexture(this.image.textureId);
         this.drawTexture(this.x + 2, this.y + 2, 11, 11);
+
+        if(!this.isLoaded())
+            drawGradientRect(this.x + 2, this.y + 2, this.x + 13, this.y + 13, 0xaa000000, 0xaa000000);
+    }
+
+    public boolean isLoaded(){
+        ChunkLoaderTile tile = this.tileSupplier.get();
+        return tile != null && tile.isLoaded(this.xOffset, this.zOffset);
     }
 
     public boolean isHovered(){
         return this.hovered;
+    }
+
+    public boolean isMouseOver(int mouseX, int mouseY)
+    {
+        return mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height;
     }
 
     private void drawTexture(int x, int y, int width, int height){

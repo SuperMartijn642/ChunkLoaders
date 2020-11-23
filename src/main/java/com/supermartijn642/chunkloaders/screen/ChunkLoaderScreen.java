@@ -16,6 +16,10 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created 7/11/2020 by SuperMartijn642
  */
@@ -27,6 +31,10 @@ public class ChunkLoaderScreen extends GuiScreen {
 
     private final ResourceLocation background;
     private final int backgroundSize;
+
+    private boolean doDrag = false;
+    private boolean dragState = false;
+    private List<ChunkButton> draggedButtons = new ArrayList<>();
 
     public ChunkLoaderScreen(String type, World world, BlockPos pos, int backgroundSize){
         this.world = world;
@@ -114,6 +122,50 @@ public class ChunkLoaderScreen extends GuiScreen {
     @Override
     public boolean doesGuiPauseGame(){
         return false;
+    }
+
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int button) throws IOException {
+        if(button == 0){
+            for(GuiButton listener : this.buttonList){
+                if(listener instanceof ChunkButton){
+                    ChunkButton chunkButton = (ChunkButton)listener;
+                    if(chunkButton.isMouseOver(mouseX, mouseY)){
+                        this.doDrag = true;
+                        this.dragState = !chunkButton.isLoaded();
+                        this.draggedButtons.clear();
+                        this.draggedButtons.add(chunkButton);
+                        chunkButton.onPress();
+                        return;
+                    }
+                }
+            }
+        }
+        super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int button, long timeSinceLastClick){
+        if(this.doDrag && button == 0){
+            for(GuiButton listener : this.buttonList){
+                if(listener instanceof ChunkButton && !this.draggedButtons.contains(listener)){
+                    ChunkButton chunkButton = (ChunkButton)listener;
+                    if(chunkButton.isMouseOver(mouseX, mouseY) && chunkButton.isLoaded() != this.dragState){
+                        chunkButton.onPress();
+                        this.draggedButtons.add(chunkButton);
+                        return;
+                    }
+                }
+            }
+        }
+
+        super.mouseClickMove(mouseX, mouseY, button, timeSinceLastClick);
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int button){
+        if(button == 0)
+            this.doDrag = false;
     }
 
     @Override
