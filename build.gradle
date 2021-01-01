@@ -88,6 +88,9 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.16.3-34.1.0'
 
+    // create
+    compile fg.deobf("curse.maven:create:3146074")
+
     // compile against the JEI API but do not include it at runtime
 //    compileOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2:api")
     // at runtime, use the full JEI jar
