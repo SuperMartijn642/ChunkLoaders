@@ -1,0 +1,8 @@
+{
+  "block.chunkloaders.single_chunk_loader": "단일 청크 로더",
+  "block.chunkloaders.basic_chunk_loader": "기본 청크 로더",
+  "block.chunkloaders.advanced_chunk_loader": "향상된 청크 로더",
+  "block.chunkloaders.ultimate_chunk_loader": "궁극의 청크 로더",
+  "chunkloaders.gui.loaded": "로드됨",
+  "chunkloaders.gui.unloaded": "로드되지 않음"
+}
