@@ -17,34 +17,34 @@ public class ChunkLoaderTile extends TileEntity {
 
     public static class SingleChunkLoaderTile extends ChunkLoaderTile {
         public SingleChunkLoaderTile(){
-            super(ChunkLoaders.single_chunk_loader_tile, 1);
+            super(ChunkLoaders.single_chunk_loader_tile, ChunkLoadersConfig.singleChunkLoaderRadius.get() * 2 - 1);
         }
     }
 
     public static class BasicChunkLoaderTile extends ChunkLoaderTile {
         public BasicChunkLoaderTile(){
-            super(ChunkLoaders.basic_chunk_loader_tile, 3);
+            super(ChunkLoaders.basic_chunk_loader_tile, ChunkLoadersConfig.basicChunkLoaderRadius.get() * 2 - 1);
         }
     }
 
     public static class AdvancedChunkLoaderTile extends ChunkLoaderTile {
         public AdvancedChunkLoaderTile(){
-            super(ChunkLoaders.advanced_chunk_loader_tile, 5);
+            super(ChunkLoaders.advanced_chunk_loader_tile, ChunkLoadersConfig.advancedChunkLoaderRadius.get() * 2 - 1);
         }
     }
 
     public static class UltimateChunkLoaderTile extends ChunkLoaderTile {
         public UltimateChunkLoaderTile(){
-            super(ChunkLoaders.ultimate_chunk_loader_tile, 7);
+            super(ChunkLoaders.ultimate_chunk_loader_tile, ChunkLoadersConfig.ultimateChunkLoaderRadius.get() * 2 - 1);
         }
     }
 
 
     public final int animationOffset = new Random().nextInt(20000);
 
-    private final int gridSize;
-    private final int radius;
-    private final boolean[][] grid; // [x][z]
+    private int gridSize;
+    private int radius;
+    private boolean[][] grid; // [x][z]
 
     private boolean dataChanged = false;
 
@@ -118,6 +118,7 @@ public class ChunkLoaderTile extends TileEntity {
 
     private CompoundNBT getData(){
         CompoundNBT tag = new CompoundNBT();
+        tag.putInt("gridSize", this.gridSize);
         for(int x = 0; x < this.gridSize; x++){
             for(int z = 0; z < this.gridSize; z++){
                 tag.putBoolean(x + ";" + z, this.grid[x][z]);
@@ -127,6 +128,14 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     private void handleData(CompoundNBT tag){
+        this.gridSize = tag.contains("gridSize") ? tag.getInt("gridSize") :
+            this instanceof SingleChunkLoaderTile ? 1 :
+                this instanceof BasicChunkLoaderTile ? 3 :
+                    this instanceof AdvancedChunkLoaderTile ? 5 :
+                        this instanceof UltimateChunkLoaderTile ? 7 : -1;
+        if(this.gridSize < 1 || this.gridSize % 2 == 0)
+            this.gridSize = 1;
+        this.radius = (this.gridSize - 1) / 2;
         for(int x = 0; x < this.gridSize; x++){
             for(int z = 0; z < this.gridSize; z++){
                 this.grid[x][z] = tag.contains(x + ";" + z) && tag.getBoolean(x + ";" + z);
