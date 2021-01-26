@@ -30,10 +30,10 @@ public class ClientProxy {
         ClientRegistry.bindTileEntityRenderer(ChunkLoaders.advanced_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.advanced_chunk_loader, true));
         ClientRegistry.bindTileEntityRenderer(ChunkLoaders.ultimate_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.ultimate_chunk_loader, true));
 
-        screens.put(ChunkLoaders.single_chunk_loader, (world, pos) -> new ChunkLoaderScreen("single_chunk_loader", world, pos, 31));
-        screens.put(ChunkLoaders.basic_chunk_loader, (world, pos) -> new ChunkLoaderScreen("basic_chunk_loader", world, pos, 63));
-        screens.put(ChunkLoaders.advanced_chunk_loader, (world, pos) -> new ChunkLoaderScreen("advanced_chunk_loader", world, pos, 95));
-        screens.put(ChunkLoaders.ultimate_chunk_loader, (world, pos) -> new ChunkLoaderScreen("ultimate_chunk_loader", world, pos, 127));
+        screens.put(ChunkLoaders.single_chunk_loader, (world, pos) -> new ChunkLoaderScreen("single_chunk_loader", world, pos));
+        screens.put(ChunkLoaders.basic_chunk_loader, (world, pos) -> new ChunkLoaderScreen("basic_chunk_loader", world, pos));
+        screens.put(ChunkLoaders.advanced_chunk_loader, (world, pos) -> new ChunkLoaderScreen("advanced_chunk_loader", world, pos));
+        screens.put(ChunkLoaders.ultimate_chunk_loader, (world, pos) -> new ChunkLoaderScreen("ultimate_chunk_loader", world, pos));
     }
 
     public static void openScreen(Block block, World world, BlockPos pos){
