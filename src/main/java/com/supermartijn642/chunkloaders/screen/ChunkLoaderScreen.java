@@ -24,23 +24,25 @@ import java.util.List;
  */
 public class ChunkLoaderScreen extends Screen {
 
+    private static final ResourceLocation SCREEN_BACKGROUND = new ResourceLocation("chunkloaders", "textures/gui/background.png");
+
     protected World world;
     protected BlockPos pos;
     protected int left, top;
 
-    private final ResourceLocation background;
     private final int backgroundSize;
 
     private boolean doDrag = false;
     private boolean dragState = false;
     private List<ChunkButton> draggedButtons = new ArrayList<>();
 
-    public ChunkLoaderScreen(String type, World world, BlockPos pos, int backgroundSize){
+    public ChunkLoaderScreen(String type, World world, BlockPos pos){
         super(new TranslationTextComponent("block.chunkloaders." + type));
         this.world = world;
         this.pos = pos;
-        this.background = new ResourceLocation("chunkloaders", "textures/gui/" + type + ".png");
-        this.backgroundSize = backgroundSize;
+        ChunkLoaderTile tile = this.getTileOrClose();
+        int gridSize = tile == null ? 1 : tile.getGridSize();
+        this.backgroundSize = gridSize * 15 + (gridSize - 1) + 16;
     }
 
     @Override
@@ -82,10 +84,7 @@ public class ChunkLoaderScreen extends Screen {
         if(tile == null)
             return;
 
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-        Minecraft.getInstance().getTextureManager().bindTexture(this.background);
-        this.drawTexture(this.left, this.top, this.backgroundSize, this.backgroundSize);
+        drawScreenBackground(this.left, this.top, this.backgroundSize, this.backgroundSize);
     }
 
     protected void drawCenteredString(ITextComponent text, float x, float y){
@@ -167,7 +166,25 @@ public class ChunkLoaderScreen extends Screen {
         return false;
     }
 
-    private void drawTexture(int x, int y, int width, int height){
+    public void drawScreenBackground(float x, float y, float width, float height){
+        Minecraft.getInstance().textureManager.bindTexture(SCREEN_BACKGROUND);
+        // corners
+        drawTexture(x, y, 4, 4, 0, 0, 4 / 9f, 4 / 9f);
+        drawTexture(x + width - 4, y, 4, 4, 5 / 9f, 0, 4 / 9f, 4 / 9f);
+        drawTexture(x + width - 4, y + height - 4, 4, 4, 5 / 9f, 5 / 9f, 4 / 9f, 4 / 9f);
+        drawTexture(x, y + height - 4, 4, 4, 0, 5 / 9f, 4 / 9f, 4 / 9f);
+        // edges
+        drawTexture(x + 4, y, width - 8, 4, 4 / 9f, 0, 1 / 9f, 4 / 9f);
+        drawTexture(x + 4, y + height - 4, width - 8, 4, 4 / 9f, 5 / 9f, 1 / 9f, 4 / 9f);
+        drawTexture(x, y + 4, 4, height - 8, 0, 4 / 9f, 4 / 9f, 1 / 9f);
+        drawTexture(x + width - 4, y + 4, 4, height - 8, 5 / 9f, 4 / 9f, 4 / 9f, 1 / 9f);
+        // center
+        drawTexture(x + 4, y + 4, width - 8, height - 8, 4 / 9f, 4 / 9f, 1 / 9f, 1 / 9f);
+    }
+
+    public void drawTexture(float x, float y, float width, float height, float tx, float ty, float twidth, float theight){
+        GlStateManager.color4f(1, 1, 1, 1);
+
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
@@ -178,4 +195,5 @@ public class ChunkLoaderScreen extends Screen {
         bufferbuilder.pos(x, y, z).tex(0, 0).endVertex();
         tessellator.draw();
     }
+
 }
