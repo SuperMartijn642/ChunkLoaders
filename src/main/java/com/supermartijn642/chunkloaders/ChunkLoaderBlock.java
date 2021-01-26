@@ -5,7 +5,9 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -14,11 +16,17 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -33,12 +41,14 @@ public class ChunkLoaderBlock extends Block {
 
     private final VoxelShape shape;
     private final Supplier<? extends TileEntity> tileProvider;
+    private final int gridSize;
 
-    public ChunkLoaderBlock(String registryName, VoxelShape shape, Supplier<? extends TileEntity> tileProvider){
+    public ChunkLoaderBlock(String registryName, VoxelShape shape, Supplier<? extends TileEntity> tileProvider, int gridSize){
         super(Properties.create(Material.IRON, MaterialColor.GRAY).hardnessAndResistance(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
         this.setRegistryName(registryName);
         this.shape = shape;
         this.tileProvider = tileProvider;
+        this.gridSize = gridSize;
     }
 
     @Override
@@ -82,5 +92,14 @@ public class ChunkLoaderBlock extends Block {
         if(tile instanceof ChunkLoaderTile)
             ((ChunkLoaderTile)tile).unloadAll();
         super.onReplaced(state, worldIn, pos, newState, isMoving);
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void addInformation(ItemStack stack, IBlockReader world, List<ITextComponent> tooltip, ITooltipFlag advanced){
+        if(this.gridSize == 1)
+            tooltip.add(new TranslationTextComponent("chunkloaders.chunk_loader.info.single").applyTextStyle(TextFormatting.AQUA));
+        else
+            tooltip.add(new TranslationTextComponent("chunkloaders.chunk_loader.info.multiple", this.gridSize).applyTextStyle(TextFormatting.AQUA));
     }
 }

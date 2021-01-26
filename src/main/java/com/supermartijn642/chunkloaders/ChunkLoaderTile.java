@@ -17,9 +17,9 @@ public class ChunkLoaderTile extends TileEntity {
 
     public final int animationOffset = new Random().nextInt(20000);
 
-    private final int gridSize;
-    private final int radius;
-    private final boolean[][] grid; // [x][z]
+    private int gridSize;
+    private int radius;
+    private boolean[][] grid; // [x][z]
 
     private boolean dataChanged = false;
 
@@ -93,6 +93,7 @@ public class ChunkLoaderTile extends TileEntity {
 
     private CompoundNBT getData(){
         CompoundNBT tag = new CompoundNBT();
+        tag.putInt("gridSize", this.gridSize);
         for(int x = 0; x < this.gridSize; x++){
             for(int z = 0; z < this.gridSize; z++){
                 tag.putBoolean(x + ";" + z, this.grid[x][z]);
@@ -102,6 +103,10 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     private void handleData(CompoundNBT tag){
+        this.gridSize = tag.contains("gridSize") ? tag.getInt("gridSize") : this.gridSize;
+        if(this.gridSize < 1 || this.gridSize % 2 == 0)
+            this.gridSize = 1;
+        this.radius = (this.gridSize - 1) / 2;
         for(int x = 0; x < this.gridSize; x++){
             for(int z = 0; z < this.gridSize; z++){
                 this.grid[x][z] = tag.contains(x + ";" + z) && tag.getBoolean(x + ";" + z);
