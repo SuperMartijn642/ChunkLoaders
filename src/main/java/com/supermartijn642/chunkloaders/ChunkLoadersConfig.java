@@ -17,11 +17,12 @@ public class ChunkLoadersConfig {
     static{
         ModConfigBuilder builder = new ModConfigBuilder("chunkloaders");
         builder.push("General");
-        singleChunkLoaderRadius = builder.comment("In what radius should the Single Chunk Loader be able to load chunks?").define("singleChunkLoaderRadius", 1, 1, 15);
-        basicChunkLoaderRadius = builder.comment("In what radius should the Basic Chunk Loader be able to load chunks?").define("basicChunkLoaderRadius", 2, 1, 15);
-        advancedChunkLoaderRadius = builder.comment("In what radius should the Advanced Chunk Loader be able to load chunks?").define("advancedChunkLoaderRadius", 3, 1, 15);
-        ultimateChunkLoaderRadius = builder.comment("In what radius should the Ultimate Chunk Loader be able to load chunks?").define("ultimateChunkLoaderRadius", 4, 1, 15);
+        singleChunkLoaderRadius = builder.comment("In what radius should the Single Chunk Loader be able to load chunks?").define("singleChunkLoaderRadius", 1, 1, 8);
+        basicChunkLoaderRadius = builder.comment("In what radius should the Basic Chunk Loader be able to load chunks?").define("basicChunkLoaderRadius", 2, 1, 8);
+        advancedChunkLoaderRadius = builder.comment("In what radius should the Advanced Chunk Loader be able to load chunks?").define("advancedChunkLoaderRadius", 3, 1, 8);
+        ultimateChunkLoaderRadius = builder.comment("In what radius should the Ultimate Chunk Loader be able to load chunks?").define("ultimateChunkLoaderRadius", 4, 1, 8);
         builder.pop();
+        builder.build();
     }
 
 }
