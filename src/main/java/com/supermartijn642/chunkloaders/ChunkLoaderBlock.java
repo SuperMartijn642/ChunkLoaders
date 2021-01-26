@@ -4,17 +4,25 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -29,8 +37,9 @@ public class ChunkLoaderBlock extends Block {
 
     private final AxisAlignedBB shape;
     private final Supplier<? extends TileEntity> tileProvider;
+    private final int gridSize;
 
-    public ChunkLoaderBlock(String registryName, AxisAlignedBB shape, Supplier<? extends TileEntity> tileProvider){
+    public ChunkLoaderBlock(String registryName, AxisAlignedBB shape, Supplier<? extends TileEntity> tileProvider, int gridSize){
         super(Material.IRON, MapColor.GRAY);
         this.setRegistryName(registryName);
         this.setUnlocalizedName(ChunkLoaders.MODID + "." + registryName);
@@ -40,6 +49,7 @@ public class ChunkLoaderBlock extends Block {
         this.setCreativeTab(CreativeTabs.SEARCH);
         this.shape = shape;
         this.tileProvider = tileProvider;
+        this.gridSize = gridSize;
     }
 
     @Override
@@ -92,5 +102,14 @@ public class ChunkLoaderBlock extends Block {
     @Override
     public boolean isOpaqueCube(IBlockState state){
         return false;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, World player, List<String> tooltip, ITooltipFlag advanced){
+        if(this.gridSize == 1)
+            tooltip.add(new TextComponentTranslation("chunkloaders.chunk_loader.info.single").setStyle(new Style().setColor(TextFormatting.AQUA)).getFormattedText());
+        else
+            tooltip.add(new TextComponentTranslation("chunkloaders.chunk_loader.info.multiple", this.gridSize).setStyle(new Style().setColor(TextFormatting.AQUA)).getFormattedText());
     }
 }
