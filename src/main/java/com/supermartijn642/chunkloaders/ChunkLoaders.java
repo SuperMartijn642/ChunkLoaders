@@ -55,10 +55,10 @@ public class ChunkLoaders {
     public static class RegistryEvents {
         @SubscribeEvent
         public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
-            e.getRegistry().register(new ChunkLoaderBlock("single_chunk_loader", ChunkLoaderBlock.SINGLE_SHAPE, ChunkLoaderTile.SingleChunkLoaderTile::new));
-            e.getRegistry().register(new ChunkLoaderBlock("basic_chunk_loader", ChunkLoaderBlock.BASIC_SHAPE, ChunkLoaderTile.BasicChunkLoaderTile::new));
-            e.getRegistry().register(new ChunkLoaderBlock("advanced_chunk_loader", ChunkLoaderBlock.ADVANCED_SHAPE, ChunkLoaderTile.AdvancedChunkLoaderTile::new));
-            e.getRegistry().register(new ChunkLoaderBlock("ultimate_chunk_loader", ChunkLoaderBlock.ULTIMATE_SHAPE, ChunkLoaderTile.UltimateChunkLoaderTile::new));
+            e.getRegistry().register(new ChunkLoaderBlock("single_chunk_loader", ChunkLoaderBlock.SINGLE_SHAPE, ChunkLoaderTile.SingleChunkLoaderTile::new, ChunkLoadersConfig.singleChunkLoaderRadius.get() * 2 - 1));
+            e.getRegistry().register(new ChunkLoaderBlock("basic_chunk_loader", ChunkLoaderBlock.BASIC_SHAPE, ChunkLoaderTile.BasicChunkLoaderTile::new, ChunkLoadersConfig.basicChunkLoaderRadius.get() * 2 - 1));
+            e.getRegistry().register(new ChunkLoaderBlock("advanced_chunk_loader", ChunkLoaderBlock.ADVANCED_SHAPE, ChunkLoaderTile.AdvancedChunkLoaderTile::new, ChunkLoadersConfig.advancedChunkLoaderRadius.get() * 2 - 1));
+            e.getRegistry().register(new ChunkLoaderBlock("ultimate_chunk_loader", ChunkLoaderBlock.ULTIMATE_SHAPE, ChunkLoaderTile.UltimateChunkLoaderTile::new, ChunkLoadersConfig.ultimateChunkLoaderRadius.get() * 2 - 1));
             GameRegistry.registerTileEntity(ChunkLoaderTile.SingleChunkLoaderTile.class, new ResourceLocation("single_chunk_loader_tile"));
             GameRegistry.registerTileEntity(ChunkLoaderTile.BasicChunkLoaderTile.class, new ResourceLocation("basic_chunk_loader_tile"));
             GameRegistry.registerTileEntity(ChunkLoaderTile.AdvancedChunkLoaderTile.class, new ResourceLocation("advanced_chunk_loader_tile"));

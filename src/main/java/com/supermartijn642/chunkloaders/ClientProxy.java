@@ -45,10 +45,10 @@ public class ClientProxy {
 
     @SubscribeEvent
     public static void registerScreens(RegistryEvent.Register<Item> e){
-        screens.put(ChunkLoaders.single_chunk_loader, (world, pos) -> new ChunkLoaderScreen("single_chunk_loader", world, pos, 31));
-        screens.put(ChunkLoaders.basic_chunk_loader, (world, pos) -> new ChunkLoaderScreen("basic_chunk_loader", world, pos, 63));
-        screens.put(ChunkLoaders.advanced_chunk_loader, (world, pos) -> new ChunkLoaderScreen("advanced_chunk_loader", world, pos, 95));
-        screens.put(ChunkLoaders.ultimate_chunk_loader, (world, pos) -> new ChunkLoaderScreen("ultimate_chunk_loader", world, pos, 127));
+        screens.put(ChunkLoaders.single_chunk_loader, (world, pos) -> new ChunkLoaderScreen("single_chunk_loader", world, pos));
+        screens.put(ChunkLoaders.basic_chunk_loader, (world, pos) -> new ChunkLoaderScreen("basic_chunk_loader", world, pos));
+        screens.put(ChunkLoaders.advanced_chunk_loader, (world, pos) -> new ChunkLoaderScreen("advanced_chunk_loader", world, pos));
+        screens.put(ChunkLoaders.ultimate_chunk_loader, (world, pos) -> new ChunkLoaderScreen("ultimate_chunk_loader", world, pos));
     }
 
     public static void openScreen(Block block, World world, BlockPos pos){

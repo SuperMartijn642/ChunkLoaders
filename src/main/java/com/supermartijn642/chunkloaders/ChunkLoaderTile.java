@@ -139,6 +139,7 @@ public class ChunkLoaderTile extends TileEntity {
         if(this.gridSize < 1 || this.gridSize % 2 == 0)
             this.gridSize = 1;
         this.radius = (this.gridSize - 1) / 2;
+        this.grid = new boolean[this.gridSize][this.gridSize];
         for(int x = 0; x < this.gridSize; x++){
             for(int z = 0; z < this.gridSize; z++){
                 this.grid[x][z] = tag.hasKey(x + ";" + z) && tag.getBoolean(x + ";" + z);
