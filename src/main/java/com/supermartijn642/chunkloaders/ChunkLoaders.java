@@ -17,13 +17,13 @@ import net.minecraftforge.fml.relauncher.Side;
 /**
  * Created 7/7/2020 by SuperMartijn642
  */
-@Mod(modid = ChunkLoaders.MODID, name = ChunkLoaders.NAME, version = ChunkLoaders.VERSION, acceptedMinecraftVersions = ChunkLoaders.MC_VERSIONS)
+@Mod(modid = ChunkLoaders.MODID, name = ChunkLoaders.NAME, version = ChunkLoaders.VERSION, dependencies = ChunkLoaders.DEPENDENCIES)
 public class ChunkLoaders {
 
     public static final String MODID = "chunkloaders";
     public static final String NAME = "Chunk Loaders";
-    public static final String MC_VERSIONS = "[1.12.2]";
     public static final String VERSION = "1.1.3";
+    public static final String DEPENDENCIES = "required-after:supermartijn642configlib@[1.0.1,)";
 
     public static ChunkLoaders instance;
 
