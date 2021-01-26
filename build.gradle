@@ -92,4 +92,7 @@ dependencies {
 //    compileOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2:api")
     // at runtime, use the full JEI jar
 //    runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2")
+
+    // Config Lib
+    compile fg.deobf("curse.maven:supermartijn642s-config-lib:3176341")
 }
