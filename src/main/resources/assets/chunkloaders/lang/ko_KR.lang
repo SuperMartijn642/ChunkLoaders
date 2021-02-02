@@ -1,0 +1,6 @@
+tile.chunkloaders.single_chunk_loader.name=단일 청크 로더
+tile.chunkloaders.basic_chunk_loader.name=기본 청크 로더
+tile.chunkloaders.advanced_chunk_loader.name=향상된 청크 로더
+tile.chunkloaders.ultimate_chunk_loader.name=궁극의 청크 로더
+chunkloaders.gui.loaded=로드됨
+chunkloaders.gui.unloaded=로드되지 않음

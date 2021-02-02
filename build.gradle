@@ -37,7 +37,7 @@ minecraft {
 
 dependencies {
     // config lib
-    provided 'curse.maven:supermartijn642s-config-lib:3176333'
+    compile 'curse.maven:supermartijn642s-config-lib:3185872'
 }
 
 processResources {
