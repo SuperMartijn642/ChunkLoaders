@@ -5,4 +5,6 @@
   "block.chunkloaders.ultimate_chunk_loader": "궁극의 청크 로더",
   "chunkloaders.gui.loaded": "로드됨",
   "chunkloaders.gui.unloaded": "로드되지 않음"
+  "chunkloaders.chunk_loader.info.single": "단일 청크 로드 가능",
+  "chunkloaders.chunk_loader.info.multiple": "최대 %1$d x %1$d 청크까지 로드 가능"
 }
