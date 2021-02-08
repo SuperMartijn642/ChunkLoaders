@@ -1,6 +1,6 @@
 package com.supermartijn642.chunkloaders;
 
-import javafx.util.Pair;
+import com.supermartijn642.chunkloaders.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTBase;
@@ -160,7 +160,8 @@ public class ChunkLoaderUtil {
 
                 List<Integer> coords = new ArrayList<>(entry.getValue().size() * 3);
                 entry.getValue().forEach(pos -> {
-                    coords.add(pos.getX()); coords.add(pos.getY()); coords.add(pos.getZ());
+                    coords.add(pos.getX()); coords.add(pos.getY());
+                    coords.add(pos.getZ());
                 });
                 NBTTagIntArray blocks = new NBTTagIntArray(coords);
                 chunkTag.setTag("blocks", blocks);
