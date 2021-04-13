@@ -1,0 +1,8 @@
+tile.chunkloaders.single_chunk_loader.name=Загрузчик одного чанка
+tile.chunkloaders.basic_chunk_loader.name=Классический загрузчик чанков
+tile.chunkloaders.advanced_chunk_loader.name=Улучшенный загрузчик чанков
+tile.chunkloaders.ultimate_chunk_loader.name=Ультимейтный загрузчик чанков
+chunkloaders.gui.loaded=ЗАГРУЖАТЬ
+chunkloaders.gui.unloaded=НЕ ЗАГРУЖАТЬ
+chunkloaders.chunk_loader.info.single=Загружает один чанк
+chunkloaders.chunk_loader.info.multiple=Загружает местность %1$d на %1$d чанков
