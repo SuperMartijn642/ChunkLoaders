@@ -1,0 +1,10 @@
+{
+  "block.chunkloaders.single_chunk_loader": "Загрузчик одного чанка",
+  "block.chunkloaders.basic_chunk_loader": "Классический загрузчик чанков",
+  "block.chunkloaders.advanced_chunk_loader": "Улучшенный загрузчик чанков",
+  "block.chunkloaders.ultimate_chunk_loader": "Ультимейтный загрузчик чанков",
+  "chunkloaders.gui.loaded": "ЗАГРУЖАТЬ",
+  "chunkloaders.gui.unloaded": "НЕ ЗАГРУЖАТЬ",
+  "chunkloaders.chunk_loader.info.single": "Загружает один чанк",
+  "chunkloaders.chunk_loader.info.multiple": "Загружает местность %1$d на %1$d чанков"
+}
