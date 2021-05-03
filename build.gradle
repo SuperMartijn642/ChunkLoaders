@@ -94,5 +94,5 @@ dependencies {
 //    runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2")
 
     // Config Lib
-    compile fg.deobf("curse.maven:supermartijn642s-config-lib:3176341")
+    compile fg.deobf("curse.maven:supermartijn642s-config-lib:3226128")
 }
