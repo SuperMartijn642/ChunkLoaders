@@ -1,19 +1,18 @@
 package com.supermartijn642.chunkloaders;
 
 import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Created 7/11/2020 by SuperMartijn642
@@ -21,24 +20,24 @@ import java.util.function.BiFunction;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientProxy {
 
-    private static final Map<Block,BiFunction<World,BlockPos,ChunkLoaderScreen>> screens = new HashMap<>();
+    private static final Map<Block,Function<BlockPos,ChunkLoaderScreen>> screens = new HashMap<>();
 
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e){
-        ClientRegistry.bindTileEntityRenderer(ChunkLoaders.single_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.single_chunk_loader, false));
-        ClientRegistry.bindTileEntityRenderer(ChunkLoaders.basic_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.basic_chunk_loader, false));
-        ClientRegistry.bindTileEntityRenderer(ChunkLoaders.advanced_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.advanced_chunk_loader, true));
-        ClientRegistry.bindTileEntityRenderer(ChunkLoaders.ultimate_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(o, ChunkLoaders.ultimate_chunk_loader, true));
+        BlockEntityRenderers.register(ChunkLoaders.single_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(ChunkLoaders.single_chunk_loader, false));
+        BlockEntityRenderers.register(ChunkLoaders.basic_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(ChunkLoaders.basic_chunk_loader, false));
+        BlockEntityRenderers.register(ChunkLoaders.advanced_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(ChunkLoaders.advanced_chunk_loader, true));
+        BlockEntityRenderers.register(ChunkLoaders.ultimate_chunk_loader_tile, o -> new ChunkLoaderTileRenderer(ChunkLoaders.ultimate_chunk_loader, true));
 
-        screens.put(ChunkLoaders.single_chunk_loader, (world, pos) -> new ChunkLoaderScreen("single_chunk_loader", world, pos));
-        screens.put(ChunkLoaders.basic_chunk_loader, (world, pos) -> new ChunkLoaderScreen("basic_chunk_loader", world, pos));
-        screens.put(ChunkLoaders.advanced_chunk_loader, (world, pos) -> new ChunkLoaderScreen("advanced_chunk_loader", world, pos));
-        screens.put(ChunkLoaders.ultimate_chunk_loader, (world, pos) -> new ChunkLoaderScreen("ultimate_chunk_loader", world, pos));
+        screens.put(ChunkLoaders.single_chunk_loader, (pos) -> new ChunkLoaderScreen("single_chunk_loader", pos));
+        screens.put(ChunkLoaders.basic_chunk_loader, (pos) -> new ChunkLoaderScreen("basic_chunk_loader", pos));
+        screens.put(ChunkLoaders.advanced_chunk_loader, (pos) -> new ChunkLoaderScreen("advanced_chunk_loader", pos));
+        screens.put(ChunkLoaders.ultimate_chunk_loader, (pos) -> new ChunkLoaderScreen("ultimate_chunk_loader", pos));
     }
 
-    public static void openScreen(Block block, World world, BlockPos pos){
+    public static void openScreen(Block block, BlockPos pos){
         if(screens.containsKey(block))
-            Minecraft.getInstance().setScreen(screens.get(block).apply(world, pos));
+            Minecraft.getInstance().setScreen(screens.get(block).apply(pos));
     }
 
 }

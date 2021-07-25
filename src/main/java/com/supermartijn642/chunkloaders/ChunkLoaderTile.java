@@ -1,12 +1,13 @@
 package com.supermartijn642.chunkloaders;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -14,7 +15,7 @@ import java.util.Random;
 /**
  * Created 7/10/2020 by SuperMartijn642
  */
-public class ChunkLoaderTile extends TileEntity {
+public class ChunkLoaderTile extends BlockEntity {
 
     public final int animationOffset = new Random().nextInt(20000);
 
@@ -24,8 +25,8 @@ public class ChunkLoaderTile extends TileEntity {
 
     private boolean dataChanged = false;
 
-    public ChunkLoaderTile(TileEntityType<?> tileEntityTypeIn, int gridSize){
-        super(tileEntityTypeIn);
+    public ChunkLoaderTile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state, int gridSize){
+        super(tileEntityTypeIn, pos, state);
         this.gridSize = gridSize;
         this.radius = (gridSize - 1) / 2;
         this.grid = new boolean[gridSize][gridSize];
@@ -84,7 +85,7 @@ public class ChunkLoaderTile extends TileEntity {
         this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
     }
 
-    private CompoundNBT getChangedData(){
+    private CompoundTag getChangedData(){
         if(this.dataChanged){
             this.dataChanged = false;
             return this.getData();
@@ -92,8 +93,8 @@ public class ChunkLoaderTile extends TileEntity {
         return null;
     }
 
-    private CompoundNBT getData(){
-        CompoundNBT tag = new CompoundNBT();
+    private CompoundTag getData(){
+        CompoundTag tag = new CompoundTag();
         tag.putInt("gridSize", this.gridSize);
         for(int x = 0; x < this.gridSize; x++){
             for(int z = 0; z < this.gridSize; z++){
@@ -103,7 +104,7 @@ public class ChunkLoaderTile extends TileEntity {
         return tag;
     }
 
-    private void handleData(CompoundNBT tag){
+    private void handleData(CompoundTag tag){
         this.gridSize = tag.contains("gridSize") ? tag.getInt("gridSize") : this.gridSize;
         if(this.gridSize < 1 || this.gridSize % 2 == 0)
             this.gridSize = 1;
@@ -117,40 +118,40 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound){
+    public CompoundTag save(CompoundTag compound){
         super.save(compound);
         compound.put("data", this.getData());
         return compound;
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound){
-        super.load(state, compound);
+    public void load(CompoundTag compound){
+        super.load(compound);
         this.handleData(compound.getCompound("data"));
     }
 
     @Override
-    public CompoundNBT getUpdateTag(){
-        CompoundNBT tag = super.getUpdateTag();
+    public CompoundTag getUpdateTag(){
+        CompoundTag tag = super.getUpdateTag();
         tag.put("data", this.getData());
         return tag;
     }
 
     @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag){
-        super.handleUpdateTag(state, tag);
+    public void handleUpdateTag(CompoundTag tag){
+        super.handleUpdateTag(tag);
         this.handleData(tag.getCompound("data"));
     }
 
     @Nullable
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket(){
-        CompoundNBT tag = this.getChangedData();
-        return tag == null || tag.isEmpty() ? null : new SUpdateTileEntityPacket(this.worldPosition, 0, tag);
+    public ClientboundBlockEntityDataPacket getUpdatePacket(){
+        CompoundTag tag = this.getChangedData();
+        return tag == null || tag.isEmpty() ? null : new ClientboundBlockEntityDataPacket(this.worldPosition, 0, tag);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt){
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt){
         this.handleData(pkt.getTag());
     }
 }

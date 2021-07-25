@@ -4,29 +4,33 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
+apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
 version = '1.1.7-mc1.16.5'
 group = 'com.supermartijn642.chunkloaders' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'chunkloaders'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
+// Mojang ships Java 16 to end users in 1.17+ instead of Java 8 in 1.16 or lower, so your mod should target Java 16.
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 minecraft {
-    mappings channel: 'official', version: '1.16.5'
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+    mappings channel: 'official', version: '1.17.1'
+
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
     runs {
         client {
             workingDirectory project.file('run')
 
+            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'REGISTRIES'
 
             mods {
@@ -39,6 +43,7 @@ minecraft {
         server {
             workingDirectory project.file('run')
 
+            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'REGISTRIES'
 
             mods {
@@ -51,6 +56,7 @@ minecraft {
         data {
             workingDirectory project.file('run')
 
+            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'REGISTRIES'
 
             args '--mod', 'chunkloaders', '--all', '--output', file('src/generated/resources/')
@@ -74,15 +80,15 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.2.0'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.0.7'
 
     // Core lib
-    compile fg.deobf('curse.maven:supermartijn642s-core-lib-454372:3351871')
+    compileOnly fg.deobf('curse.maven:supermartijn642s-core-lib-454372:3398450')
     // Config lib
-    compile fg.deobf('curse.maven:supermartijn642s-config-lib-438332:3357667')
+    compileOnly fg.deobf('curse.maven:supermartijn642s-config-lib-438332:3397561')
 
     // Block Renderer
-    runtimeOnly fg.deobf("curse.maven:block-renderer-380456:3294692")
+//    runtimeOnly fg.deobf("curse.maven:block-renderer-380456:3294692")
     // Just Enough Items
-    runtimeOnly fg.deobf('curse.maven:jei-238222:3345971')
+//    runtimeOnly fg.deobf('curse.maven:jei-238222:3345971')
 }

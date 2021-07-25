@@ -1,12 +1,12 @@
 package com.supermartijn642.chunkloaders.packet;
 
 import com.supermartijn642.chunkloaders.ChunkLoaderTile;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -21,31 +21,31 @@ public abstract class ChunkLoaderPacket {
         this.pos = pos;
     }
 
-    public ChunkLoaderPacket(PacketBuffer buffer){
+    public ChunkLoaderPacket(FriendlyByteBuf buffer){
         this.decodeBuffer(buffer);
     }
 
-    public void encode(PacketBuffer buffer){
+    public void encode(FriendlyByteBuf buffer){
         buffer.writeBlockPos(this.pos);
     }
 
-    protected void decodeBuffer(PacketBuffer buffer){
+    protected void decodeBuffer(FriendlyByteBuf buffer){
         this.pos = buffer.readBlockPos();
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
         contextSupplier.get().setPacketHandled(true);
 
-        PlayerEntity player = contextSupplier.get().getSender();
+        Player player = contextSupplier.get().getSender();
         if(player == null || player.blockPosition().distSqr(this.pos) > 32 * 32)
             return;
-        World world = player.level;
+        Level world = player.level;
         if(world == null)
             return;
-        TileEntity tile = world.getBlockEntity(this.pos);
+        BlockEntity tile = world.getBlockEntity(this.pos);
         if(tile instanceof ChunkLoaderTile)
             contextSupplier.get().enqueueWork(() -> this.handle(player, world, (ChunkLoaderTile)tile));
     }
 
-    protected abstract void handle(PlayerEntity player, World world, ChunkLoaderTile tile);
+    protected abstract void handle(Player player, Level world, ChunkLoaderTile tile);
 }

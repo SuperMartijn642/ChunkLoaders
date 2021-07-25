@@ -48,13 +48,20 @@ description='''Chunk Loaders allows you to keep chunks loaded with different tie
 [[dependencies.chunkloaders]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.4,1.17)"
+    versionRange="[1.17,1.18)"
+    ordering="NONE"
+    side="BOTH"
+# Add a dependency on SuperMartijn642's Config Lib
+[[dependencies.chunkloaders]]
+    modId="supermartijn642corelib"
+    mandatory=true
+    versionRange="[1.0.10,)"
     ordering="NONE"
     side="BOTH"
 # Add a dependency on SuperMartijn642's Config Lib
 [[dependencies.chunkloaders]]
     modId="supermartijn642configlib"
     mandatory=true
-    versionRange="[1.0.5,)"
+    versionRange="[1.0.8,)"
     ordering="NONE"
     side="BOTH"

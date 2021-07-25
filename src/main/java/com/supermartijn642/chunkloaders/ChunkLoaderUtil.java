@@ -1,16 +1,16 @@
 package com.supermartijn642.chunkloaders;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.LongArrayNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.LongArrayTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -36,25 +36,17 @@ public class ChunkLoaderUtil {
     public static Capability<ChunkTracker> TRACKER_CAPABILITY;
 
     public static void register(){
-        CapabilityManager.INSTANCE.register(ChunkTracker.class, new Capability.IStorage<ChunkTracker>() {
-            public CompoundNBT writeNBT(Capability<ChunkTracker> capability, ChunkTracker instance, Direction side){
-                return instance.write();
-            }
-
-            public void readNBT(Capability<ChunkTracker> capability, ChunkTracker instance, Direction side, INBT nbt){
-                instance.read((CompoundNBT)nbt);
-            }
-        }, ChunkTracker::new);
+        CapabilityManager.INSTANCE.register(ChunkTracker.class);
     }
 
     @SubscribeEvent
-    public static void attachCapabilities(AttachCapabilitiesEvent<World> e){
-        World world = e.getObject();
-        if(world.isClientSide || !(world instanceof ServerWorld))
+    public static void attachCapabilities(AttachCapabilitiesEvent<Level> e){
+        Level world = e.getObject();
+        if(world.isClientSide || !(world instanceof ServerLevel))
             return;
 
-        LazyOptional<ChunkTracker> tracker = LazyOptional.of(() -> new ChunkTracker((ServerWorld)world));
-        e.addCapability(new ResourceLocation("chunkloaders", "chunk_tracker"), new ICapabilitySerializable<INBT>() {
+        LazyOptional<ChunkTracker> tracker = LazyOptional.of(() -> new ChunkTracker((ServerLevel)world));
+        e.addCapability(new ResourceLocation("chunkloaders", "chunk_tracker"), new ICapabilitySerializable<>() {
             @Nonnull
             @Override
             public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side){
@@ -62,13 +54,13 @@ public class ChunkLoaderUtil {
             }
 
             @Override
-            public INBT serializeNBT(){
-                return TRACKER_CAPABILITY.writeNBT(tracker.orElse(null), null);
+            public Tag serializeNBT(){
+                return tracker.map(ChunkTracker::write).orElse(null);
             }
 
             @Override
-            public void deserializeNBT(INBT nbt){
-                TRACKER_CAPABILITY.readNBT(tracker.orElse(null), null, nbt);
+            public void deserializeNBT(Tag nbt){
+                tracker.ifPresent(chunkTracker -> chunkTracker.read(nbt));
             }
         });
         e.addListener(tracker::invalidate);
@@ -76,10 +68,10 @@ public class ChunkLoaderUtil {
 
     public static class ChunkTracker {
 
-        private final ServerWorld world;
+        private final ServerLevel world;
         private final Map<ChunkPos,List<BlockPos>> chunks = new HashMap<>();
 
-        public ChunkTracker(ServerWorld world){
+        public ChunkTracker(ServerLevel world){
             this.world = world;
         }
 
@@ -110,13 +102,13 @@ public class ChunkLoaderUtil {
                 this.chunks.get(chunk).remove(loader);
         }
 
-        public CompoundNBT write(){
-            CompoundNBT compound = new CompoundNBT();
+        public CompoundTag write(){
+            CompoundTag compound = new CompoundTag();
             for(Map.Entry<ChunkPos,List<BlockPos>> entry : this.chunks.entrySet()){
-                CompoundNBT chunkTag = new CompoundNBT();
+                CompoundTag chunkTag = new CompoundTag();
                 chunkTag.putLong("chunk", entry.getKey().toLong());
 
-                LongArrayNBT blocks = new LongArrayNBT(entry.getValue().stream().map(BlockPos::asLong).collect(Collectors.toList()));
+                LongArrayTag blocks = new LongArrayTag(entry.getValue().stream().map(BlockPos::asLong).collect(Collectors.toList()));
                 chunkTag.put("blocks", blocks);
 
                 compound.put(entry.getKey().x + ";" + entry.getKey().z, chunkTag);
@@ -124,13 +116,15 @@ public class ChunkLoaderUtil {
             return compound;
         }
 
-        public void read(CompoundNBT compound){
-            for(String key : compound.getAllKeys()){
-                CompoundNBT chunkTag = compound.getCompound(key);
-                ChunkPos chunk = new ChunkPos(chunkTag.getLong("chunk"));
+        public void read(Tag tag){
+            if(tag instanceof CompoundTag compound){
+                for(String key : compound.getAllKeys()){
+                    CompoundTag chunkTag = compound.getCompound(key);
+                    ChunkPos chunk = new ChunkPos(chunkTag.getLong("chunk"));
 
-                LongArrayNBT blocks = (LongArrayNBT)chunkTag.get("blocks");
-                Arrays.stream(blocks.getAsLongArray()).mapToObj(BlockPos::of).forEach(pos -> this.add(chunk, pos));
+                    LongArrayTag blocks = (LongArrayTag)chunkTag.get("blocks");
+                    Arrays.stream(blocks.getAsLongArray()).mapToObj(BlockPos::of).forEach(pos -> this.add(chunk, pos));
+                }
             }
         }
 
@@ -138,11 +132,11 @@ public class ChunkLoaderUtil {
 
     @SubscribeEvent
     public static void onTick(TickEvent.WorldTickEvent e){
-        if(e.phase != TickEvent.Phase.END || !(e.world instanceof ServerWorld))
+        if(e.phase != TickEvent.Phase.END || !(e.world instanceof ServerLevel))
             return;
 
-        ServerWorld world = (ServerWorld)e.world;
-        ServerChunkProvider chunkProvider = world.getChunkSource();
+        ServerLevel world = (ServerLevel)e.world;
+        ServerChunkCache chunkProvider = world.getChunkSource();
         int tickSpeed = world.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
         if(tickSpeed > 0){
             world.getCapability(TRACKER_CAPABILITY).ifPresent(tracker -> {

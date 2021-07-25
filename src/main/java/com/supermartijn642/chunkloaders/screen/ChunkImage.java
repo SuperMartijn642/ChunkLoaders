@@ -1,12 +1,12 @@
 package com.supermartijn642.chunkloaders.screen;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.Heightmap;
+import com.mojang.blaze3d.platform.TextureUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -18,12 +18,12 @@ import java.nio.ByteBuffer;
  */
 public class ChunkImage {
 
-    private final World world;
+    private final Level world;
     private final ChunkPos chunkPos;
     public int textureId = -1;
     private byte[] buffer = null;
 
-    public ChunkImage(World world, ChunkPos chunkPos){
+    public ChunkImage(Level world, ChunkPos chunkPos){
         this.world = world;
         this.chunkPos = chunkPos;
     }
@@ -55,9 +55,9 @@ public class ChunkImage {
 
         for(int x = 0; x < width; x++){
             for(int z = 0; z < height; z++){
-                BlockPos pos = this.world.getHeightmapPos(Heightmap.Type.WORLD_SURFACE, new BlockPos(this.chunkPos.getMinBlockX() + x, 0, this.chunkPos.getMinBlockZ() + z)).below();
-                int northY = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, pos.getX(), pos.getZ() - 1) - 1;
-                int westY = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, pos.getX() - 1, pos.getZ()) - 1;
+                BlockPos pos = this.world.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, new BlockPos(this.chunkPos.getMinBlockX() + x, 0, this.chunkPos.getMinBlockZ() + z)).below();
+                int northY = this.world.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ() - 1) - 1;
+                int westY = this.world.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX() - 1, pos.getZ()) - 1;
 
                 BlockState state = this.world.getBlockState(pos);
                 int rgb = state.getMapColor(this.world, pos).col;
@@ -69,7 +69,7 @@ public class ChunkImage {
                     color = color.darker();
                 rgb = color.getRGB();
 
-                int index = (x * height + z) * 3;
+                int index = (x + z * width) * 3;
                 rgbArray[index] = (byte)((rgb >> 16) & 255);
                 rgbArray[index + 1] = (byte)((rgb >> 8) & 255);
                 rgbArray[index + 2] = (byte)(rgb & 255);
