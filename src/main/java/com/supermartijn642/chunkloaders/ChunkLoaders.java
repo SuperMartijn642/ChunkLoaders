@@ -64,18 +64,18 @@ public class ChunkLoaders {
 
         @SubscribeEvent
         public static void onTileRegistry(final RegistryEvent.Register<TileEntityType<?>> e){
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new ChunkLoaderTile(single_chunk_loader_tile, 1), single_chunk_loader).build(null).setRegistryName("single_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new ChunkLoaderTile(basic_chunk_loader_tile, 3), basic_chunk_loader).build(null).setRegistryName("basic_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new ChunkLoaderTile(advanced_chunk_loader_tile, 5), advanced_chunk_loader).build(null).setRegistryName("advanced_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new ChunkLoaderTile(ultimate_chunk_loader_tile, 7), ultimate_chunk_loader).build(null).setRegistryName("ultimate_chunk_loader_tile"));
+            e.getRegistry().register(TileEntityType.Builder.of(() -> new ChunkLoaderTile(single_chunk_loader_tile, 1), single_chunk_loader).build(null).setRegistryName("single_chunk_loader_tile"));
+            e.getRegistry().register(TileEntityType.Builder.of(() -> new ChunkLoaderTile(basic_chunk_loader_tile, 3), basic_chunk_loader).build(null).setRegistryName("basic_chunk_loader_tile"));
+            e.getRegistry().register(TileEntityType.Builder.of(() -> new ChunkLoaderTile(advanced_chunk_loader_tile, 5), advanced_chunk_loader).build(null).setRegistryName("advanced_chunk_loader_tile"));
+            e.getRegistry().register(TileEntityType.Builder.of(() -> new ChunkLoaderTile(ultimate_chunk_loader_tile, 7), ultimate_chunk_loader).build(null).setRegistryName("ultimate_chunk_loader_tile"));
         }
 
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> e){
-            e.getRegistry().register(new BlockItem(single_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("single_chunk_loader"));
-            e.getRegistry().register(new BlockItem(basic_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("basic_chunk_loader"));
-            e.getRegistry().register(new BlockItem(advanced_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("advanced_chunk_loader"));
-            e.getRegistry().register(new BlockItem(ultimate_chunk_loader, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("ultimate_chunk_loader"));
+            e.getRegistry().register(new BlockItem(single_chunk_loader, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("single_chunk_loader"));
+            e.getRegistry().register(new BlockItem(basic_chunk_loader, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("basic_chunk_loader"));
+            e.getRegistry().register(new BlockItem(advanced_chunk_loader, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("advanced_chunk_loader"));
+            e.getRegistry().register(new BlockItem(ultimate_chunk_loader, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("ultimate_chunk_loader"));
         }
     }
 

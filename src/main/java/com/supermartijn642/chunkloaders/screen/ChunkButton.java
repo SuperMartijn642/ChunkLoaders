@@ -44,13 +44,13 @@ public class ChunkButton extends AbstractButton {
     public void onPress(){
         ChunkLoaderTile tile = this.tileSupplier.get();
         if(tile != null)
-            ChunkLoaders.CHANNEL.sendToServer(new PacketToggleChunk(tile.getPos(), this.xOffset, this.zOffset));
+            ChunkLoaders.CHANNEL.sendToServer(new PacketToggleChunk(tile.getBlockPos(), this.xOffset, this.zOffset));
     }
 
     @Override
     public void renderButton(MatrixStack matrix, int mouseX, int mouseY, float partialTicks){
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bindTexture(this.isLoaded() ? BUTTON_ON : BUTTON_OFF);
+        minecraft.getTextureManager().bind(this.isLoaded() ? BUTTON_ON : BUTTON_OFF);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -58,8 +58,8 @@ public class ChunkButton extends AbstractButton {
         drawTexture(this.x, this.y, 15, 15);
 
         this.image.updateTexture();
-        GlStateManager.enableTexture();
-        GlStateManager.bindTexture(this.image.textureId);
+        GlStateManager._enableTexture();
+        GlStateManager._bindTexture(this.image.textureId);
         this.drawTexture(this.x + 2, this.y + 2, 11, 11);
 
         if(!this.isLoaded())
@@ -74,15 +74,15 @@ public class ChunkButton extends AbstractButton {
     }
 
     private void drawTexture(int x, int y, int width, int height){
-        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
         int z = this.getBlitOffset();
-        bufferbuilder.pos(x, y + height, z).tex(1, 0).endVertex();
-        bufferbuilder.pos(x + width, y + height, z).tex(1, 1).endVertex();
-        bufferbuilder.pos(x + width, y, z).tex(0, 1).endVertex();
-        bufferbuilder.pos(x, y, z).tex(0, 0).endVertex();
-        bufferbuilder.finishDrawing();
+        bufferbuilder.vertex(x, y + height, z).uv(1, 0).endVertex();
+        bufferbuilder.vertex(x + width, y + height, z).uv(1, 1).endVertex();
+        bufferbuilder.vertex(x + width, y, z).uv(0, 1).endVertex();
+        bufferbuilder.vertex(x, y, z).uv(0, 0).endVertex();
+        bufferbuilder.end();
         RenderSystem.enableAlphaTest();
-        WorldVertexBufferUploader.draw(bufferbuilder);
+        WorldVertexBufferUploader.end(bufferbuilder);
     }
 }

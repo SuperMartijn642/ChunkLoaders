@@ -95,11 +95,11 @@ public class ChunkLoaderScreen extends Screen {
 
     public ChunkLoaderTile getTileOrClose(){
         if(this.world != null && this.pos != null){
-            TileEntity tile = this.world.getTileEntity(this.pos);
+            TileEntity tile = this.world.getBlockEntity(this.pos);
             if(tile instanceof ChunkLoaderTile)
                 return (ChunkLoaderTile)tile;
         }
-        Minecraft.getInstance().player.closeScreen();
+        Minecraft.getInstance().player.closeContainer();
         return null;
     }
 
@@ -153,7 +153,7 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     public static void drawScreenBackground(MatrixStack matrixStack, float x, float y, float width, float height){
-        Minecraft.getInstance().textureManager.bindTexture(SCREEN_BACKGROUND);
+        Minecraft.getInstance().textureManager.bind(SCREEN_BACKGROUND);
         // corners
         drawTexture(matrixStack, x, y, 4, 4, 0, 0, 4 / 9f, 4 / 9f);
         drawTexture(matrixStack, x + width - 4, y, 4, 4, 5 / 9f, 0, 4 / 9f, 4 / 9f);
@@ -169,17 +169,17 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     public static void drawTexture(MatrixStack matrixStack, float x, float y, float width, float height, float tx, float ty, float twidth, float theight){
-        GlStateManager.color4f(1, 1, 1, 1);
+        GlStateManager._color4f(1, 1, 1, 1);
 
-        Matrix4f matrix = matrixStack.getLast().getMatrix();
+        Matrix4f matrix = matrixStack.last().pose();
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuilder();
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-        buffer.pos(matrix, x, y + height, 0).tex(tx, ty + theight).endVertex();
-        buffer.pos(matrix, x + width, y + height, 0).tex(tx + twidth, ty + theight).endVertex();
-        buffer.pos(matrix, x + width, y, 0).tex(tx + twidth, ty).endVertex();
-        buffer.pos(matrix, x, y, 0).tex(tx, ty).endVertex();
-        tessellator.draw();
+        buffer.vertex(matrix, x, y + height, 0).uv(tx, ty + theight).endVertex();
+        buffer.vertex(matrix, x + width, y + height, 0).uv(tx + twidth, ty + theight).endVertex();
+        buffer.vertex(matrix, x + width, y, 0).uv(tx + twidth, ty).endVertex();
+        buffer.vertex(matrix, x, y, 0).uv(tx, ty).endVertex();
+        tessellator.end();
     }
 
 }

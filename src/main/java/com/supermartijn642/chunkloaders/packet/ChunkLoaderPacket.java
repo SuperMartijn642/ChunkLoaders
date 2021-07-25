@@ -37,12 +37,12 @@ public abstract class ChunkLoaderPacket {
         contextSupplier.get().setPacketHandled(true);
 
         PlayerEntity player = contextSupplier.get().getSender();
-        if(player == null || player.getPosition().distanceSq(this.pos) > 32 * 32)
+        if(player == null || player.blockPosition().distSqr(this.pos) > 32 * 32)
             return;
-        World world = player.world;
+        World world = player.level;
         if(world == null)
             return;
-        TileEntity tile = world.getTileEntity(this.pos);
+        TileEntity tile = world.getBlockEntity(this.pos);
         if(tile instanceof ChunkLoaderTile)
             contextSupplier.get().enqueueWork(() -> this.handle(player, world, (ChunkLoaderTile)tile));
     }

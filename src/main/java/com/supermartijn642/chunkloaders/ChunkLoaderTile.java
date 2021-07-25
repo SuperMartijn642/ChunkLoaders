@@ -32,24 +32,24 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     public void unloadAll(){
-        this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
-            ChunkPos pos = this.world.getChunk(this.pos).getPos();
+        this.level.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
+            ChunkPos pos = this.level.getChunk(this.worldPosition).getPos();
             for(int x = 0; x < this.gridSize; x++){
                 for(int z = 0; z < this.gridSize; z++){
                     if(this.grid[x][z])
-                        tracker.remove(new ChunkPos(pos.x + x - radius, pos.z + z - radius), this.pos);
+                        tracker.remove(new ChunkPos(pos.x + x - radius, pos.z + z - radius), this.worldPosition);
                 }
             }
         });
     }
 
     public void loadAll(){
-        this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
-            ChunkPos pos = this.world.getChunk(this.pos).getPos();
+        this.level.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
+            ChunkPos pos = this.level.getChunk(this.worldPosition).getPos();
             for(int x = 0; x < this.gridSize; x++){
                 for(int z = 0; z < this.gridSize; z++){
                     this.grid[x][z] = true;
-                    tracker.add(new ChunkPos(pos.x + x - radius, pos.z + z - radius), this.pos);
+                    tracker.add(new ChunkPos(pos.x + x - radius, pos.z + z - radius), this.worldPosition);
                 }
             }
         });
@@ -57,12 +57,12 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     public void toggle(int xOffset, int zOffset){
-        this.world.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
-            ChunkPos pos = this.world.getChunk(this.pos).getPos();
+        this.level.getCapability(ChunkLoaderUtil.TRACKER_CAPABILITY).ifPresent(tracker -> {
+            ChunkPos pos = this.level.getChunk(this.worldPosition).getPos();
             if(this.grid[xOffset + radius][zOffset + radius])
-                tracker.remove(new ChunkPos(pos.x + xOffset, pos.z + zOffset), this.pos);
+                tracker.remove(new ChunkPos(pos.x + xOffset, pos.z + zOffset), this.worldPosition);
             else
-                tracker.add(new ChunkPos(pos.x + xOffset, pos.z + zOffset), this.pos);
+                tracker.add(new ChunkPos(pos.x + xOffset, pos.z + zOffset), this.worldPosition);
             this.grid[xOffset + radius][zOffset + radius] = !this.grid[xOffset + radius][zOffset + radius];
         });
         this.dataChanged();
@@ -77,11 +77,11 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     public void dataChanged(){
-        if(this.world.isRemote)
+        if(this.level.isClientSide)
             return;
         this.dataChanged = true;
-        this.markDirty();
-        this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
+        this.setChanged();
+        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
     }
 
     private CompoundNBT getChangedData(){
@@ -117,15 +117,15 @@ public class ChunkLoaderTile extends TileEntity {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound){
-        super.write(compound);
+    public CompoundNBT save(CompoundNBT compound){
+        super.save(compound);
         compound.put("data", this.getData());
         return compound;
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound){
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound){
+        super.load(state, compound);
         this.handleData(compound.getCompound("data"));
     }
 
@@ -146,11 +146,11 @@ public class ChunkLoaderTile extends TileEntity {
     @Override
     public SUpdateTileEntityPacket getUpdatePacket(){
         CompoundNBT tag = this.getChangedData();
-        return tag == null || tag.isEmpty() ? null : new SUpdateTileEntityPacket(this.pos, 0, tag);
+        return tag == null || tag.isEmpty() ? null : new SUpdateTileEntityPacket(this.worldPosition, 0, tag);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt){
-        this.handleData(pkt.getNbtCompound());
+        this.handleData(pkt.getTag());
     }
 }

@@ -45,28 +45,28 @@ public class ChunkLoaderBlock extends Block implements IWaterLoggable {
 
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public static final VoxelShape SINGLE_SHAPE = VoxelShapes.create(5 / 16d, 5 / 16d, 5 / 16d, 11 / 16d, 11 / 16d, 11 / 16d);
-    public static final VoxelShape BASIC_SHAPE = VoxelShapes.create(4 / 16d, 4 / 16d, 4 / 16d, 12 / 16d, 12 / 16d, 12 / 16d);
-    public static final VoxelShape ADVANCED_SHAPE = VoxelShapes.create(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
-    public static final VoxelShape ULTIMATE_SHAPE = VoxelShapes.create(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
+    public static final VoxelShape SINGLE_SHAPE = VoxelShapes.box(5 / 16d, 5 / 16d, 5 / 16d, 11 / 16d, 11 / 16d, 11 / 16d);
+    public static final VoxelShape BASIC_SHAPE = VoxelShapes.box(4 / 16d, 4 / 16d, 4 / 16d, 12 / 16d, 12 / 16d, 12 / 16d);
+    public static final VoxelShape ADVANCED_SHAPE = VoxelShapes.box(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
+    public static final VoxelShape ULTIMATE_SHAPE = VoxelShapes.box(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
 
     private final VoxelShape shape;
     private final Supplier<? extends TileEntity> tileProvider;
     private final int gridSize;
 
     public ChunkLoaderBlock(String registryName, VoxelShape shape, Supplier<? extends TileEntity> tileProvider, int gridSize){
-        super(Properties.create(Material.IRON, MaterialColor.GRAY).hardnessAndResistance(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
+        super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
         this.setRegistryName(registryName);
         this.shape = shape;
         this.tileProvider = tileProvider;
         this.gridSize = gridSize;
 
-        this.setDefaultState(this.getDefaultState().with(WATERLOGGED, false));
+        this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult p_225533_6_){
-        if(worldIn.isRemote)
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult p_225533_6_){
+        if(worldIn.isClientSide)
             ClientProxy.openScreen(this, worldIn, pos);
         return ActionResultType.SUCCESS;
     }
@@ -88,54 +88,54 @@ public class ChunkLoaderBlock extends Block implements IWaterLoggable {
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state){
+    public BlockRenderType getRenderShape(BlockState state){
         return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
-    public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving){
-        TileEntity tile = worldIn.getTileEntity(pos);
+    public void onPlace(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving){
+        TileEntity tile = worldIn.getBlockEntity(pos);
         if(tile instanceof ChunkLoaderTile)
             ((ChunkLoaderTile)tile).loadAll();
     }
 
     @Override
-    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving){
-        TileEntity tile = worldIn.getTileEntity(pos);
+    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving){
+        TileEntity tile = worldIn.getBlockEntity(pos);
         if(tile instanceof ChunkLoaderTile)
             ((ChunkLoaderTile)tile).unloadAll();
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
+        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(ItemStack stack, IBlockReader world, List<ITextComponent> tooltip, ITooltipFlag advanced){
+    public void appendHoverText(ItemStack stack, IBlockReader world, List<ITextComponent> tooltip, ITooltipFlag advanced){
         if(this.gridSize == 1)
-            tooltip.add(new TranslationTextComponent("chunkloaders.chunk_loader.info.single").mergeStyle(TextFormatting.AQUA));
+            tooltip.add(new TranslationTextComponent("chunkloaders.chunk_loader.info.single").withStyle(TextFormatting.AQUA));
         else
-            tooltip.add(new TranslationTextComponent("chunkloaders.chunk_loader.info.multiple", this.gridSize).mergeStyle(TextFormatting.AQUA));
+            tooltip.add(new TranslationTextComponent("chunkloaders.chunk_loader.info.multiple", this.gridSize).withStyle(TextFormatting.AQUA));
     }
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context){
-        FluidState fluidstate = context.getWorld().getFluidState(context.getPos());
-        return this.getDefaultState().with(WATERLOGGED, fluidstate.getFluid() == Fluids.WATER);
+        FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
+        return this.defaultBlockState().setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
     }
 
     @Override
     public FluidState getFluidState(BlockState state){
-        return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos){
-        if (stateIn.get(WATERLOGGED))
-            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
-        return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos){
+        if (stateIn.getValue(WATERLOGGED))
+            worldIn.getLiquidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
+        return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block,BlockState> builder){
+    protected void createBlockStateDefinition(StateContainer.Builder<Block,BlockState> builder){
         builder.add(BlockStateProperties.WATERLOGGED);
     }
 }
