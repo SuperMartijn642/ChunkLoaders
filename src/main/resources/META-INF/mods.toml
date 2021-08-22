@@ -39,7 +39,7 @@ description='''Chunk Loaders allows you to keep chunks loaded with different tie
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[35,)" #mandatory
+    versionRange="[37.0.40,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -55,13 +55,13 @@ description='''Chunk Loaders allows you to keep chunks loaded with different tie
 [[dependencies.chunkloaders]]
     modId="supermartijn642corelib"
     mandatory=true
-    versionRange="[1.0.10,)"
+    versionRange="[1.0.12,)"
     ordering="NONE"
     side="BOTH"
 # Add a dependency on SuperMartijn642's Config Lib
 [[dependencies.chunkloaders]]
     modId="supermartijn642configlib"
     mandatory=true
-    versionRange="[1.0.8,)"
+    versionRange="[1.0.9,)"
     ordering="NONE"
     side="BOTH"

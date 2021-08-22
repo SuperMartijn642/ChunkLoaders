@@ -33,7 +33,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -56,7 +55,7 @@ public class ChunkLoaderBlock extends Block implements EntityBlock, SimpleWaterl
     private final int gridSize;
 
     public ChunkLoaderBlock(String registryName, VoxelShape shape, BiFunction<BlockPos,BlockState,? extends BlockEntity> tileProvider, int gridSize){
-        super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
+        super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(1.5f, 6).requiresCorrectToolForDrops());
         this.setRegistryName(registryName);
         this.shape = shape;
         this.tileProvider = tileProvider;
