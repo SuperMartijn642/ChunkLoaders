@@ -17,7 +17,7 @@ license="All rights reserved"
 # The modid of the mod
 modId="chunkloaders" #mandatory
 # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-version="1.1.7a" #mandatory
+version="1.1.7" #mandatory
  # A display name for the mod
 displayName="Chunk Loaders" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
@@ -39,7 +39,7 @@ description='''Chunk Loaders allows you to keep chunks loaded with different tie
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[37.0.40,)" #mandatory
+    versionRange="[38.0.0,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -48,14 +48,14 @@ description='''Chunk Loaders allows you to keep chunks loaded with different tie
 [[dependencies.chunkloaders]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.17,1.18)"
+    versionRange="[1.18,1.19)"
     ordering="NONE"
     side="BOTH"
 # Add a dependency on SuperMartijn642's Config Lib
 [[dependencies.chunkloaders]]
     modId="supermartijn642corelib"
     mandatory=true
-    versionRange="[1.0.12,)"
+    versionRange="[1.0.15,)"
     ordering="NONE"
     side="BOTH"
 # Add a dependency on SuperMartijn642's Config Lib

@@ -11,10 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
@@ -32,11 +29,12 @@ import java.util.stream.Collectors;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ChunkLoaderUtil {
 
-    @CapabilityInject(ChunkTracker.class)
-    public static Capability<ChunkTracker> TRACKER_CAPABILITY;
+    public static Capability<ChunkTracker> TRACKER_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
-    public static void register(){
-        CapabilityManager.INSTANCE.register(ChunkTracker.class);
+    @SubscribeEvent
+    public static void register(RegisterCapabilitiesEvent e){
+        e.register(ChunkTracker.class);
     }
 
     @SubscribeEvent
@@ -141,7 +139,7 @@ public class ChunkLoaderUtil {
         if(tickSpeed > 0){
             world.getCapability(TRACKER_CAPABILITY).ifPresent(tracker -> {
                 for(ChunkPos pos : tracker.chunks.keySet()){
-                    if(chunkProvider.chunkMap.getPlayers(pos, false).count() == 0)
+                    if(chunkProvider.chunkMap.getPlayers(pos, false).size() == 0)
                         world.tickChunk(world.getChunk(pos.x, pos.z), tickSpeed);
                 }
             });

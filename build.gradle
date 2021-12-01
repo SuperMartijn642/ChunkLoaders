@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.16+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -12,17 +12,17 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-version = '1.1.7a-mc1.17'
+version = '1.1.7-mc1.18'
 group = 'com.supermartijn642.chunkloaders' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'chunkloaders'
 
-// Mojang ships Java 16 to end users in 1.17+ instead of Java 8 in 1.16 or lower, so your mod should target Java 16.
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 minecraft {
-    mappings channel: 'official', version: '1.17.1'
+    mappings channel: 'official', version: '1.18'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -80,10 +80,10 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.40'
+    minecraft 'net.minecraftforge:forge:1.18-38.0.4'
 
-    // Core lib
-    implementation fg.deobf('curse.maven:supermartijn642s-core-lib-454372:3413424')
-    // Config lib
-    implementation fg.deobf('curse.maven:supermartijn642s-config-lib-438332:3413940')
+    // Core Lib
+    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:3543905")
+    // Config Lib
+    implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:3542143")
 }
