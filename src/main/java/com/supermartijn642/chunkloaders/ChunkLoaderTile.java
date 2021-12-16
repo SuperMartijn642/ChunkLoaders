@@ -1,21 +1,18 @@
 package com.supermartijn642.chunkloaders;
 
+import com.supermartijn642.core.block.BaseTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nullable;
 import java.util.Random;
 
 /**
  * Created 7/10/2020 by SuperMartijn642
  */
-public class ChunkLoaderTile extends BlockEntity {
+public class ChunkLoaderTile extends BaseTileEntity {
 
     public final int animationOffset = new Random().nextInt(20000);
 
@@ -85,15 +82,8 @@ public class ChunkLoaderTile extends BlockEntity {
         this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
     }
 
-    private CompoundTag getChangedData(){
-        if(this.dataChanged){
-            this.dataChanged = false;
-            return this.getData();
-        }
-        return null;
-    }
-
-    private CompoundTag getData(){
+    @Override
+    protected CompoundTag writeData(){
         CompoundTag tag = new CompoundTag();
         tag.putInt("gridSize", this.gridSize);
         for(int x = 0; x < this.gridSize; x++){
@@ -104,7 +94,8 @@ public class ChunkLoaderTile extends BlockEntity {
         return tag;
     }
 
-    private void handleData(CompoundTag tag){
+    @Override
+    protected void readData(CompoundTag tag){
         this.gridSize = tag.contains("gridSize") ? tag.getInt("gridSize") : this.gridSize;
         if(this.gridSize < 1 || this.gridSize % 2 == 0)
             this.gridSize = 1;
@@ -115,43 +106,5 @@ public class ChunkLoaderTile extends BlockEntity {
                 this.grid[x][z] = tag.contains(x + ";" + z) && tag.getBoolean(x + ";" + z);
             }
         }
-    }
-
-    @Override
-    public CompoundTag save(CompoundTag compound){
-        super.save(compound);
-        compound.put("data", this.getData());
-        return compound;
-    }
-
-    @Override
-    public void load(CompoundTag compound){
-        super.load(compound);
-        this.handleData(compound.getCompound("data"));
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(){
-        CompoundTag tag = super.getUpdateTag();
-        tag.put("data", this.getData());
-        return tag;
-    }
-
-    @Override
-    public void handleUpdateTag(CompoundTag tag){
-        super.handleUpdateTag(tag);
-        this.handleData(tag.getCompound("data"));
-    }
-
-    @Nullable
-    @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket(){
-        CompoundTag tag = this.getChangedData();
-        return tag == null || tag.isEmpty() ? null : ClientboundBlockEntityDataPacket.create(this, entity -> tag);
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt){
-        this.handleData(pkt.getTag());
     }
 }
