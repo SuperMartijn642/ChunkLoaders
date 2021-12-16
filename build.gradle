@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-version = '1.1.7a-mc1.18'
+version = '1.1.7b-mc1.18'
 group = 'com.supermartijn642.chunkloaders' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'chunkloaders'
 
@@ -83,7 +83,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.18-38.0.4'
 
     // Core Lib
-    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:3543905")
+    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:3544563")
     // Config Lib
     implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:3542143")
 }
