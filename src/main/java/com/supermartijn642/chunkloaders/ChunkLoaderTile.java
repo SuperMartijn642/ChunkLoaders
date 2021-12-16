@@ -74,14 +74,6 @@ public class ChunkLoaderTile extends BaseTileEntity {
         return this.gridSize;
     }
 
-    public void dataChanged(){
-        if(this.level.isClientSide)
-            return;
-        this.dataChanged = true;
-        this.setChanged();
-        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
-    }
-
     @Override
     protected CompoundTag writeData(){
         CompoundTag tag = new CompoundTag();
