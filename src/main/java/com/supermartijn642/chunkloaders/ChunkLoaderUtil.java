@@ -50,7 +50,7 @@ public class ChunkLoaderUtil {
     @SubscribeEvent
     public static void attachCapabilities(AttachCapabilitiesEvent<World> e){
         World world = e.getObject();
-        if(world.isRemote || !(world instanceof ServerWorld))
+        if(world.isClientSide || !(world instanceof ServerWorld))
             return;
 
         LazyOptional<ChunkTracker> tracker = LazyOptional.of(() -> new ChunkTracker((ServerWorld)world));
@@ -93,7 +93,7 @@ public class ChunkLoaderUtil {
 
             if(!this.chunks.containsKey(chunk)){
                 this.chunks.put(chunk, new LinkedList<>());
-                this.world.forceChunk(chunk.x, chunk.z, true);
+                this.world.setChunkForced(chunk.x, chunk.z, true);
             }
 
             this.chunks.get(chunk).add(loader);
@@ -104,7 +104,7 @@ public class ChunkLoaderUtil {
                 return;
 
             if(this.chunks.get(chunk).size() == 1){
-                this.world.forceChunk(chunk.x, chunk.z, false);
+                this.world.setChunkForced(chunk.x, chunk.z, false);
                 this.chunks.remove(chunk);
             }else
                 this.chunks.get(chunk).remove(loader);
@@ -114,9 +114,9 @@ public class ChunkLoaderUtil {
             CompoundNBT compound = new CompoundNBT();
             for(Map.Entry<ChunkPos,List<BlockPos>> entry : this.chunks.entrySet()){
                 CompoundNBT chunkTag = new CompoundNBT();
-                chunkTag.putLong("chunk", entry.getKey().asLong());
+                chunkTag.putLong("chunk", entry.getKey().toLong());
 
-                LongArrayNBT blocks = new LongArrayNBT(entry.getValue().stream().map(BlockPos::toLong).collect(Collectors.toList()));
+                LongArrayNBT blocks = new LongArrayNBT(entry.getValue().stream().map(BlockPos::asLong).collect(Collectors.toList()));
                 chunkTag.put("blocks", blocks);
 
                 compound.put(entry.getKey().x + ";" + entry.getKey().z, chunkTag);
@@ -125,12 +125,12 @@ public class ChunkLoaderUtil {
         }
 
         public void read(CompoundNBT compound){
-            for(String key : compound.keySet()){
+            for(String key : compound.getAllKeys()){
                 CompoundNBT chunkTag = compound.getCompound(key);
                 ChunkPos chunk = new ChunkPos(chunkTag.getLong("chunk"));
 
                 LongArrayNBT blocks = (LongArrayNBT)chunkTag.get("blocks");
-                Arrays.stream(blocks.getAsLongArray()).mapToObj(BlockPos::fromLong).forEach(pos -> this.add(chunk, pos));
+                Arrays.stream(blocks.getAsLongArray()).mapToObj(BlockPos::of).forEach(pos -> this.add(chunk, pos));
             }
         }
 
@@ -142,13 +142,13 @@ public class ChunkLoaderUtil {
             return;
 
         ServerWorld world = (ServerWorld)e.world;
-        ServerChunkProvider chunkProvider = world.getChunkProvider();
-        int tickSpeed = world.getGameRules().getInt(GameRules.RANDOM_TICK_SPEED);
+        ServerChunkProvider chunkProvider = world.getChunkSource();
+        int tickSpeed = world.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
         if(tickSpeed > 0){
             world.getCapability(TRACKER_CAPABILITY).ifPresent(tracker -> {
                 for(ChunkPos pos : tracker.chunks.keySet()){
-                    if(chunkProvider.chunkManager.getTrackingPlayers(pos, false).count() == 0)
-                        world.tickEnvironment(world.getChunk(pos.x, pos.z), tickSpeed);
+                    if(chunkProvider.chunkMap.getPlayers(pos, false).count() == 0)
+                        world.tickChunk(world.getChunk(pos.x, pos.z), tickSpeed);
                 }
             });
         }
