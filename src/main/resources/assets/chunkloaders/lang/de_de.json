@@ -1,0 +1,10 @@
+{
+  "block.chunkloaders.single_chunk_loader": "Einzel Chunk Loader",
+  "block.chunkloaders.basic_chunk_loader": "Einfacher Chunk Loader",
+  "block.chunkloaders.advanced_chunk_loader": "Fortgeschrittener Chunk Loader",
+  "block.chunkloaders.ultimate_chunk_loader": "Ultimativer Chunk Loader",
+  "chunkloaders.gui.loaded": "GELADEN",
+  "chunkloaders.gui.unloaded": "NICHT GELADEN",
+  "chunkloaders.chunk_loader.info.single": "Kann einen einzelnen Chunk geladen halten",
+  "chunkloaders.chunk_loader.info.multiple": "Kann von %1$d bis %1$d Chunks geladen halten"
+}
