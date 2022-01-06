@@ -88,3 +88,7 @@ dependencies {
     // Just Enough Items
     runtimeOnly fg.deobf('curse.maven:jei-238222:3272032')
 }
+
+mixin {
+    disableAnnotationProcessorCheck()
+}
