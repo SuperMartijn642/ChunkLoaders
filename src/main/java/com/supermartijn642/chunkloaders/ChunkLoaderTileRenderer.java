@@ -52,25 +52,25 @@ public class ChunkLoaderTileRenderer extends TileEntityRenderer<ChunkLoaderTile>
         GlStateManager.translated(-0.5, -0.5, -0.5);
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuilder();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
         GlStateManager.disableLighting();
 
-        Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        Minecraft.getInstance().getTextureManager().bind(AtlasTexture.LOCATION_BLOCKS);
 
-        IModelData data = Minecraft.getInstance().getBlockRendererDispatcher().getModelForState(this.block.getDefaultState()).getModelData(tile.getWorld(), tile.getPos(), this.block.getDefaultState(), EmptyModelData.INSTANCE);
+        IModelData data = Minecraft.getInstance().getBlockRenderer().getBlockModel(this.block.defaultBlockState()).getModelData(tile.getLevel(), tile.getBlockPos(), this.block.defaultBlockState(), EmptyModelData.INSTANCE);
         try{
-            BlockRendererDispatcher brd = Minecraft.getInstance().getBlockRendererDispatcher();
-            IBakedModel model = brd.getModelForState(this.block.getDefaultState());
-            brd.getBlockModelRenderer().renderModel(tile.getWorld(), model, this.block.getDefaultState(), tile.getPos(), buffer, false, new Random(), 0, data);
+            BlockRendererDispatcher brd = Minecraft.getInstance().getBlockRenderer();
+            IBakedModel model = brd.getBlockModel(this.block.defaultBlockState());
+            brd.getModelRenderer().renderModel(tile.getLevel(), model, this.block.defaultBlockState(), tile.getBlockPos(), buffer, false, new Random(), 0, data);
         }catch(Exception e){
             e.printStackTrace();
         }
 
-        GlStateManager.translated(-tile.getPos().getX(), -tile.getPos().getY(), -tile.getPos().getZ());
+        GlStateManager.translated(-tile.getBlockPos().getX(), -tile.getBlockPos().getY(), -tile.getBlockPos().getZ());
 
-        tessellator.draw();
+        tessellator.end();
 
         GlStateManager.popMatrix();
     }

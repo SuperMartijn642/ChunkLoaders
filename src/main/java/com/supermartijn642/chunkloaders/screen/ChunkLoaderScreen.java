@@ -88,32 +88,32 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     protected void drawCenteredString(ITextComponent text, float x, float y){
-        this.drawCenteredString(text.getFormattedText(), x, y);
+        this.drawCenteredString(text.getColoredString(), x, y);
     }
 
     protected void drawCenteredString(String s, float x, float y){
-        this.font.drawString(s, this.left + x - this.font.getStringWidth(s) / 2f, this.top + y, 4210752);
+        this.font.draw(s, this.left + x - this.font.width(s) / 2f, this.top + y, 4210752);
     }
 
     protected void drawString(ITextComponent text, float x, float y){
-        this.drawString(text.getFormattedText(), x, y);
+        this.drawString(text.getColoredString(), x, y);
     }
 
     protected void drawString(String s, float x, float y){
-        this.font.drawString(s, this.left + x, this.top + y, 4210752);
+        this.font.draw(s, this.left + x, this.top + y, 4210752);
     }
 
     public void renderToolTip(boolean translate, String string, int x, int y){
-        super.renderTooltip(translate ? new TranslationTextComponent(string).getFormattedText() : string, x, y);
+        super.renderTooltip(translate ? new TranslationTextComponent(string).getColoredString() : string, x, y);
     }
 
     public ChunkLoaderTile getTileOrClose(){
         if(this.world != null && this.pos != null){
-            TileEntity tile = this.world.getTileEntity(this.pos);
+            TileEntity tile = this.world.getBlockEntity(this.pos);
             if(tile instanceof ChunkLoaderTile)
                 return (ChunkLoaderTile)tile;
         }
-        Minecraft.getInstance().player.closeScreen();
+        Minecraft.getInstance().player.closeContainer();
         return null;
     }
 
@@ -167,7 +167,7 @@ public class ChunkLoaderScreen extends Screen {
     }
 
     public void drawScreenBackground(float x, float y, float width, float height){
-        Minecraft.getInstance().textureManager.bindTexture(SCREEN_BACKGROUND);
+        Minecraft.getInstance().textureManager.bind(SCREEN_BACKGROUND);
         // corners
         drawTexture(x, y, 4, 4, 0, 0, 4 / 9f, 4 / 9f);
         drawTexture(x + width - 4, y, 4, 4, 5 / 9f, 0, 4 / 9f, 4 / 9f);
@@ -186,14 +186,14 @@ public class ChunkLoaderScreen extends Screen {
         GlStateManager.color4f(1, 1, 1, 1);
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        BufferBuilder bufferbuilder = tessellator.getBuilder();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
         int z = this.blitOffset;
-        bufferbuilder.pos(x, y + height, z).tex(1, 0).endVertex();
-        bufferbuilder.pos(x + width, y + height, z).tex(1, 1).endVertex();
-        bufferbuilder.pos(x + width, y, z).tex(0, 1).endVertex();
-        bufferbuilder.pos(x, y, z).tex(0, 0).endVertex();
-        tessellator.draw();
+        bufferbuilder.vertex(x, y + height, z).uv(1, 0).endVertex();
+        bufferbuilder.vertex(x + width, y + height, z).uv(1, 1).endVertex();
+        bufferbuilder.vertex(x + width, y, z).uv(0, 1).endVertex();
+        bufferbuilder.vertex(x, y, z).uv(0, 0).endVertex();
+        tessellator.end();
     }
 
 }

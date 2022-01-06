@@ -54,12 +54,12 @@ public class ChunkImage {
 
         for(int x = 0; x < width; x++){
             for(int z = 0; z < height; z++){
-                BlockPos pos = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, new BlockPos(this.chunkPos.getXStart() + x, 0, this.chunkPos.getZStart() + z)).down();
+                BlockPos pos = this.world.getHeightmapPos(Heightmap.Type.WORLD_SURFACE, new BlockPos(this.chunkPos.getMinBlockX() + x, 0, this.chunkPos.getMinBlockZ() + z)).below();
                 int northY = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, pos.getX(), pos.getZ() - 1) - 1;
                 int westY = this.world.getHeight(Heightmap.Type.WORLD_SURFACE, pos.getX() - 1, pos.getZ()) - 1;
 
                 BlockState state = this.world.getBlockState(pos);
-                int rgb = state.getMaterialColor(this.world, pos).colorValue;
+                int rgb = state.getMapColor(this.world, pos).col;
 
                 Color color = new Color(rgb);
                 if((pos.getY() > northY && northY >= 0) || (pos.getY() > westY && westY >= 0))

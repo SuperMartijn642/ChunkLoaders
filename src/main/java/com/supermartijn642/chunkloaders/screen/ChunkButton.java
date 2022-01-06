@@ -40,13 +40,13 @@ public class ChunkButton extends AbstractButton {
     public void onPress(){
         ChunkLoaderTile tile = this.tileSupplier.get();
         if(tile != null)
-            ChunkLoaders.CHANNEL.sendToServer(new PacketToggleChunk(tile.getPos(), this.xOffset, this.zOffset));
+            ChunkLoaders.CHANNEL.sendToServer(new PacketToggleChunk(tile.getBlockPos(), this.xOffset, this.zOffset));
     }
 
     @Override
     public void renderButton(int mouseX, int mouseY, float partialTicks){
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bindTexture(this.isLoaded() ? BUTTON_ON : BUTTON_OFF);
+        minecraft.getTextureManager().bind(this.isLoaded() ? BUTTON_ON : BUTTON_OFF);
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, this.alpha);
         GlStateManager.enableBlend();
         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -71,13 +71,13 @@ public class ChunkButton extends AbstractButton {
 
     private void drawTexture(int x, int y, int width, int height){
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        BufferBuilder bufferbuilder = tessellator.getBuilder();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
         int z = this.blitOffset;
-        bufferbuilder.pos(x, y + height, z).tex(1, 0).endVertex();
-        bufferbuilder.pos(x + width, y + height, z).tex(1, 1).endVertex();
-        bufferbuilder.pos(x + width, y, z).tex(0, 1).endVertex();
-        bufferbuilder.pos(x, y, z).tex(0, 0).endVertex();
-        tessellator.draw();
+        bufferbuilder.vertex(x, y + height, z).uv(1, 0).endVertex();
+        bufferbuilder.vertex(x + width, y + height, z).uv(1, 1).endVertex();
+        bufferbuilder.vertex(x + width, y, z).uv(0, 1).endVertex();
+        bufferbuilder.vertex(x, y, z).uv(0, 0).endVertex();
+        tessellator.end();
     }
 }

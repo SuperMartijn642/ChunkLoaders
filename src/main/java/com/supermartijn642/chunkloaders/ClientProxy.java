@@ -38,7 +38,7 @@ public class ClientProxy {
 
     public static void openScreen(Block block, World world, BlockPos pos){
         if(screens.containsKey(block))
-            Minecraft.getInstance().displayGuiScreen(screens.get(block).apply(world, pos));
+            Minecraft.getInstance().setScreen(screens.get(block).apply(world, pos));
     }
 
 }
