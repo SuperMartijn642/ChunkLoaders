@@ -22,7 +22,7 @@ public class ChunkLoaders {
 
     public static final String MODID = "chunkloaders";
     public static final String NAME = "Chunk Loaders";
-    public static final String VERSION = "1.1.9";
+    public static final String VERSION = "1.1.10";
     public static final String DEPENDENCIES = "required-after:supermartijn642configlib@[1.0.9,)";
 
     public static ChunkLoaders instance;
