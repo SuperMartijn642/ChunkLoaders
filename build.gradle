@@ -22,7 +22,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 minecraft {
-    mappings channel: 'official', version: '1.18'
+    mappings channel: 'official', version: '1.18.1'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -80,10 +80,10 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18-38.0.4'
+    minecraft 'net.minecraftforge:forge:1.18.1-39.0.64'
 
     // Core Lib
-    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:3544563")
+    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:3614895")
     // Config Lib
     implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:3542143")
 }

@@ -55,7 +55,7 @@ description='''Chunk Loaders allows you to keep chunks loaded with different tie
 [[dependencies.chunkloaders]]
     modId="supermartijn642corelib"
     mandatory=true
-    versionRange="[1.0.16,)"
+    versionRange="[1.0.16,1.1.0)"
     ordering="NONE"
     side="BOTH"
 # Add a dependency on SuperMartijn642's Config Lib
