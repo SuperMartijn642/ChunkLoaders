@@ -1,8 +1,8 @@
-tile.chunkloaders.single_chunk_loader.name=Einzel Chunk Loader
-tile.chunkloaders.basic_chunk_loader.name=Einfacher Chunk Loader
-tile.chunkloaders.advanced_chunk_loader.name=Fortgeschrittener Chunk Loader
-tile.chunkloaders.ultimate_chunk_loader.name=Ultimativer Chunk Loader
+tile.chunkloaders.single_chunk_loader.name=Einzel Chunk-Loader
+tile.chunkloaders.basic_chunk_loader.name=Einfacher Chunk-Loader
+tile.chunkloaders.advanced_chunk_loader.name=Fortgeschrittener Chunk-Loader
+tile.chunkloaders.ultimate_chunk_loader.name=Ultimativer Chunk-Loader
 chunkloaders.gui.loaded=GELADEN
 chunkloaders.gui.unloaded=NICHT GELADEN
 chunkloaders.chunk_loader.info.single=Kann einen einzelnen Chunk geladen halten
-chunkloaders.chunk_loader.info.multiple=Kann von %1$d bis %1$d Chunks geladen halten
+chunkloaders.chunk_loader.info.multiple=Kann bis zu %1$dx%1$d Chunks geladen halten
