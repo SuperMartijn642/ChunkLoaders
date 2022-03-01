@@ -5,6 +5,8 @@
   "block.chunkloaders.ultimate_chunk_loader": "Ультимейтный загрузчик чанков",
   "chunkloaders.gui.loaded": "ЗАГРУЖАТЬ",
   "chunkloaders.gui.unloaded": "НЕ ЗАГРУЖАТЬ",
+  "chunkloaders.gui.narrate_loaded": "Чанк загружен",
+  "chunkloaders.gui.narrate_unloaded": "Чанк не загружен",
   "chunkloaders.chunk_loader.info.single": "Загружает один чанк",
   "chunkloaders.chunk_loader.info.multiple": "Загружает местность %1$d на %1$d чанков"
 }
