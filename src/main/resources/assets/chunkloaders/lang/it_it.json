@@ -1,0 +1,8 @@
+tile.chunkloaders.single_chunk_loader.name=Chunk-Loader Singolo
+tile.chunkloaders.basic_chunk_loader.name=Chunk-Loader Base
+tile.chunkloaders.advanced_chunk_loader.name=Chunk-Loader Avanzato
+tile.chunkloaders.ultimate_chunk_loader.name=Chunk-Loader Definitivo
+chunkloaders.gui.loaded=CARICATO
+chunkloaders.gui.unloaded=NON CARICATO
+chunkloaders.chunk_loader.info.single=Può caricare un singolo chunk
+chunkloaders.chunk_loader.info.multiple=Può caricare fino a %1$d per %1$d chunk
