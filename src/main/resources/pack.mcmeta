@@ -1,6 +1,6 @@
 {
     "pack": {
-        "description": "chunk loaders resources",
-        "pack_format": 7
+        "description": "${mod_name}'s resources",
+        "pack_format": ${resource_pack_format}
     }
 }
