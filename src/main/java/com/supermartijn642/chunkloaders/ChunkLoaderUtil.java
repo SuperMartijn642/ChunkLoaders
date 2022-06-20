@@ -42,7 +42,7 @@ public class ChunkLoaderUtil {
             }
 
             public void readNBT(Capability<ChunkTracker> capability, ChunkTracker instance, Direction side, INBT nbt){
-                instance.read((CompoundNBT)nbt);
+                instance.initialRead((CompoundNBT)nbt);
             }
         }, ChunkTracker::new);
     }
@@ -81,6 +81,7 @@ public class ChunkLoaderUtil {
 
         public ChunkTracker(ServerWorld world){
             this.world = world;
+            this.read(this.write());
         }
 
         public ChunkTracker(){
@@ -94,6 +95,18 @@ public class ChunkLoaderUtil {
             if(!this.chunks.containsKey(chunk)){
                 this.chunks.put(chunk, new LinkedList<>());
                 this.world.setChunkForced(chunk.x, chunk.z, true);
+            }
+
+            this.chunks.get(chunk).add(loader);
+        }
+
+        public void initialAdd(ChunkPos chunk, BlockPos loader){
+            if(this.chunks.containsKey(chunk) && this.chunks.get(chunk).contains(loader))
+                return;
+
+            if(!this.chunks.containsKey(chunk)){
+                this.chunks.put(chunk, new LinkedList<>());
+                //this.world.setChunkForced(chunk.x, chunk.z, true);
             }
 
             this.chunks.get(chunk).add(loader);
@@ -134,6 +147,15 @@ public class ChunkLoaderUtil {
             }
         }
 
+        public void initialRead(CompoundNBT compound){
+            for(String key : compound.getAllKeys()){
+                CompoundNBT chunkTag = compound.getCompound(key);
+                ChunkPos chunk = new ChunkPos(chunkTag.getLong("chunk"));
+
+                LongArrayNBT blocks = (LongArrayNBT)chunkTag.get("blocks");
+                Arrays.stream(blocks.getAsLongArray()).mapToObj(BlockPos::of).forEach(pos -> this.initialAdd(chunk, pos));
+            }
+        }
     }
 
     @SubscribeEvent
