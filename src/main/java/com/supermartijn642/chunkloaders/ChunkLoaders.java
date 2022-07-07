@@ -1,20 +1,40 @@
 package com.supermartijn642.chunkloaders;
 
-import com.supermartijn642.chunkloaders.packet.PacketToggleChunk;
+import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
+import com.supermartijn642.chunkloaders.capability.ClientChunkLoadingCapability;
+import com.supermartijn642.chunkloaders.capability.ServerChunkLoadingCapability;
+import com.supermartijn642.chunkloaders.data.*;
+import com.supermartijn642.chunkloaders.packet.*;
+import com.supermartijn642.core.network.PacketChannel;
 import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.world.ForgeChunkManager;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
-import net.minecraftforge.registries.ObjectHolder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Created 7/7/2020 by SuperMartijn642
@@ -22,61 +42,111 @@ import net.minecraftforge.registries.ObjectHolder;
 @Mod("chunkloaders")
 public class ChunkLoaders {
 
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("chunkloaders", "main"), () -> "1", "1"::equals, "1"::equals);
+    @CapabilityInject(ChunkLoadingCapability.class)
+    public static Capability<ChunkLoadingCapability> CHUNK_LOADING_CAPABILITY;
 
-    @ObjectHolder("chunkloaders:single_chunk_loader")
-    public static Block single_chunk_loader;
-    @ObjectHolder("chunkloaders:basic_chunk_loader")
-    public static Block basic_chunk_loader;
-    @ObjectHolder("chunkloaders:advanced_chunk_loader")
-    public static Block advanced_chunk_loader;
-    @ObjectHolder("chunkloaders:ultimate_chunk_loader")
-    public static Block ultimate_chunk_loader;
+    public static final Logger LOGGER = LogManager.getLogger("chunkloaders");
+    public static final PacketChannel CHANNEL = PacketChannel.create("chunkloaders");
 
-    @ObjectHolder("chunkloaders:single_chunk_loader_tile")
-    public static TileEntityType<ChunkLoaderTile> single_chunk_loader_tile;
-    @ObjectHolder("chunkloaders:basic_chunk_loader_tile")
-    public static TileEntityType<ChunkLoaderTile> basic_chunk_loader_tile;
-    @ObjectHolder("chunkloaders:advanced_chunk_loader_tile")
-    public static TileEntityType<ChunkLoaderTile> advanced_chunk_loader_tile;
-    @ObjectHolder("chunkloaders:ultimate_chunk_loader_tile")
-    public static TileEntityType<ChunkLoaderTile> ultimate_chunk_loader_tile;
+    public static final ItemGroup GROUP = new ItemGroup("chunkloaders") {
+        @Override
+        public ItemStack makeIcon(){
+            return new ItemStack(ChunkLoaderType.ADVANCED.getItem());
+        }
+    };
 
     public ChunkLoaders(){
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+        MinecraftForge.EVENT_BUS.addGenericListener(World.class, this::attachCapabilities);
 
-        CHANNEL.registerMessage(0, PacketToggleChunk.class, PacketToggleChunk::encode, PacketToggleChunk::decode, PacketToggleChunk::handle);
+        CHANNEL.registerMessage(PackedChunkLoaderAdded.class, PackedChunkLoaderAdded::new, true);
+        CHANNEL.registerMessage(PackedChunkLoaderRemoved.class, PackedChunkLoaderRemoved::new, true);
+        CHANNEL.registerMessage(PackedStartLoadingChunk.class, PackedStartLoadingChunk::new, true);
+        CHANNEL.registerMessage(PackedStopLoadingChunk.class, PackedStopLoadingChunk::new, true);
+        CHANNEL.registerMessage(PackedTogglePlayerActivity.class, PackedTogglePlayerActivity::new, true);
+        CHANNEL.registerMessage(PacketFullCapabilityData.class, PacketFullCapabilityData::new, true);
+        CHANNEL.registerMessage(PacketToggleChunk.class, PacketToggleChunk::new, true);
     }
 
     public void init(FMLCommonSetupEvent e){
-        ChunkLoaderUtil.register();
+        // Register the legacy capability
+        LegacyChunkLoadingCapability.register();
+
+        // Register the chunk loading capability
+        CapabilityManager.INSTANCE.register(ChunkLoadingCapability.class, new Capability.IStorage<ChunkLoadingCapability>() {
+            public CompoundNBT writeNBT(Capability<ChunkLoadingCapability> capability, ChunkLoadingCapability instance, Direction side){
+                return instance.write();
+            }
+
+            public void readNBT(Capability<ChunkLoadingCapability> capability, ChunkLoadingCapability instance, Direction side, INBT nbt){
+                instance.read((CompoundNBT)nbt);
+            }
+        }, () -> new ClientChunkLoadingCapability(null));
+
+        // Set the chunk loading callback
+        ForgeChunkManager.setForcedChunkLoadingCallback("chunkloaders", (level, ticketHelper) -> {
+            level.getCapability(CHUNK_LOADING_CAPABILITY).ifPresent(capability -> capability.castServer().onLoadLevel(ticketHelper));
+            level.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(capability -> capability.onLoadLevel(ticketHelper));
+        });
+    }
+
+    public void attachCapabilities(AttachCapabilitiesEvent<World> e){
+        World level = e.getObject();
+        LazyOptional<ChunkLoadingCapability> tracker = LazyOptional.of(() -> level.isClientSide ? new ClientChunkLoadingCapability(level) : new ServerChunkLoadingCapability(level));
+        e.addCapability(new ResourceLocation("chunkloaders", "chunk_loading_capability"), new ICapabilitySerializable<INBT>() {
+            @Nonnull
+            @Override
+            public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side){
+                return cap == CHUNK_LOADING_CAPABILITY ? tracker.cast() : LazyOptional.empty();
+            }
+
+            @Override
+            public INBT serializeNBT(){
+                return CHUNK_LOADING_CAPABILITY.writeNBT(tracker.orElse(null), null);
+            }
+
+            @Override
+            public void deserializeNBT(INBT nbt){
+                CHUNK_LOADING_CAPABILITY.readNBT(tracker.orElse(null), null, nbt);
+            }
+        });
+        e.addListener(tracker::invalidate);
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents {
+    public static class ModBusEvents {
+
         @SubscribeEvent
         public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
-            e.getRegistry().register(new ChunkLoaderBlock("single_chunk_loader", ChunkLoaderBlock.SINGLE_SHAPE, () -> new ChunkLoaderTile(single_chunk_loader_tile, ChunkLoadersConfig.singleChunkLoaderRadius.get() * 2 - 1), ChunkLoadersConfig.singleChunkLoaderRadius.get() * 2 - 1));
-            e.getRegistry().register(new ChunkLoaderBlock("basic_chunk_loader", ChunkLoaderBlock.BASIC_SHAPE, () -> new ChunkLoaderTile(basic_chunk_loader_tile, ChunkLoadersConfig.basicChunkLoaderRadius.get() * 2 - 1), ChunkLoadersConfig.basicChunkLoaderRadius.get() * 2 - 1));
-            e.getRegistry().register(new ChunkLoaderBlock("advanced_chunk_loader", ChunkLoaderBlock.ADVANCED_SHAPE, () -> new ChunkLoaderTile(advanced_chunk_loader_tile, ChunkLoadersConfig.advancedChunkLoaderRadius.get() * 2 - 1), ChunkLoadersConfig.advancedChunkLoaderRadius.get() * 2 - 1));
-            e.getRegistry().register(new ChunkLoaderBlock("ultimate_chunk_loader", ChunkLoaderBlock.ULTIMATE_SHAPE, () -> new ChunkLoaderTile(ultimate_chunk_loader_tile, ChunkLoadersConfig.ultimateChunkLoaderRadius.get() * 2 - 1), ChunkLoadersConfig.ultimateChunkLoaderRadius.get() * 2 - 1));
+            for(ChunkLoaderType type : ChunkLoaderType.values())
+                type.registerBlock(e.getRegistry());
         }
 
         @SubscribeEvent
         public static void onTileRegistry(final RegistryEvent.Register<TileEntityType<?>> e){
-            e.getRegistry().register(TileEntityType.Builder.of(() -> new ChunkLoaderTile(single_chunk_loader_tile, 1), single_chunk_loader).build(null).setRegistryName("single_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.of(() -> new ChunkLoaderTile(basic_chunk_loader_tile, 3), basic_chunk_loader).build(null).setRegistryName("basic_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.of(() -> new ChunkLoaderTile(advanced_chunk_loader_tile, 5), advanced_chunk_loader).build(null).setRegistryName("advanced_chunk_loader_tile"));
-            e.getRegistry().register(TileEntityType.Builder.of(() -> new ChunkLoaderTile(ultimate_chunk_loader_tile, 7), ultimate_chunk_loader).build(null).setRegistryName("ultimate_chunk_loader_tile"));
+            for(ChunkLoaderType type : ChunkLoaderType.values())
+                type.registerTileEntity(e.getRegistry());
         }
 
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> e){
-            e.getRegistry().register(new BlockItem(single_chunk_loader, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("single_chunk_loader"));
-            e.getRegistry().register(new BlockItem(basic_chunk_loader, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("basic_chunk_loader"));
-            e.getRegistry().register(new BlockItem(advanced_chunk_loader, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("advanced_chunk_loader"));
-            e.getRegistry().register(new BlockItem(ultimate_chunk_loader, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("ultimate_chunk_loader"));
+            for(ChunkLoaderType type : ChunkLoaderType.values())
+                type.registerItem(e.getRegistry());
+        }
+
+        @SubscribeEvent
+        public static void gatherDataProviders(GatherDataEvent e){
+            if(e.includeClient()){
+                e.getGenerator().addProvider(new ChunkLoadersBlockStateProvider(e.getGenerator(), e.getExistingFileHelper()));
+                e.getGenerator().addProvider(new ChunkLoadersItemModelProvider(e.getGenerator(), e.getExistingFileHelper()));
+                e.getGenerator().addProvider(new ChunkLoadersLanguageProvider(e.getGenerator()));
+            }
+
+            if(e.includeServer()){
+//                e.getGenerator().addProvider(new ChunkLoadersAdvancementProvider(e.getGenerator()));
+                e.getGenerator().addProvider(new ChunkLoadersLootTableProvider(e.getGenerator()));
+                e.getGenerator().addProvider(new ChunkLoadersRecipeProvider(e.getGenerator()));
+            }
         }
     }
-
 }
