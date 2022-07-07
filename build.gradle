@@ -22,6 +22,9 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(project.java_target)
 println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
 
 repositories {
+    flatDir {
+        dirs 'libs'
+    }
     maven {
         url "https://www.cursemaven.com"
     }

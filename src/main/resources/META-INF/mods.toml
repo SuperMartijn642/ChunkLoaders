@@ -47,6 +47,13 @@ description='''${mod_description}'''
     side="BOTH"
 # Add a dependency on SuperMartijn642's Config Lib
 [[dependencies.${mod_id}]]
+    modId="supermartijn642corelib"
+    mandatory=true
+    versionRange="${core_library_dependency}"
+    ordering="NONE"
+    side="BOTH"
+# Add a dependency on SuperMartijn642's Config Lib
+[[dependencies.${mod_id}]]
     modId="supermartijn642configlib"
     mandatory=true
     versionRange="${config_library_dependency}"
