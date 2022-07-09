@@ -14,7 +14,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.io.File;
@@ -91,13 +91,25 @@ public class PlayerActivityTracker {
     }
 
     @SubscribeEvent
-    public static void onServerStarting(FMLServerStartingEvent e){
+    public static void onServerStarting(FMLServerAboutToStartEvent e){
         // Clear all values when switching between saves
         activePlayers.clear();
         onlinePlayers.clear();
         lastActiveTimePerPlayer.clear();
         sortedActiveTimes.clear();
         dirty = false;
+
+        // Load the data from the world folder
+        File file = new File(e.getServer().getWorldPath(FolderName.ROOT).toFile(), "chunkloaders/active_players.nbt");
+        if(!file.exists())
+            return;
+        try{
+            CompoundNBT data = CompressedStreamTools.read(file);
+            if(data != null)
+                read(data);
+        }catch(IOException exception){
+            ChunkLoaders.LOGGER.error("Failed to load player activity data!", exception);
+        }
     }
 
     @SubscribeEvent
