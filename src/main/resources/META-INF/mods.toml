@@ -28,34 +28,34 @@ authors="SuperMartijn642" #optional
 description='''${mod_description}'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.${mod_id}]] #optional
-# the modid of the dependency
-modId="forge" #mandatory
-# Does this dependency have to exist - if not, ordering below must be specified
-mandatory=true #mandatory
-# The version range of the dependency
-versionRange="${forge_dependency}" #mandatory
-# An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
-ordering="NONE"
-# Side this dependency is applied on - BOTH, CLIENT or SERVER
-side="BOTH"
+    # the modid of the dependency
+    modId="forge" #mandatory
+    # Does this dependency have to exist - if not, ordering below must be specified
+    mandatory=true #mandatory
+    # The version range of the dependency
+    versionRange="${forge_dependency}" #mandatory
+    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+    ordering="NONE"
+    # Side this dependency is applied on - BOTH, CLIENT or SERVER
+    side="BOTH"
 # Here's another dependency
 [[dependencies.${mod_id}]]
-modId="minecraft"
-mandatory=true
-versionRange="${minecraft_dependency}"
-ordering="NONE"
-side="BOTH"
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_dependency}"
+    ordering="NONE"
+    side="BOTH"
 # Add a dependency on SuperMartijn642's Config Lib
 [[dependencies.${mod_id}]]
-modId="supermartijn642corelib"
-mandatory=true
-versionRange="${core_library_dependency}"
-ordering="NONE"
-side="BOTH"
+    modId="supermartijn642corelib"
+    mandatory=true
+    versionRange="${core_library_dependency}"
+    ordering="NONE"
+    side="BOTH"
 # Add a dependency on SuperMartijn642's Config Lib
 [[dependencies.${mod_id}]]
-modId="supermartijn642configlib"
-mandatory=true
-versionRange="${config_library_dependency}"
-ordering="NONE"
-side="BOTH"
+    modId="supermartijn642configlib"
+    mandatory=true
+    versionRange="${config_library_dependency}"
+    ordering="NONE"
+    side="BOTH"

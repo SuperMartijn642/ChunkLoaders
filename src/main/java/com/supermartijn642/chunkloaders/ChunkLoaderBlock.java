@@ -1,5 +1,9 @@
 package com.supermartijn642.chunkloaders;
 
+import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
+import com.supermartijn642.core.TextComponents;
+import com.supermartijn642.core.block.BaseBlock;
+import com.supermartijn642.core.block.BlockShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -7,6 +11,7 @@ import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.fluid.IFluidState;
@@ -22,10 +27,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -35,44 +38,51 @@ import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * Created 7/10/2020 by SuperMartijn642
  */
-public class ChunkLoaderBlock extends Block implements IWaterLoggable {
+public class ChunkLoaderBlock extends BaseBlock implements IWaterLoggable {
 
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public static final VoxelShape SINGLE_SHAPE = VoxelShapes.box(5 / 16d, 5 / 16d, 5 / 16d, 11 / 16d, 11 / 16d, 11 / 16d);
-    public static final VoxelShape BASIC_SHAPE = VoxelShapes.box(4 / 16d, 4 / 16d, 4 / 16d, 12 / 16d, 12 / 16d, 12 / 16d);
-    public static final VoxelShape ADVANCED_SHAPE = VoxelShapes.box(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
-    public static final VoxelShape ULTIMATE_SHAPE = VoxelShapes.box(3 / 16d, 3 / 16d, 3 / 16d, 13 / 16d, 13 / 16d, 13 / 16d);
+    public static final BlockShape SINGLE_SHAPE = BlockShape.createBlockShape(5, 5, 5, 11, 11, 11);
+    public static final BlockShape BASIC_SHAPE = BlockShape.createBlockShape(4, 4, 4, 12, 12, 12);
+    public static final BlockShape ADVANCED_SHAPE = BlockShape.createBlockShape(3, 3, 3, 13, 13, 13);
+    public static final BlockShape ULTIMATE_SHAPE = BlockShape.createBlockShape(3, 3, 3, 13, 13, 13);
 
-    private final VoxelShape shape;
-    private final Supplier<? extends TileEntity> tileProvider;
-    private final int gridSize;
+    private final ChunkLoaderType type;
 
-    public ChunkLoaderBlock(String registryName, VoxelShape shape, Supplier<? extends TileEntity> tileProvider, int gridSize){
-        super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
-        this.setRegistryName(registryName);
-        this.shape = shape;
-        this.tileProvider = tileProvider;
-        this.gridSize = gridSize;
+    public ChunkLoaderBlock(ChunkLoaderType type){
+        super(type.getRegistryName(), false, Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
+        this.type = type;
 
         this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
     }
 
     @Override
     public boolean use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult p_225533_6_){
-        if(worldIn.isClientSide)
-            ClientProxy.openScreen(this, worldIn, pos);
+        TileEntity entity = worldIn.getBlockEntity(pos);
+        if(entity instanceof ChunkLoaderBlockEntity){
+            if(((ChunkLoaderBlockEntity)entity).hasOwner()){
+                if(worldIn.isClientSide)
+                    ChunkLoadersClient.openChunkLoaderScreen((ChunkLoaderBlockEntity)entity);
+            }else if(player.isSneaking()){ // Legacy stuff
+                if(worldIn.isClientSide)
+                    player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_success").color(TextFormatting.WHITE).get(), true);
+                else{
+                    ((ChunkLoaderBlockEntity)entity).setOwner(player.getUUID());
+                    worldIn.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
+                }
+            }else if(worldIn.isClientSide)
+                player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_message").color(TextFormatting.RED).get(), true);
+        }
         return true;
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context){
-        return this.shape;
+        return this.type.getShape().getUnderlying();
     }
 
     @Override
@@ -83,7 +93,7 @@ public class ChunkLoaderBlock extends Block implements IWaterLoggable {
     @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world){
-        return this.tileProvider.get();
+        return this.type.createTileEntity();
     }
 
     @Override
@@ -92,27 +102,32 @@ public class ChunkLoaderBlock extends Block implements IWaterLoggable {
     }
 
     @Override
-    public void onPlace(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving){
-        TileEntity tile = worldIn.getBlockEntity(pos);
-        if(tile instanceof ChunkLoaderTile)
-            ((ChunkLoaderTile)tile).loadAll();
+    public void setPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack){
+        TileEntity entity = worldIn.getBlockEntity(pos);
+        if(entity instanceof ChunkLoaderBlockEntity && placer instanceof PlayerEntity)
+            ((ChunkLoaderBlockEntity)entity).setOwner(placer.getUUID());
+        super.setPlacedBy(worldIn, pos, state, placer, stack);
     }
 
     @Override
     public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving){
-        TileEntity tile = worldIn.getBlockEntity(pos);
-        if(tile instanceof ChunkLoaderTile)
-            ((ChunkLoaderTile)tile).unloadAll();
+        TileEntity entity = worldIn.getBlockEntity(pos);
+        if(!worldIn.isClientSide && entity instanceof ChunkLoaderBlockEntity){
+            if(((ChunkLoaderBlockEntity)entity).hasOwner())
+                ChunkLoadingCapability.get(worldIn).castServer().removeChunkLoader((ChunkLoaderBlockEntity)entity);
+            else // Remove from legacy capability
+                worldIn.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
+        }
         super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, IBlockReader world, List<ITextComponent> tooltip, ITooltipFlag advanced){
-        if(this.gridSize == 1)
-            tooltip.add(new TranslationTextComponent("chunkloaders.chunk_loader.info.single").withStyle(TextFormatting.AQUA));
+        if(this.type.getGridSize() == 1)
+            tooltip.add(TextComponents.translation("chunkloaders.chunk_loader.info.single").color(TextFormatting.AQUA).get());
         else
-            tooltip.add(new TranslationTextComponent("chunkloaders.chunk_loader.info.multiple", this.gridSize).withStyle(TextFormatting.AQUA));
+            tooltip.add(TextComponents.translation("chunkloaders.chunk_loader.info.multiple", this.type.getGridSize()).color(TextFormatting.AQUA).get());
     }
 
     @Override
