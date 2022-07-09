@@ -99,7 +99,7 @@ public class PlayerActivityTracker {
         dirty = false;
 
         // Load the data from the world folder
-        File file = new File(e.getServer().getWorldPath(FolderName.ROOT).toFile(), "chunkloaders/active_players.nbt");
+        File file = new File(e.getServer().getStorageSource().getBaseDir().resolve(e.getServer().getLevelIdName()).toFile(), "chunkloaders/active_players.nbt");
         if(!file.exists())
             return;
         try{
