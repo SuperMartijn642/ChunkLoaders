@@ -21,17 +21,20 @@ import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Created 7/7/2020 by SuperMartijn642
@@ -109,36 +112,43 @@ public class ChunkLoaders {
     public static class ModBusEvents {
 
         @SubscribeEvent
-        public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
-            for(ChunkLoaderType type : ChunkLoaderType.values())
-                type.registerBlock(e.getRegistry());
+        public static void onRegisterEvent(RegisterEvent e){
+            if(e.getRegistryKey().equals(ForgeRegistries.Keys.BLOCKS))
+                onBlockRegistry(Objects.requireNonNull(e.getForgeRegistry()));
+            else if(e.getRegistryKey().equals(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES))
+                onTileRegistry(Objects.requireNonNull(e.getForgeRegistry()));
+            else if(e.getRegistryKey().equals(ForgeRegistries.Keys.ITEMS))
+                onItemRegistry(Objects.requireNonNull(e.getForgeRegistry()));
         }
 
-        @SubscribeEvent
-        public static void onTileRegistry(final RegistryEvent.Register<BlockEntityType<?>> e){
+        public static void onBlockRegistry(IForgeRegistry<Block> registry){
             for(ChunkLoaderType type : ChunkLoaderType.values())
-                type.registerTileEntity(e.getRegistry());
+                type.registerBlock(registry);
         }
 
-        @SubscribeEvent
-        public static void onItemRegistry(final RegistryEvent.Register<Item> e){
+        public static void onTileRegistry(IForgeRegistry<BlockEntityType<?>> registry){
             for(ChunkLoaderType type : ChunkLoaderType.values())
-                type.registerItem(e.getRegistry());
+                type.registerTileEntity(registry);
+        }
+
+        public static void onItemRegistry(IForgeRegistry<Item> registry){
+            for(ChunkLoaderType type : ChunkLoaderType.values())
+                type.registerItem(registry);
         }
 
         @SubscribeEvent
         public static void gatherDataProviders(GatherDataEvent e){
             if(e.includeClient()){
-                e.getGenerator().addProvider(new ChunkLoadersBlockStateProvider(e.getGenerator(), e.getExistingFileHelper()));
-                e.getGenerator().addProvider(new ChunkLoadersItemModelProvider(e.getGenerator(), e.getExistingFileHelper()));
-                e.getGenerator().addProvider(new ChunkLoadersLanguageProvider(e.getGenerator()));
+                e.getGenerator().addProvider(true, new ChunkLoadersBlockStateProvider(e.getGenerator(), e.getExistingFileHelper()));
+                e.getGenerator().addProvider(true, new ChunkLoadersItemModelProvider(e.getGenerator(), e.getExistingFileHelper()));
+                e.getGenerator().addProvider(true, new ChunkLoadersLanguageProvider(e.getGenerator()));
             }
 
             if(e.includeServer()){
 //                e.getGenerator().addProvider(new ChunkLoadersAdvancementProvider(e.getGenerator()));
-                e.getGenerator().addProvider(new ChunkLoadersBlockTagsProvider(e.getGenerator(), e.getExistingFileHelper()));
-                e.getGenerator().addProvider(new ChunkLoadersLootTableProvider(e.getGenerator()));
-                e.getGenerator().addProvider(new ChunkLoadersRecipeProvider(e.getGenerator()));
+                e.getGenerator().addProvider(true, new ChunkLoadersBlockTagsProvider(e.getGenerator(), e.getExistingFileHelper()));
+                e.getGenerator().addProvider(true, new ChunkLoadersLootTableProvider(e.getGenerator()));
+                e.getGenerator().addProvider(true, new ChunkLoadersRecipeProvider(e.getGenerator()));
             }
         }
     }

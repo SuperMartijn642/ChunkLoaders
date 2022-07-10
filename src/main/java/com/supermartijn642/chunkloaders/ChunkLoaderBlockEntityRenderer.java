@@ -2,15 +2,15 @@ package com.supermartijn642.chunkloaders;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import com.supermartijn642.core.ClientUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 /**
  * Created 8/18/2020 by SuperMartijn642
@@ -44,13 +44,10 @@ public class ChunkLoaderBlockEntityRenderer implements BlockEntityRenderer<Chunk
         }
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        for(RenderType type : RenderType.chunkBufferLayers()){
-            if(ItemBlockRenderTypes.canRenderInLayer(this.block.defaultBlockState(), type)){
-                BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
-                BakedModel model = blockRenderer.getBlockModel(this.block.defaultBlockState());
-                blockRenderer.getModelRenderer().renderModel(poseStack.last(), buffer.getBuffer(type), block.defaultBlockState(), model, 1, 1, 1, combinedLight, combinedOverlay, EmptyModelData.INSTANCE);
-            }
-        }
+        BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
+        BakedModel model = blockRenderer.getBlockModel(this.block.defaultBlockState());
+        for(RenderType type : model.getRenderTypes(this.block.defaultBlockState(), RandomSource.create(), ModelData.EMPTY))
+            blockRenderer.getModelRenderer().renderModel(poseStack.last(), buffer.getBuffer(type), this.block.defaultBlockState(), model, 1, 1, 1, combinedLight, combinedOverlay, ModelData.EMPTY, type);
 
         poseStack.popPose();
     }

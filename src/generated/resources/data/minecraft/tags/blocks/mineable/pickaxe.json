@@ -1,5 +1,4 @@
 {
-  "replace": false,
   "values": [
     "chunkloaders:single_chunk_loader",
     "chunkloaders:basic_chunk_loader",

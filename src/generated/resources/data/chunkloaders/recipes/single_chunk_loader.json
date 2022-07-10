@@ -6,7 +6,7 @@
     }
   ],
   "result": {
-    "item": "chunkloaders:single_chunk_loader",
-    "count": 9
+    "count": 9,
+    "item": "chunkloaders:single_chunk_loader"
   }
 }

@@ -105,7 +105,7 @@ public enum ChunkLoaderType {
             throw new IllegalStateException("Blocks have already been registered!");
 
         this.block = new ChunkLoaderBlock(this);
-        registry.register(this.block);
+        registry.register(this.registryName, this.block);
     }
 
     public void registerTileEntity(IForgeRegistry<BlockEntityType<?>> registry){
@@ -115,8 +115,7 @@ public enum ChunkLoaderType {
             throw new IllegalStateException("Blocks must be registered before registering tile entity types!");
 
         this.tileEntityType = BlockEntityType.Builder.of(this::createTileEntity, this.block).build(null);
-        this.tileEntityType.setRegistryName(this.registryName + "_tile");
-        registry.register(this.tileEntityType);
+        registry.register(this.registryName + "_tile", this.tileEntityType);
     }
 
     public void registerItem(IForgeRegistry<Item> registry){
@@ -126,7 +125,6 @@ public enum ChunkLoaderType {
             throw new IllegalStateException("Blocks must be registered before registering items!");
 
         this.item = new BlockItem(this.block, new Item.Properties().tab(ChunkLoaders.GROUP));
-        this.item.setRegistryName(this.registryName);
-        registry.register(this.item);
+        registry.register(this.registryName, this.item);
     }
 }

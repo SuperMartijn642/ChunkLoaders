@@ -6,13 +6,12 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 /**
  * Created 7/11/2020 by SuperMartijn642
@@ -23,20 +22,20 @@ public class ChunkLoadersClient {
     private static KeyMapping CHUNK_LOADING_SCREEN_KEY;
 
     @SubscribeEvent
-    public static void setup(FMLClientSetupEvent e){
+    public static void registerKeyBindings(RegisterKeyMappingsEvent e){
         // Register key to open chunk loader screen
         CHUNK_LOADING_SCREEN_KEY = new KeyMapping("chunkloaders.keys.open_screen", 67/*'c'*/, "chunkloaders.keys.category");
-        ClientRegistry.registerKeyBinding(CHUNK_LOADING_SCREEN_KEY);
+        e.register(CHUNK_LOADING_SCREEN_KEY);
         MinecraftForge.EVENT_BUS.addListener(ChunkLoadersClient::onKey);
     }
 
     @SubscribeEvent
-    public static void a(EntityRenderersEvent.RegisterRenderers e){
+    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers e){
         for(ChunkLoaderType type : ChunkLoaderType.values())
             e.registerBlockEntityRenderer(type.getTileEntityType(), o -> new ChunkLoaderBlockEntityRenderer(type.getBlock(), type.getFullRotation()));
     }
 
-    public static void onKey(InputEvent.KeyInputEvent e){
+    public static void onKey(InputEvent.Key e){
         if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.matches(e.getKey(), e.getScanCode()) && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
             Player player = ClientUtils.getPlayer();
             ClientUtils.displayScreen(new ChunkLoaderScreen(new ChunkPos(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11));
