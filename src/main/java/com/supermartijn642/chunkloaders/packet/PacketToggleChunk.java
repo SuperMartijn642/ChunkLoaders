@@ -1,43 +1,62 @@
 package com.supermartijn642.chunkloaders.packet;
 
-import com.supermartijn642.chunkloaders.ChunkLoaderTile;
-import io.netty.buffer.ByteBuf;
+import com.mojang.authlib.GameProfile;
+import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
+import com.supermartijn642.chunkloaders.capability.ServerChunkLoadingCapability;
+import com.supermartijn642.core.network.BasePacket;
+import com.supermartijn642.core.network.PacketContext;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.math.ChunkPos;
+
+import java.util.UUID;
 
 /**
- * Created 7/8/2020 by SuperMartijn642
+ * Created 25/06/2022 by SuperMartijn642
  */
-public class PacketToggleChunk extends ChunkLoaderPacket<PacketToggleChunk> {
+public class PacketToggleChunk implements BasePacket {
 
-    private int xOffset, zOffset;
+    private UUID owner;
+    private ChunkPos pos;
 
-    public PacketToggleChunk(BlockPos pos, int xOffset, int zOffset){
-        super(pos);
-        this.xOffset = xOffset;
-        this.zOffset = zOffset;
+    public PacketToggleChunk(UUID owner, ChunkPos pos){
+        this.owner = owner;
+        this.pos = pos;
     }
 
     public PacketToggleChunk(){
     }
 
     @Override
-    public void encode(ByteBuf buffer){
-        super.encode(buffer);
-        buffer.writeInt(this.xOffset);
-        buffer.writeInt(this.zOffset);
+    public void write(PacketBuffer buffer){
+        buffer.writeUniqueId(this.owner);
+        buffer.writeInt(this.pos.x);
+        buffer.writeInt(this.pos.z);
     }
 
     @Override
-    protected void decodeBuffer(ByteBuf buffer){
-        super.decodeBuffer(buffer);
-        this.xOffset = buffer.readInt();
-        this.zOffset = buffer.readInt();
+    public void read(PacketBuffer buffer){
+        this.owner = buffer.readUniqueId();
+        this.pos = new ChunkPos(buffer.readInt(), buffer.readInt());
     }
 
     @Override
-    protected void handle(PacketToggleChunk message, EntityPlayer player, World world, ChunkLoaderTile tile){
-        tile.toggle(message.xOffset, message.zOffset);
+    public void handle(PacketContext context){
+        EntityPlayer player = context.getSendingPlayer();
+        PlayerList playerList = player.getServer().getPlayerList();
+        GameProfile profile = player.getGameProfile();
+        if(!this.owner.equals(player.getUniqueID()) && (!playerList.canSendCommands(profile) || (playerList.getOppedPlayers().getEntry(profile) != null && playerList.getOppedPlayers().getPermissionLevel(profile) < player.getServer().getOpPermissionLevel())))
+            return;
+
+        ServerChunkLoadingCapability capability = ChunkLoadingCapability.get(player.getEntityWorld()).castServer();
+
+        if(capability.isChunkLoadedByPlayer(this.owner, this.pos))
+            capability.stopLoadingChunk(this.owner, this.pos);
+        else{
+            // Check if the player can load the chunk
+            if(capability.canPlayerLoadChunk(this.owner, this.pos))
+                capability.startLoadingChunk(this.owner, this.pos);
+        }
     }
 }

@@ -1,206 +1,119 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.supermartijn642.chunkloaders.ChunkLoaderTile;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.BufferBuilder;
+import com.supermartijn642.chunkloaders.ChunkLoadersConfig;
+import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
+import com.supermartijn642.core.ClientUtils;
+import com.supermartijn642.core.TextComponents;
+import com.supermartijn642.core.gui.BaseScreen;
+import com.supermartijn642.core.gui.ScreenUtils;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.World;
+import net.minecraft.util.text.TextFormatting;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Created 7/11/2020 by SuperMartijn642
  */
-public class ChunkLoaderScreen extends GuiScreen {
+public class ChunkLoaderScreen extends BaseScreen {
 
-    private static final ResourceLocation SCREEN_BACKGROUND = new ResourceLocation("chunkloaders", "textures/gui/background.png");
+    private final ChunkPos pos;
+    private final UUID chunkLoaderOwner;
+    private final int mapYLevel;
+    private final int mapWidth, mapHeight;
 
-    protected World world;
-    protected BlockPos pos;
-    protected int left, top;
+    private ChunkGrid grid;
 
-    private final int backgroundSize;
-
-    private boolean doDrag = false;
-    private boolean dragState = false;
-    private List<ChunkButton> draggedButtons = new ArrayList<>();
-
-    public ChunkLoaderScreen(String type, World world, BlockPos pos){
-        this.world = world;
-        this.pos = pos;
-        ChunkLoaderTile tile = this.getTileOrClose();
-        int gridSize = tile == null ? 1 : tile.getGridSize();
-        this.backgroundSize = gridSize * 15 + (gridSize - 1) + 16;
+    public ChunkLoaderScreen(ChunkPos centerPos, UUID chunkLoaderOwner, int mapYLevel, int mapWidth, int mapHeight){
+        super(TextComponents.translation("chunkloaders.gui.title").get());
+        if(mapWidth % 2 == 0 || mapHeight % 2 == 0)
+            throw new IllegalArgumentException("Map width and height must be uneven!");
+        this.pos = centerPos;
+        this.chunkLoaderOwner = chunkLoaderOwner;
+        this.mapYLevel = mapYLevel;
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
     }
 
     @Override
-    public void initGui(){
-        ChunkLoaderTile tile = this.getTileOrClose();
-        if(tile == null)
-            return;
-
-        this.left = (this.width - this.backgroundSize) / 2;
-        this.top = (this.height - this.backgroundSize) / 2;
-
-        int radius = (tile.getGridSize() - 1) / 2;
-        for(int x = 0; x < tile.getGridSize(); x++){
-            for(int y = 0; y < tile.getGridSize(); y++){
-                int index = x * tile.getGridSize() + y;
-                this.addButton(new ChunkButton(index, this.left + 8 + x * 16, this.top + 8 + y * 16, -radius + x, -radius + y,
-                    this::getTileOrClose, this.world, new ChunkPos((pos.getX() >> 4) - radius + x, (pos.getZ() >> 4) - radius + y)));
-            }
-        }
+    protected float sizeX(){
+        return 14 + this.mapWidth * 18;
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks){
-        this.drawDefaultBackground();
-        this.drawBackgroundLayer(partialTicks, mouseX, mouseY);
-        super.drawScreen(mouseX, mouseY, partialTicks);
-
-        ChunkLoaderTile tile = this.getTileOrClose();
-        if(tile == null)
-            return;
-
-        this.buttonList.stream().filter(ChunkButton.class::isInstance).map(ChunkButton.class::cast).forEach(button -> {
-            if(button.isHovered())
-                this.renderToolTip(true, "chunkloaders.gui." + (tile.isLoaded(button.xOffset, button.zOffset) ? "loaded" : "unloaded"), mouseX, mouseY);
-        });
-    }
-
-    private void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY){
-        ChunkLoaderTile tile = this.getTileOrClose();
-        if(tile == null)
-            return;
-
-        drawScreenBackground(this.left, this.top, this.backgroundSize, this.backgroundSize);
-    }
-
-    protected void drawCenteredString(ITextComponent text, float x, float y){
-        this.drawCenteredString(text.getFormattedText(), x, y);
-    }
-
-    protected void drawCenteredString(String s, float x, float y){
-        this.fontRenderer.drawString(s, (int)(this.left + x - this.fontRenderer.getStringWidth(s) / 2f), (int)(this.top + y), 4210752);
-    }
-
-    protected void drawString(ITextComponent text, float x, float y){
-        this.drawString(text.getFormattedText(), x, y);
-    }
-
-    protected void drawString(String s, float x, float y){
-        this.fontRenderer.drawString(s, (int)(this.left + x), (int)(this.top + y), 4210752);
-    }
-
-    public void renderToolTip(boolean translate, String string, int x, int y){
-        super.drawHoveringText(translate ? new TextComponentTranslation(string).getFormattedText() : string, x, y);
-    }
-
-    public ChunkLoaderTile getTileOrClose(){
-        if(this.world != null && this.pos != null){
-            TileEntity tile = this.world.getTileEntity(this.pos);
-            if(tile instanceof ChunkLoaderTile)
-                return (ChunkLoaderTile)tile;
-        }
-        Minecraft.getMinecraft().player.closeScreen();
-        return null;
+    protected float sizeY(){
+        return 14 + this.mapHeight * 18;
     }
 
     @Override
-    public boolean doesGuiPauseGame(){
-        return false;
+    protected void addWidgets(){
+        // Create a new chunk grid
+        ChunkPos topLeftChunk = new ChunkPos(this.pos.x - (this.mapWidth - 1) / 2, this.pos.z - (this.mapHeight - 1) / 2);
+        this.grid = new ChunkGrid(6, 6, this.mapHeight, this.mapWidth, topLeftChunk, this.chunkLoaderOwner, this.mapYLevel);
+        // Add all the individual cell widgets to the screen
+        this.grid.getCells().forEach(this::addWidget);
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int button) throws IOException{
-        if(button == 0){
-            for(GuiButton listener : this.buttonList){
-                if(listener instanceof ChunkButton){
-                    ChunkButton chunkButton = (ChunkButton)listener;
-                    if(chunkButton.isMouseOver(mouseX, mouseY)){
-                        this.doDrag = true;
-                        this.dragState = !chunkButton.isLoaded();
-                        this.draggedButtons.clear();
-                        this.draggedButtons.add(chunkButton);
-                        chunkButton.onPress();
-                        return;
-                    }
-                }
-            }
-        }
-        super.mouseClicked(mouseX, mouseY, button);
+    public void tick(){
+        this.grid.update();
+        super.tick();
+    }
+
+    @Override
+    protected void renderBackground(int mouseX, int mouseY){
+        // Side panel
+        this.drawScreenBackground(this.sizeX() - 10, this.sizeY() / 2 - 30, 100, 60);
+        // Center grid background
+        this.drawScreenBackground();
+    }
+
+    @Override
+    protected void render(int mouseX, int mouseY){
+        this.grid.renderOutline();
+
+        // Side panel
+        float panelX = this.sizeX(), panelY = this.sizeY() / 2 - 30;
+        // Owner
+        ScreenUtils.drawString(TextComponents.translation("chunkloaders.gui.owner").get(), panelX + 5, panelY + 7);
+        PlayerRenderer.renderPlayerHead(this.chunkLoaderOwner, (int)panelX + 5, (int)panelY + 18, 12, 12);
+        String username = PlayerRenderer.getPlayerUsername(this.chunkLoaderOwner);
+        if(username != null)
+            ScreenUtils.drawStringWithShadow(TextComponents.string(username).color(TextFormatting.WHITE).get(), panelX + 21, panelY + 20);
+        // Loaded chunks
+        ScreenUtils.drawString(TextComponents.translation("chunkloaders.gui.loaded_chunks").get(), panelX + 5, panelY + 33);
+        int loadedCount = ChunkLoadingCapability.get(ClientUtils.getWorld()).getChunksLoadedByPlayer(this.chunkLoaderOwner).size();
+        int maxLoaded = ChunkLoadersConfig.maxLoadedChunksPerPlayer.get();
+        TextComponents.TextComponentBuilder loadedText = TextComponents.translation("chunkloaders.gui.loaded_chunks.count", loadedCount, maxLoaded).color(loadedCount < maxLoaded ? TextFormatting.WHITE : TextFormatting.RED);
+        ScreenUtils.drawStringWithShadow(loadedText.get(), panelX + 5, panelY + 44);
+        GlStateManager.enableAlpha();
+    }
+
+    @Override
+    protected void renderForeground(int mouseX, int mouseY){
+        this.grid.renderForeground();
+    }
+
+    @Override
+    protected void renderTooltips(int mouseX, int mouseY){
+        Consumer<List<String>> tooltipRenderer = tooltips -> this.drawHoveringText(tooltips, mouseX, mouseY);
+        this.grid.renderTooltips(tooltipRenderer);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button){
+        return this.grid.mouseClicked(button);
     }
 
     @Override
     protected void mouseClickMove(int mouseX, int mouseY, int button, long timeSinceLastClick){
-        if(this.doDrag && button == 0){
-            for(GuiButton listener : this.buttonList){
-                if(listener instanceof ChunkButton && !this.draggedButtons.contains(listener)){
-                    ChunkButton chunkButton = (ChunkButton)listener;
-                    if(chunkButton.isMouseOver(mouseX, mouseY) && chunkButton.isLoaded() != this.dragState){
-                        chunkButton.onPress();
-                        this.draggedButtons.add(chunkButton);
-                        return;
-                    }
-                }
-            }
-        }
-
-        super.mouseClickMove(mouseX, mouseY, button, timeSinceLastClick);
+        this.grid.mouseDragged(button);
     }
 
     @Override
-    protected void mouseReleased(int mouseX, int mouseY, int button){
-        if(button == 0)
-            this.doDrag = false;
+    protected void onMouseRelease(int mouseX, int mouseY, int button){
+        this.grid.mouseReleased(button);
     }
-
-    @Override
-    protected void actionPerformed(GuiButton button){
-        if(button instanceof ChunkButton)
-            ((ChunkButton)button).onPress();
-    }
-
-    public void drawScreenBackground(float x, float y, float width, float height){
-        Minecraft.getMinecraft().getTextureManager().bindTexture(SCREEN_BACKGROUND);
-        // corners
-        drawTexture(x, y, 4, 4, 0, 0, 4 / 9f, 4 / 9f);
-        drawTexture(x + width - 4, y, 4, 4, 5 / 9f, 0, 4 / 9f, 4 / 9f);
-        drawTexture(x + width - 4, y + height - 4, 4, 4, 5 / 9f, 5 / 9f, 4 / 9f, 4 / 9f);
-        drawTexture(x, y + height - 4, 4, 4, 0, 5 / 9f, 4 / 9f, 4 / 9f);
-        // edges
-        drawTexture(x + 4, y, width - 8, 4, 4 / 9f, 0, 1 / 9f, 4 / 9f);
-        drawTexture(x + 4, y + height - 4, width - 8, 4, 4 / 9f, 5 / 9f, 1 / 9f, 4 / 9f);
-        drawTexture(x, y + 4, 4, height - 8, 0, 4 / 9f, 4 / 9f, 1 / 9f);
-        drawTexture(x + width - 4, y + 4, 4, height - 8, 5 / 9f, 4 / 9f, 4 / 9f, 1 / 9f);
-        // center
-        drawTexture(x + 4, y + 4, width - 8, height - 8, 4 / 9f, 4 / 9f, 1 / 9f, 1 / 9f);
-    }
-
-    public void drawTexture(float x, float y, float width, float height, float tx, float ty, float twidth, float theight){
-        GlStateManager.color(1, 1, 1, 1);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        int z = 0;
-        bufferbuilder.pos(x, y + height, z).tex(1, 0).endVertex();
-        bufferbuilder.pos(x + width, y + height, z).tex(1, 1).endVertex();
-        bufferbuilder.pos(x + width, y, z).tex(0, 1).endVertex();
-        bufferbuilder.pos(x, y, z).tex(0, 0).endVertex();
-        tessellator.draw();
-    }
-
 }
