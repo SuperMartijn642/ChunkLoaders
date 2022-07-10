@@ -177,10 +177,10 @@ public class PlayerActivityTracker {
                 continue;
 
             NBTTagCompound timeTag = (NBTTagCompound)nbt;
-            if(!timeTag.hasKey("player", Constants.NBT.TAG_INT_ARRAY) || !timeTag.hasKey("time", Constants.NBT.TAG_LONG))
+            if(!timeTag.hasKey("playerLeast", Constants.NBT.TAG_LONG) || !timeTag.hasKey("time", Constants.NBT.TAG_LONG))
                 continue;
 
-            ActiveTime activeTime = new ActiveTime(tag.getUniqueId("player"), tag.getLong("time"));
+            ActiveTime activeTime = new ActiveTime(timeTag.getUniqueId("player"), timeTag.getLong("time"));
             activePlayers.add(activeTime.player);
             sortedActiveTimes.add(activeTime);
         }
