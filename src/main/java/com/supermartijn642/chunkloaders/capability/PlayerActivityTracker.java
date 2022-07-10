@@ -182,7 +182,7 @@ public class PlayerActivityTracker {
             if(!timeTag.contains("player", Constants.NBT.TAG_INT_ARRAY) || !timeTag.contains("time", Constants.NBT.TAG_LONG))
                 continue;
 
-            ActiveTime activeTime = new ActiveTime(tag.getUUID("player"), tag.getLong("time"));
+            ActiveTime activeTime = new ActiveTime(timeTag.getUUID("player"), timeTag.getLong("time"));
             activePlayers.add(activeTime.player);
             sortedActiveTimes.add(activeTime);
         }
