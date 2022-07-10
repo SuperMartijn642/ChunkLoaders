@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "chunkloaders:ultimate_chunk_loader"
+    ]
+  },
+  "criteria": {
+    "has_advanced_chunk_loader": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "chunkloaders:advanced_chunk_loader"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "chunkloaders:ultimate_chunk_loader"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_advanced_chunk_loader",
+      "has_the_recipe"
+    ]
+  ]
+}
