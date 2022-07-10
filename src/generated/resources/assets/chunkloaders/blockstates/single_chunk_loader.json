@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "waterlogged=false": {
+      "model": "chunkloaders:block/single_chunk_loader"
+    },
+    "waterlogged=true": {
+      "model": "chunkloaders:block/single_chunk_loader"
+    }
+  }
+}
