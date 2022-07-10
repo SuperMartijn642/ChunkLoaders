@@ -1,48 +1,58 @@
 package com.supermartijn642.chunkloaders.packet;
 
-import com.supermartijn642.chunkloaders.ChunkLoaderTile;
-import net.minecraft.core.BlockPos;
+import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
+import com.supermartijn642.chunkloaders.capability.ServerChunkLoadingCapability;
+import com.supermartijn642.core.network.BasePacket;
+import com.supermartijn642.core.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ChunkPos;
+
+import java.util.UUID;
 
 /**
- * Created 7/8/2020 by SuperMartijn642
+ * Created 25/06/2022 by SuperMartijn642
  */
-public class PacketToggleChunk extends ChunkLoaderPacket {
+public class PacketToggleChunk implements BasePacket {
 
-    private int xOffset, zOffset;
+    private UUID owner;
+    private ChunkPos pos;
 
-    public PacketToggleChunk(BlockPos pos, int xOffset, int zOffset){
-        super(pos);
-        this.xOffset = xOffset;
-        this.zOffset = zOffset;
+    public PacketToggleChunk(UUID owner, ChunkPos pos){
+        this.owner = owner;
+        this.pos = pos;
     }
 
-    public PacketToggleChunk(FriendlyByteBuf buffer){
-        super(buffer);
-    }
-
-    @Override
-    public void encode(FriendlyByteBuf buffer){
-        super.encode(buffer);
-        buffer.writeInt(this.xOffset);
-        buffer.writeInt(this.zOffset);
+    public PacketToggleChunk(){
     }
 
     @Override
-    protected void decodeBuffer(FriendlyByteBuf buffer){
-        super.decodeBuffer(buffer);
-        this.xOffset = buffer.readInt();
-        this.zOffset = buffer.readInt();
-    }
-
-    public static PacketToggleChunk decode(FriendlyByteBuf buffer){
-        return new PacketToggleChunk(buffer);
+    public void write(FriendlyByteBuf buffer){
+        buffer.writeUUID(this.owner);
+        buffer.writeLong(this.pos.toLong());
     }
 
     @Override
-    protected void handle(Player player, Level world, ChunkLoaderTile tile){
-        tile.toggle(this.xOffset, this.zOffset);
+    public void read(FriendlyByteBuf buffer){
+        this.owner = buffer.readUUID();
+        this.pos = new ChunkPos(buffer.readLong());
+    }
+
+    @Override
+    public void handle(PacketContext context){
+        Player player = context.getSendingPlayer();
+        // Prevent malicious packets from setting other players' loaded chunks
+        if(!this.owner.equals(player.getUUID()) && !player.getServer().getPlayerList().isOp(player.getGameProfile()))
+            return;
+
+        ServerChunkLoadingCapability capability = ChunkLoadingCapability.get(player.getCommandSenderWorld()).castServer();
+
+        if(capability.isChunkLoadedByPlayer(this.owner, this.pos))
+            capability.stopLoadingChunk(this.owner, this.pos);
+        else{
+            // Check if the player can load the chunk
+            if(capability.canPlayerLoadChunk(this.owner, this.pos))
+                capability.startLoadingChunk(this.owner, this.pos);
+        }
     }
 }

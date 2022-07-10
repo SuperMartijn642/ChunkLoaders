@@ -1,7 +1,5 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.TextureUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -20,44 +18,49 @@ public class ChunkImage {
 
     private final Level world;
     private final ChunkPos chunkPos;
+    private final int yLevel;
     public int textureId = -1;
-    private byte[] buffer = null;
 
-    public ChunkImage(Level world, ChunkPos chunkPos){
+    public ChunkImage(Level world, ChunkPos chunkPos, int yLevel){
         this.world = world;
         this.chunkPos = chunkPos;
-    }
-
-    public void createTexture(){
-        this.textureId = TextureUtil.generateTextureId();
+        this.yLevel = yLevel;
     }
 
     public void updateTexture(){
-        if(this.buffer == null){
-            this.buffer = this.createBuffer();
+        if(this.textureId == -1){
+            ByteBuffer buffer = this.createBuffer();
 
-            GlStateManager._bindTexture(this.textureId);
+            this.textureId = GL11.glGenTextures();
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.textureId);
+            GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-            ByteBuffer buffer = ByteBuffer.allocateDirect(this.buffer.length);
-            buffer.put(this.buffer).flip();
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB8, 16, 16, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, 16, 16, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
         }
     }
 
-    private byte[] createBuffer(){
+    private ByteBuffer createBuffer(){
         int width = 16;
         int height = 16;
 
-        byte[] rgbArray = new byte[width * height * 3];
+        ByteBuffer rgbBuffer = ByteBuffer.allocateDirect(width * height * 3);
 
-        for(int x = 0; x < width; x++){
-            for(int z = 0; z < height; z++){
-                BlockPos pos = this.world.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, new BlockPos(this.chunkPos.getMinBlockX() + x, 0, this.chunkPos.getMinBlockZ() + z)).below();
-                int northY = this.world.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ() - 1) - 1;
-                int westY = this.world.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX() - 1, pos.getZ()) - 1;
+        for(int z = 0; z < height; z++){
+            for(int x = 0; x < width; x++){
+                BlockPos pos;
+                int northY, westY;
+                if(this.shouldDrawAtSameLayer()){
+                    pos = this.getFirstBlockGoingDown(this.chunkPos.getMinBlockX() + x, this.yLevel + 1, this.chunkPos.getMinBlockZ() + z, 5);
+                    northY = this.getFirstBlockGoingDown(this.chunkPos.getMinBlockX() + x, this.yLevel + 1, this.chunkPos.getMinBlockZ() + z - 1, 6).getY();
+                    westY = this.getFirstBlockGoingDown(this.chunkPos.getMinBlockX() + x - 1, this.yLevel + 1, this.chunkPos.getMinBlockZ() + z, 6).getY();
+                }else{
+                    pos = this.world.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, new BlockPos(this.chunkPos.getMinBlockX() + x, 0, this.chunkPos.getMinBlockZ() + z)).below();
+                    northY = this.world.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ() - 1) - 1;
+                    westY = this.world.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX() - 1, pos.getZ()) - 1;
+                }
 
                 BlockState state = this.world.getBlockState(pos);
                 int rgb = state.getMapColor(this.world, pos).col;
@@ -69,14 +72,29 @@ public class ChunkImage {
                     color = color.darker();
                 rgb = color.getRGB();
 
-                int index = (x + z * width) * 3;
-                rgbArray[index] = (byte)((rgb >> 16) & 255);
-                rgbArray[index + 1] = (byte)((rgb >> 8) & 255);
-                rgbArray[index + 2] = (byte)(rgb & 255);
+                rgbBuffer.put((byte)((rgb >> 16) & 255));
+                rgbBuffer.put((byte)((rgb >> 8) & 255));
+                rgbBuffer.put((byte)(rgb & 255));
             }
         }
 
-        return rgbArray;
+        rgbBuffer.flip();
+        return rgbBuffer;
     }
 
+    private BlockPos getFirstBlockGoingDown(int x, int y, int z, int maxTries){
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, y, z);
+        int tries = 0;
+        while(this.world.isEmptyBlock(pos) && ++tries < maxTries)
+            pos.setY(pos.getY() - 1);
+
+        return pos;
+    }
+
+    /**
+     * If true, the image will simply take blocks from the same y-level instead of from the top of the world.
+     */
+    private boolean shouldDrawAtSameLayer(){
+        return this.world.dimensionType().hasCeiling();
+    }
 }
