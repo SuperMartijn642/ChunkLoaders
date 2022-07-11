@@ -29,7 +29,8 @@ public class ChunkLoadersLanguageProvider extends LanguageProvider {
         this.add("chunkloaders.gui.unloaded", "NOT LOADED");
         this.add("chunkloaders.gui.owner", "Owner:");
         this.add("chunkloaders.gui.loaded_chunks", "Loaded chunks:");
-        this.add("chunkloaders.gui.loaded_chunks.count", "%1$s / %2$s");
+        this.add("chunkloaders.gui.loaded_chunks.count", "%s");
+        this.add("chunkloaders.gui.loaded_chunks.count_max", "%1$s / %2$s");
         this.add("chunkloaders.gui.chunk.loaded", "Loaded");
         this.add("chunkloaders.gui.chunk.available", "Click to load");
         this.add("chunkloaders.gui.chunk.others", "Loaded by");
