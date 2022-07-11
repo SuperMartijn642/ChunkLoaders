@@ -66,7 +66,9 @@ public class ChunkLoaderScreen extends BaseScreen {
     @Override
     protected void renderBackground(PoseStack poseStack, int mouseX, int mouseY){
         // Side panel
-        this.drawScreenBackground(poseStack, this.sizeX() - 10, this.sizeY() / 2 - 30, 100, 60);
+        String username = PlayerRenderer.getPlayerUsername(this.chunkLoaderOwner);
+        int usernameWidth = username == null ? 0 : this.font.width(TextComponents.string(username).color(ChatFormatting.WHITE).get());
+        this.drawScreenBackground(poseStack, this.sizeX() - 10, this.sizeY() / 2 - 30, Math.max(100, usernameWidth + 39), 60);
         // Center grid background
         this.drawScreenBackground(poseStack);
     }
