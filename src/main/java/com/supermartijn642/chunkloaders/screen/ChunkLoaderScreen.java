@@ -87,7 +87,9 @@ public class ChunkLoaderScreen extends BaseScreen {
         ScreenUtils.drawString(poseStack, TextComponents.translation("chunkloaders.gui.loaded_chunks").get(), panelX + 5, panelY + 33);
         int loadedCount = ChunkLoadingCapability.get(ClientUtils.getWorld()).getChunksLoadedByPlayer(this.chunkLoaderOwner).size();
         int maxLoaded = ChunkLoadersConfig.maxLoadedChunksPerPlayer.get();
-        TextComponents.TextComponentBuilder loadedText = TextComponents.translation("chunkloaders.gui.loaded_chunks.count", loadedCount, maxLoaded).color(loadedCount < maxLoaded ? ChatFormatting.WHITE : ChatFormatting.RED);
+        TextComponents.TextComponentBuilder loadedText = maxLoaded > 0 ?
+            TextComponents.translation("chunkloaders.gui.loaded_chunks.count_max", loadedCount, maxLoaded).color(loadedCount < maxLoaded ? ChatFormatting.WHITE : ChatFormatting.RED) :
+            TextComponents.translation("chunkloaders.gui.loaded_chunks.count", loadedCount).color(ChatFormatting.WHITE);
         ScreenUtils.drawStringWithShadow(poseStack, loadedText.get(), panelX + 5, panelY + 44);
     }
 
