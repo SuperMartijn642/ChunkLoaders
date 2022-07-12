@@ -10,8 +10,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -47,12 +47,12 @@ public class PlayerActivityTracker {
 
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent e){
-        UUID playerId = e.getPlayer().getUUID();
+        UUID playerId = e.getEntity().getUUID();
         onlinePlayers.add(playerId);
         if(!activePlayers.contains(playerId)){
             activePlayers.add(playerId);
             if(isInactivityTimeOutEnabled())
-                e.getPlayer().getServer().getAllLevels().forEach(level -> ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(playerId, true));
+                e.getEntity().getServer().getAllLevels().forEach(level -> ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(playerId, true));
         }
         ActiveTime lastActiveTime = lastActiveTimePerPlayer.remove(playerId);
         if(lastActiveTime != null)
@@ -62,7 +62,7 @@ public class PlayerActivityTracker {
 
     @SubscribeEvent
     public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent e){
-        UUID playerId = e.getPlayer().getUUID();
+        UUID playerId = e.getEntity().getUUID();
         onlinePlayers.remove(playerId);
         ActiveTime lastActiveTime = new ActiveTime(playerId, System.currentTimeMillis());
         lastActiveTimePerPlayer.put(playerId, lastActiveTime);
@@ -112,14 +112,14 @@ public class PlayerActivityTracker {
     }
 
     @SubscribeEvent
-    public static void onWorldSave(WorldEvent.Save e){
-        if(!(e.getWorld() instanceof ServerLevel))
+    public static void onWorldSave(LevelEvent.Save e){
+        if(!(e.getLevel() instanceof ServerLevel))
             return;
 
         // Save everything when world gets saved
         if(dirty){
             CompoundTag data = write();
-            File file = new File(((ServerLevel)e.getWorld()).getServer().getWorldPath(LevelResource.ROOT).toFile(), "chunkloaders/active_players.nbt");
+            File file = new File(((ServerLevel)e.getLevel()).getServer().getWorldPath(LevelResource.ROOT).toFile(), "chunkloaders/active_players.nbt");
             file.getParentFile().mkdirs();
             try{
                 NbtIo.write(data, file);
