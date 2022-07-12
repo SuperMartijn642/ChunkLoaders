@@ -1,14 +1,13 @@
 package com.supermartijn642.chunkloaders.screen;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
-import java.awt.*;
-import java.nio.ByteBuffer;
+import java.awt.image.BufferedImage;
 
 /**
  * Created 8/19/2020 by SuperMartijn642
@@ -18,7 +17,7 @@ public class ChunkImage {
     private final World world;
     private final ChunkPos chunkPos;
     private final int yLevel;
-    public int textureId = -1;
+    private DynamicTexture texture;
 
     public ChunkImage(World world, ChunkPos chunkPos, int yLevel){
         this.world = world;
@@ -26,29 +25,27 @@ public class ChunkImage {
         this.yLevel = yLevel;
     }
 
-    public void updateTexture(){
-        if(this.textureId == -1){
-            ByteBuffer buffer = this.createBuffer();
+    public void bindTexture(){
+        if(this.texture == null)
+            this.texture = new DynamicTexture(this.createImage());
+        GlStateManager.bindTexture(this.texture.getGlTextureId());
+    }
 
-            this.textureId = GL11.glGenTextures();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.textureId);
-            GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, 16, 16, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
+    public void dispose(){
+        if(this.texture != null){
+            this.texture.deleteGlTexture();
+            this.texture = null;
         }
     }
 
-    private ByteBuffer createBuffer(){
+    private BufferedImage createImage(){
         int width = 16;
         int height = 16;
 
-        ByteBuffer rgbBuffer = ByteBuffer.allocateDirect(width * height * 3);
+        BufferedImage image = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 
-        for(int z = 0; z < height; z++){
-            for(int x = 0; x < width; x++){
+        for(int x = 0; x < width; x++){
+            for(int z = 0; z < height; z++){
                 BlockPos pos;
                 int northY, westY;
                 if(this.shouldDrawAtSameLayer()){
@@ -64,21 +61,35 @@ public class ChunkImage {
                 IBlockState state = this.world.getBlockState(pos);
                 int rgb = state.getMapColor(this.world, pos).colorValue;
 
-                Color color = new Color(rgb);
-                if((pos.getY() > northY && northY >= 0) || (pos.getY() > westY && westY >= 0))
-                    color = color.brighter();
-                if((pos.getY() < northY && northY >= 0) || (pos.getY() < westY && westY >= 0))
-                    color = color.darker();
-                rgb = color.getRGB();
+                int red = ((rgb >> 16) & 255);
+                int green = ((rgb >> 8) & 255);
+                int blue = (rgb & 255);
 
-                rgbBuffer.put((byte)((rgb >> 16) & 255));
-                rgbBuffer.put((byte)((rgb >> 8) & 255));
-                rgbBuffer.put((byte)(rgb & 255));
+                if((pos.getY() > northY && northY >= 0) || (pos.getY() > westY && westY >= 0)){
+                    if(red == 0 && green == 0 && blue == 0){
+                        red = 3;
+                        green = 3;
+                        blue = 3;
+                    }else{
+                        if(red > 0 && red < 3) red = 3;
+                        if(green > 0 && green < 3) green = 3;
+                        if(blue > 0 && blue < 3) blue = 3;
+                        red = Math.min((int)(red / 0.7), 255);
+                        green = Math.min((int)(green / 0.7), 255);
+                        blue = Math.min((int)(blue / 0.7), 255);
+                    }
+                }
+                if((pos.getY() < northY && northY >= 0) || (pos.getY() < westY && westY >= 0)){
+                    red = Math.max((int)(red * 0.7), 0);
+                    green = Math.max((int)(green * 0.7), 0);
+                    blue = Math.max((int)(blue * 0.7), 0);
+                }
+
+                image.setRGB(x, z, (255 << 24) | (red << 16) | (green << 8) | blue);
             }
         }
 
-        rgbBuffer.flip();
-        return rgbBuffer;
+        return image;
     }
 
     private BlockPos getFirstBlockGoingDown(int x, int y, int z, int maxTries){

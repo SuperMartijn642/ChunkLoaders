@@ -9,7 +9,6 @@ import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.ITextComponent;
@@ -59,9 +58,7 @@ public class ChunkGridCell extends AbstractButtonWidget {
 
     @Override
     public void render(int mouseX, int mouseY, float partialTicks){
-        this.image.updateTexture();
-        GlStateManager.enableTexture2D();
-        GlStateManager.bindTexture(this.image.textureId);
+        this.image.bindTexture();
         ScreenUtils.drawTexture(this.x + 1, this.y + 1, 16, 16);
 
         // Draw chunks claimed by others
@@ -166,5 +163,9 @@ public class ChunkGridCell extends AbstractButtonWidget {
 
     public boolean isLoaded(){
         return this.isLoaded.apply(0, 0);
+    }
+
+    public void dispose(){
+        this.image.dispose();
     }
 }

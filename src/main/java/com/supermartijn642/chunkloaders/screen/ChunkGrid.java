@@ -156,4 +156,8 @@ public class ChunkGrid {
         if(button == 0)
             this.doDrag = false;
     }
+
+    public void dispose(){
+        this.cells.forEach(ChunkGridCell::dispose);
+    }
 }
