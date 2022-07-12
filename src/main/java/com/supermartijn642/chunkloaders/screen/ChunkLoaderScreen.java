@@ -122,4 +122,10 @@ public class ChunkLoaderScreen extends BaseScreen {
     protected void onMouseRelease(int mouseX, int mouseY, int button){
         this.grid.mouseReleased(button);
     }
+
+    @Override
+    public void onClose(){
+        super.onClose();
+        this.grid.dispose();
+    }
 }
