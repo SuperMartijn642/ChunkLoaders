@@ -1,7 +1,5 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
@@ -61,9 +59,7 @@ public class ChunkGridCell extends AbstractButtonWidget {
 
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks){
-        this.image.updateTexture();
-        GlStateManager._enableTexture();
-        RenderSystem.setShaderTexture(0, this.image.textureId);
+        this.image.bindTexture();
         ScreenUtils.drawTexture(poseStack, this.x + 1, this.y + 1, 16, 16);
 
         // Draw chunks claimed by others
@@ -168,5 +164,9 @@ public class ChunkGridCell extends AbstractButtonWidget {
 
     public boolean isLoaded(){
         return this.isLoaded.apply(0, 0);
+    }
+
+    public void dispose(){
+        this.image.dispose();
     }
 }
