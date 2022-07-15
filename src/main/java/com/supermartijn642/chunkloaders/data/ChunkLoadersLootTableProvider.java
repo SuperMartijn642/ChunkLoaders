@@ -35,7 +35,7 @@ public class ChunkLoadersLootTableProvider extends LootTableProvider {
         BlockLoot lootTables = new BlockLoot() {
             @Override
             protected Iterable<Block> getKnownBlocks(){
-                return ForgeRegistries.BLOCKS.getEntries().stream().filter(entry -> entry.getKey().getRegistryName().getNamespace().equals("chunkloaders")).map(Map.Entry::getValue).collect(Collectors.toList());
+                return ForgeRegistries.BLOCKS.getEntries().stream().filter(entry -> entry.getKey().location().getNamespace().equals("chunkloaders")).map(Map.Entry::getValue).collect(Collectors.toList());
             }
 
             @Override
