@@ -144,21 +144,26 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
             if(active){
                 for(ChunkPos chunk : chunks){
                     Set<UUID> inactivePlayers = this.inactivePlayersPerLoadedChunk.get(chunk);
-                    inactivePlayers.remove(player);
-                    if(inactivePlayers.isEmpty()){
-                        this.inactivePlayersPerLoadedChunk.remove(chunk);
-                        this.loadChunk(chunk);
+                    if(inactivePlayers != null){
+                        inactivePlayers.remove(player);
+                        if(inactivePlayers.isEmpty())
+                            this.inactivePlayersPerLoadedChunk.remove(chunk);
                     }
-                    this.activePlayersPerLoadedChunk.putIfAbsent(chunk, new HashSet<>());
-                    this.activePlayersPerLoadedChunk.get(chunk).add(player);
+
+                    Set<UUID> activePlayers = this.activePlayersPerLoadedChunk.computeIfAbsent(chunk, c -> new HashSet<>());
+                    if(activePlayers.isEmpty())
+                        this.loadChunk(chunk);
+                    activePlayers.add(player);
                 }
             }else{
                 for(ChunkPos chunk : chunks){
                     Set<UUID> activePlayers = this.activePlayersPerLoadedChunk.get(chunk);
-                    activePlayers.remove(player);
-                    if(activePlayers.isEmpty()){
-                        this.activePlayersPerLoadedChunk.remove(chunk);
-                        this.unloadChunk(chunk);
+                    if(activePlayers != null){
+                        activePlayers.remove(player);
+                        if(activePlayers.isEmpty()){
+                            this.activePlayersPerLoadedChunk.remove(chunk);
+                            this.unloadChunk(chunk);
+                        }
                     }
                     this.inactivePlayersPerLoadedChunk.putIfAbsent(chunk, new HashSet<>());
                     this.inactivePlayersPerLoadedChunk.get(chunk).add(player);
