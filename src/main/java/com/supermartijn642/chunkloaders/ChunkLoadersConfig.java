@@ -13,6 +13,7 @@ public class ChunkLoadersConfig {
     public static final Supplier<Integer> maxLoadedChunksPerPlayer;
     public static final Supplier<Long> inactivityTimeout;
     public static final Supplier<Boolean> allowLegacyLoadedChunks;
+    public static final Supplier<Boolean> canPlayersUseMap;
 
     public static final Supplier<Integer> singleChunkLoaderRadius;
     public static final Supplier<Integer> basicChunkLoaderRadius;
@@ -26,6 +27,7 @@ public class ChunkLoadersConfig {
         maxLoadedChunksPerPlayer = builder.comment("How many chunks should players be able to load per world? Use -1 for infinite.").define("maxLoadedChunksPerPlayer", -1, -1, 1000);
         inactivityTimeout = builder.comment("After how many minutes of offline time should players' chunk loaders be disabled? Use -1 to disable the inactivity timeout.").define("inactivityTimeout", 7 * 24 * 60, -1, 365 * 24 * 60L);
         allowLegacyLoadedChunks = builder.comment("Chunk loaders from before version 1.2.0 are not bound to a player. Should these chunk loaders' loaded chunks stay loaded?").define("allowLegacyLoadedChunks", true);
+        canPlayersUseMap = builder.comment("Can players use the chunk loader map? If false, players will see the message 'The chunk loader map is disabled on this server'.").define("canPlayersUseMap", true);
         builder.pop();
         builder.push("General");
         singleChunkLoaderRadius = builder.comment("In what radius should the Single Chunk Loader be able to load chunks?").define("singleChunkLoaderRadius", 1, 1, 6);
@@ -36,4 +38,5 @@ public class ChunkLoadersConfig {
         builder.pop();
         builder.build();
     }
+
 }

@@ -2,11 +2,13 @@ package com.supermartijn642.chunkloaders;
 
 import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
 import com.supermartijn642.core.ClientUtils;
+import com.supermartijn642.core.TextComponents;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -42,7 +44,10 @@ public class ChunkLoadersClient {
     public static void onKey(InputEvent.KeyInputEvent e){
         if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.isPressed() && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().currentScreen == null){
             EntityPlayer player = ClientUtils.getPlayer();
-            ClientUtils.displayScreen(new ChunkLoaderScreen(new ChunkPos(player.getPosition()), player.getUniqueID(), player.getPosition().getY(), 15, 11));
+            if(ChunkLoadersConfig.canPlayersUseMap.get())
+                ClientUtils.displayScreen(new ChunkLoaderScreen(new ChunkPos(player.getPosition()), player.getUniqueID(), player.getPosition().getY(), 15, 11));
+            else
+                player.sendStatusMessage(TextComponents.translation("chunkloaders.gui.disabled").color(TextFormatting.RED).get(), true);
         }
     }
 
