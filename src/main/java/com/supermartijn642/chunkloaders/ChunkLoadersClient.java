@@ -2,6 +2,8 @@ package com.supermartijn642.chunkloaders;
 
 import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
 import com.supermartijn642.core.ClientUtils;
+import com.supermartijn642.core.TextComponents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -39,7 +41,10 @@ public class ChunkLoadersClient {
     public static void onKey(InputEvent.KeyInputEvent e){
         if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.matches(e.getKey(), e.getScanCode()) && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
             Player player = ClientUtils.getPlayer();
-            ClientUtils.displayScreen(new ChunkLoaderScreen(new ChunkPos(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11));
+            if(ChunkLoadersConfig.canPlayersUseMap.get())
+                ClientUtils.displayScreen(new ChunkLoaderScreen(new ChunkPos(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11));
+            else
+                player.displayClientMessage(TextComponents.translation("chunkloaders.gui.disabled").color(ChatFormatting.RED).get(), true);
         }
     }
 
