@@ -37,6 +37,7 @@ public class ChunkLoadersLanguageProvider extends LanguageProvider {
         this.add("chunkloaders.gui.chunk.overwrite", "Hold %s to overwrite");
         this.add("chunkloaders.gui.speech.chunk.others", "Loaded by other players");
         this.add("chunkloaders.gui.speech.chunk.not_loaded", "Not loaded");
+        this.add("chunkloaders.gui.disabled", "The chunk loader map is disabled on this server");
         // Legacy messages
         this.add("chunkloaders.legacy_message", "Please shift-right-click this chunk loader to set its owner!");
         this.add("chunkloaders.legacy_success", "You are now the owner of this chunk loader!");
