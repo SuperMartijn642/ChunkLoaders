@@ -3,12 +3,12 @@ package com.supermartijn642.chunkloaders;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
@@ -19,7 +19,7 @@ import java.util.Random;
 /**
  * Created 8/18/2020 by SuperMartijn642
  */
-public class ChunkLoaderBlockEntityRenderer extends TileEntityRenderer<ChunkLoaderBlockEntity> {
+public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer<ChunkLoaderBlockEntity> {
 
     private final Block block;
     private final boolean fullRotation;
@@ -30,9 +30,8 @@ public class ChunkLoaderBlockEntityRenderer extends TileEntityRenderer<ChunkLoad
     }
 
     @Override
-    public void render(ChunkLoaderBlockEntity entity, double x, double y, double z, float partialTicks, int destroyStage){
+    public void render(ChunkLoaderBlockEntity entity, float partialTicks, int combinedOverlay){
         GlStateManager.pushMatrix();
-        GlStateManager.translated(x, y, z);
 
         double offset = Math.sin((System.currentTimeMillis() + entity.animationOffset) % 5000 / 5000f * 2 * Math.PI) * 0.1;
         GlStateManager.translated(0, offset, 0);

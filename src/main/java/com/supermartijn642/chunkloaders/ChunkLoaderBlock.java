@@ -3,14 +3,15 @@ package com.supermartijn642.chunkloaders;
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.block.BaseBlock;
+import com.supermartijn642.core.block.BlockProperties;
 import com.supermartijn642.core.block.BlockShape;
+import com.supermartijn642.core.block.EntityHoldingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
@@ -24,7 +25,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.text.ITextComponent;
@@ -32,17 +33,14 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Created 7/10/2020 by SuperMartijn642
  */
-public class ChunkLoaderBlock extends BaseBlock implements IWaterLoggable {
+public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, IWaterLoggable {
 
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -54,30 +52,30 @@ public class ChunkLoaderBlock extends BaseBlock implements IWaterLoggable {
     private final ChunkLoaderType type;
 
     public ChunkLoaderBlock(ChunkLoaderType type){
-        super(type.getRegistryName(), false, Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(1.5f, 6).harvestLevel(1).harvestTool(ToolType.PICKAXE));
+        super(false, BlockProperties.create(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectTool().destroyTime(1.5f).explosionResistance(6));
         this.type = type;
 
         this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
     }
 
     @Override
-    public boolean use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult p_225533_6_){
-        TileEntity entity = worldIn.getBlockEntity(pos);
+    protected InteractionFeedback interact(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, Direction hitSide, Vec3d hitLocation){
+        TileEntity entity = level.getBlockEntity(pos);
         if(entity instanceof ChunkLoaderBlockEntity){
             if(((ChunkLoaderBlockEntity)entity).hasOwner()){
-                if(worldIn.isClientSide)
+                if(level.isClientSide)
                     ChunkLoadersClient.openChunkLoaderScreen((ChunkLoaderBlockEntity)entity);
             }else if(player.isSneaking()){ // Legacy stuff
-                if(worldIn.isClientSide)
+                if(level.isClientSide)
                     player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_success").color(TextFormatting.WHITE).get(), true);
                 else{
                     ((ChunkLoaderBlockEntity)entity).setOwner(player.getUUID());
-                    worldIn.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
+                    level.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
                 }
-            }else if(worldIn.isClientSide)
+            }else if(level.isClientSide)
                 player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_message").color(TextFormatting.RED).get(), true);
         }
-        return true;
+        return InteractionFeedback.SUCCESS;
     }
 
     @Override
@@ -86,14 +84,8 @@ public class ChunkLoaderBlock extends BaseBlock implements IWaterLoggable {
     }
 
     @Override
-    public boolean hasTileEntity(BlockState state){
-        return true;
-    }
-
-    @Nullable
-    @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world){
-        return this.type.createTileEntity();
+    public TileEntity createNewBlockEntity(){
+        return this.type.createBlockEntity();
     }
 
     @Override
@@ -122,18 +114,17 @@ public class ChunkLoaderBlock extends BaseBlock implements IWaterLoggable {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, IBlockReader world, List<ITextComponent> tooltip, ITooltipFlag advanced){
+    protected void appendItemInformation(ItemStack stack, @Nullable IBlockReader level, Consumer<ITextComponent> info, boolean advanced){
         if(this.type.getGridSize() == 1)
-            tooltip.add(TextComponents.translation("chunkloaders.chunk_loader.info.single").color(TextFormatting.AQUA).get());
+            info.accept(TextComponents.translation("chunkloaders.chunk_loader.info.single").color(TextFormatting.AQUA).get());
         else
-            tooltip.add(TextComponents.translation("chunkloaders.chunk_loader.info.multiple", this.type.getGridSize()).color(TextFormatting.AQUA).get());
+            info.accept(TextComponents.translation("chunkloaders.chunk_loader.info.multiple", this.type.getGridSize()).color(TextFormatting.AQUA).get());
     }
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context){
-        IFluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
-        return this.defaultBlockState().setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
+        IFluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+        return this.defaultBlockState().setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
 
     @Override
