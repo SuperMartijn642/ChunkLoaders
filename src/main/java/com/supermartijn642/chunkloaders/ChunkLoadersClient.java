@@ -3,6 +3,8 @@ package com.supermartijn642.chunkloaders;
 import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
+import com.supermartijn642.core.gui.WidgetScreen;
+import com.supermartijn642.core.registry.ClientRegistrationHandler;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.ChunkPos;
@@ -23,11 +25,14 @@ public class ChunkLoadersClient {
 
     private static KeyBinding CHUNK_LOADING_SCREEN_KEY;
 
+    public static void register(){
+        ClientRegistrationHandler handler = ClientRegistrationHandler.get("chunkloaders");
+        for(ChunkLoaderType type : ChunkLoaderType.values())
+            handler.registerCustomBlockEntityRenderer(type::getBlockEntityType, () -> new ChunkLoaderBlockEntityRenderer(type.getBlock(), type.getFullRotation()));
+    }
+
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e){
-        for(ChunkLoaderType type : ChunkLoaderType.values())
-            ClientRegistry.bindTileEntityRenderer(type.getTileEntityType(), o -> new ChunkLoaderBlockEntityRenderer(o, type.getBlock(), type.getFullRotation()));
-
         // Register key to open chunk loader screen
         CHUNK_LOADING_SCREEN_KEY = new KeyBinding("chunkloaders.keys.open_screen", 67/*'c'*/, "chunkloaders.keys.category");
         ClientRegistry.registerKeyBinding(CHUNK_LOADING_SCREEN_KEY);
@@ -38,7 +43,7 @@ public class ChunkLoadersClient {
         if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.matches(e.getKey(), e.getScanCode()) && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
             PlayerEntity player = ClientUtils.getPlayer();
             if(ChunkLoadersConfig.canPlayersUseMap.get())
-                ClientUtils.displayScreen(new ChunkLoaderScreen(new ChunkPos(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11));
+                ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(new ChunkPos(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11)));
             else
                 player.displayClientMessage(TextComponents.translation("chunkloaders.gui.disabled").color(TextFormatting.RED).get(), true);
         }
@@ -46,6 +51,6 @@ public class ChunkLoadersClient {
 
     public static void openChunkLoaderScreen(ChunkLoaderBlockEntity entity){
         int size = entity.getChunkLoaderType().getGridSize() + 2;
-        ClientUtils.displayScreen(new ChunkLoaderScreen(new ChunkPos(entity.getBlockPos()), entity.getOwner(), entity.getBlockPos().getY(), size, size));
+        ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(new ChunkPos(entity.getBlockPos()), entity.getOwner(), entity.getBlockPos().getY(), size, size)));
     }
 }
