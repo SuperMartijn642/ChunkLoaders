@@ -1,13 +1,15 @@
 package com.supermartijn642.chunkloaders;
 
+import com.supermartijn642.core.block.BaseBlockEntityType;
 import com.supermartijn642.core.block.BlockShape;
+import com.supermartijn642.core.item.BaseBlockItem;
+import com.supermartijn642.core.item.ItemProperties;
+import com.supermartijn642.core.registry.RegistrationHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Locale;
 import java.util.function.Supplier;
@@ -40,9 +42,9 @@ public enum ChunkLoaderType {
     private final boolean fullRotation;
     private final String englishTranslation;
 
-    private BlockEntityType<ChunkLoaderBlockEntity> tileEntityType;
+    private BaseBlockEntityType<ChunkLoaderBlockEntity> blockEntityType;
     private ChunkLoaderBlock block;
-    private BlockItem item;
+    private BaseBlockItem item;
 
     ChunkLoaderType(int index, BlockShape shape, Supplier<Integer> range, boolean fullRotation, String englishTranslation){
         this.index = index;
@@ -65,15 +67,15 @@ public enum ChunkLoaderType {
         return this.block;
     }
 
-    public ChunkLoaderBlockEntity createTileEntity(BlockPos pos, BlockState state){
+    public ChunkLoaderBlockEntity createBlockEntity(BlockPos pos, BlockState state){
         return new ChunkLoaderBlockEntity(pos, state, this);
     }
 
-    public BlockEntityType<ChunkLoaderBlockEntity> getTileEntityType(){
-        return this.tileEntityType;
+    public BaseBlockEntityType<ChunkLoaderBlockEntity> getBlockEntityType(){
+        return this.blockEntityType;
     }
 
-    public BlockItem getItem(){
+    public BaseBlockItem getItem(){
         return this.item;
     }
 
@@ -100,33 +102,31 @@ public enum ChunkLoaderType {
         return this.englishTranslation;
     }
 
-    public void registerBlock(IForgeRegistry<Block> registry){
+    public void registerBlock(RegistrationHandler.Helper<Block> helper){
         if(this.block != null)
             throw new IllegalStateException("Blocks have already been registered!");
 
         this.block = new ChunkLoaderBlock(this);
-        registry.register(this.block);
+        helper.register(this.registryName, this.block);
     }
 
-    public void registerTileEntity(IForgeRegistry<BlockEntityType<?>> registry){
-        if(this.tileEntityType != null)
-            throw new IllegalStateException("Tile entities have already been registered!");
+    public void registerBlockEntity(RegistrationHandler.Helper<BlockEntityType<?>> helper){
+        if(this.blockEntityType != null)
+            throw new IllegalStateException("Block entities have already been registered!");
         if(this.block == null)
-            throw new IllegalStateException("Blocks must be registered before registering tile entity types!");
+            throw new IllegalStateException("Blocks must be registered before registering block entity types!");
 
-        this.tileEntityType = BlockEntityType.Builder.of(this::createTileEntity, this.block).build(null);
-        this.tileEntityType.setRegistryName(this.registryName + "_tile");
-        registry.register(this.tileEntityType);
+        this.blockEntityType = BaseBlockEntityType.create(this::createBlockEntity, this.block);
+        helper.register(this.registryName + "_tile", this.blockEntityType);
     }
 
-    public void registerItem(IForgeRegistry<Item> registry){
+    public void registerItem(RegistrationHandler.Helper<Item> helper){
         if(this.item != null)
             throw new IllegalStateException("Items have already been registered!");
         if(this.block == null)
             throw new IllegalStateException("Blocks must be registered before registering items!");
 
-        this.item = new BlockItem(this.block, new Item.Properties().tab(ChunkLoaders.GROUP));
-        this.item.setRegistryName(this.registryName);
-        registry.register(this.item);
+        this.item = new BaseBlockItem(this.block, ItemProperties.create().group(ChunkLoaders.GROUP));
+        helper.register(this.registryName, this.item);
     }
 }
