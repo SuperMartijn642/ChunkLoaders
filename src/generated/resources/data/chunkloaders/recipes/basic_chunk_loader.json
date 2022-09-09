@@ -1,5 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
   "key": {
     "A": {
       "tag": "forge:ingots/iron"
@@ -11,11 +16,6 @@
       "tag": "forge:ender_pearls"
     }
   },
-  "pattern": [
-    "ABA",
-    "BCB",
-    "ABA"
-  ],
   "result": {
     "item": "chunkloaders:basic_chunk_loader"
   }

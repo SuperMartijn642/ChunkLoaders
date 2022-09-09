@@ -2,7 +2,7 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "bonus_rolls": 0.0,
+      "rolls": 1.0,
       "conditions": [
         {
           "condition": "minecraft:survives_explosion"
@@ -13,8 +13,7 @@
           "type": "minecraft:item",
           "name": "chunkloaders:single_chunk_loader"
         }
-      ],
-      "rolls": 1.0
+      ]
     }
   ]
 }
