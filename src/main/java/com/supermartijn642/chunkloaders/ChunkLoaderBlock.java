@@ -3,13 +3,14 @@ package com.supermartijn642.chunkloaders;
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.block.BaseBlock;
+import com.supermartijn642.core.block.BlockProperties;
 import com.supermartijn642.core.block.BlockShape;
+import com.supermartijn642.core.block.EntityHoldingBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +20,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -31,19 +31,18 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
  * Created 7/10/2020 by SuperMartijn642
  */
-public class ChunkLoaderBlock extends BaseBlock implements SimpleWaterloggedBlock, EntityBlock {
+public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, SimpleWaterloggedBlock {
 
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -55,30 +54,30 @@ public class ChunkLoaderBlock extends BaseBlock implements SimpleWaterloggedBloc
     private final ChunkLoaderType type;
 
     public ChunkLoaderBlock(ChunkLoaderType type){
-        super(type.getRegistryName(), false, Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(1.5f, 6));
+        super(false, BlockProperties.create(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectTool().destroyTime(1.5f).explosionResistance(6));
         this.type = type;
 
         this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult p_225533_6_){
-        BlockEntity entity = worldIn.getBlockEntity(pos);
+    protected InteractionFeedback interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, Direction hitSide, Vec3 hitLocation){
+        BlockEntity entity = level.getBlockEntity(pos);
         if(entity instanceof ChunkLoaderBlockEntity){
             if(((ChunkLoaderBlockEntity)entity).hasOwner()){
-                if(worldIn.isClientSide)
+                if(level.isClientSide)
                     ChunkLoadersClient.openChunkLoaderScreen((ChunkLoaderBlockEntity)entity);
             }else if(player.isShiftKeyDown()){ // Legacy stuff
-                if(worldIn.isClientSide)
+                if(level.isClientSide)
                     player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_success").color(ChatFormatting.WHITE).get(), true);
                 else{
                     ((ChunkLoaderBlockEntity)entity).setOwner(player.getUUID());
-                    worldIn.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
+                    level.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
                 }
-            }else if(worldIn.isClientSide)
+            }else if(level.isClientSide)
                 player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_message").color(ChatFormatting.RED).get(), true);
         }
-        return InteractionResult.SUCCESS;
+        return InteractionFeedback.SUCCESS;
     }
 
     @Override
@@ -86,10 +85,9 @@ public class ChunkLoaderBlock extends BaseBlock implements SimpleWaterloggedBloc
         return this.type.getShape().getUnderlying();
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state){
-        return this.type.createTileEntity(pos, state);
+    public BlockEntity createNewBlockEntity(BlockPos pos, BlockState state){
+        return this.type.createBlockEntity(pos, state);
     }
 
     @Override

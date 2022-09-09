@@ -7,7 +7,8 @@ import com.supermartijn642.chunkloaders.packet.PacketToggleChunk;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.gui.ScreenUtils;
-import com.supermartijn642.core.gui.widget.AbstractButtonWidget;
+import com.supermartijn642.core.gui.widget.BaseWidget;
+import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -25,7 +26,7 @@ import java.util.function.Consumer;
 /**
  * Created 9/2/2020 by SuperMartijn642
  */
-public class ChunkGridCell extends AbstractButtonWidget {
+public class ChunkGridCell extends BaseWidget {
 
     private static final ResourceLocation CELL_OVERLAY = new ResourceLocation("chunkloaders", "textures/gui/cell_overlay.png");
 
@@ -37,7 +38,7 @@ public class ChunkGridCell extends AbstractButtonWidget {
     private final ChunkImage image;
 
     public ChunkGridCell(int x, int y, ChunkPos chunk, int loaderYLevel, UUID player, BiFunction<Integer,Integer,Boolean> isLoaded, BiFunction<Integer,Integer,Boolean> isWithinRange, BiFunction<Integer,Integer,Boolean> isLoadedByOtherPlayer){
-        super(x, y, 18, 18, null);
+        super(x, y, 18, 18);
         this.pos = chunk;
         this.player = player;
         this.isLoaded = isLoaded;
@@ -47,7 +48,7 @@ public class ChunkGridCell extends AbstractButtonWidget {
     }
 
     @Override
-    protected Component getNarrationMessage(){
+    public Component getNarrationMessage(){
         if(this.isLoaded.apply(0, 0))
             return TextComponents.translation("chunkloaders.gui.chunk.loaded").get();
         if(this.isWithinRange.apply(0, 0))
@@ -58,10 +59,13 @@ public class ChunkGridCell extends AbstractButtonWidget {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks){
+    public void renderBackground(PoseStack poseStack, int mouseX, int mouseY){
         this.image.bindTexture();
         ScreenUtils.drawTexture(poseStack, this.x + 1, this.y + 1, 16, 16);
+    }
 
+    @Override
+    public void render(PoseStack poseStack, int mouseX, int mouseY){
         // Draw chunks claimed by others
         this.drawOutline(poseStack, this.isLoadedByOtherPlayer, 40 / 255f, 40 / 255f, 40 / 255f, 196 / 255f, 196 / 255f, 196 / 255f, 97 / 255f);
 
@@ -72,8 +76,9 @@ public class ChunkGridCell extends AbstractButtonWidget {
         this.drawOutline(poseStack, this.isLoaded, 0 / 255f, 99 / 255f, 11 / 255f, 0 / 255f, 99 / 255f, 11 / 255f, 116 / 255f);
     }
 
-    public void drawHoverOutline(PoseStack poseStack){
-        if(this.isHovered() && this.canPlayerToggleChunk()){
+    @Override
+    public void renderForeground(PoseStack poseStack, int mouseX, int mouseY){
+        if(this.isFocused() && this.canPlayerToggleChunk()){
             ScreenUtils.bindTexture(CELL_OVERLAY);
             ScreenUtils.drawTexture(poseStack, this.x - 1, this.y - 1, this.width + 2, this.height + 2);
         }
@@ -112,8 +117,9 @@ public class ChunkGridCell extends AbstractButtonWidget {
             ScreenUtils.fillRect(poseStack, this.x + this.width - 1, this.y + this.height - 1, 1, 1, redBorder, greenBorder, blueBorder, 1);
     }
 
-    public void renderTooltip(Consumer<List<Component>> tooltipRenderer){
-        if(this.isHovered()){
+    @Override
+    protected void getTooltips(Consumer<Component> tooltipConsumer){
+        if(this.isFocused()){
             List<Component> tooltips = new ArrayList<>();
             boolean canToggleChunk = this.canPlayerToggleChunk();
             if(canToggleChunk){
@@ -144,14 +150,13 @@ public class ChunkGridCell extends AbstractButtonWidget {
                 Component keyName = TextComponents.fromTextComponent(ClientUtils.getMinecraft().options.keyShift.getTranslatedKeyMessage()).color(ChatFormatting.GOLD).get();
                 tooltips.add(TextComponents.translation("chunkloaders.gui.chunk.overwrite", keyName).color(ChatFormatting.WHITE).get());
             }
-            tooltipRenderer.accept(tooltips);
+            tooltips.forEach(tooltipConsumer);
         }
     }
 
-    @Override
     public void onPress(){
         if(this.canPlayerToggleChunk()){
-            super.onPress();
+            AbstractButtonWidget.playClickSound();
             ChunkLoaders.CHANNEL.sendToServer(new PacketToggleChunk(this.player, this.pos));
         }
     }
@@ -166,7 +171,8 @@ public class ChunkGridCell extends AbstractButtonWidget {
         return this.isLoaded.apply(0, 0);
     }
 
-    public void dispose(){
+    @Override
+    public void discard(){
         this.image.dispose();
     }
 }

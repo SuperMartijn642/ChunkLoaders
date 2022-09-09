@@ -25,6 +25,9 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(project.java_target)
 println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
 
 repositories {
+    flatDir {
+        dirs "libs"
+    }
     maven {
         url "https://www.cursemaven.com"
     }
@@ -35,7 +38,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
     // Core library
-    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}")
+//    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}")
+    implementation fg.deobf("com.supermartijn642:supermartijn642corelib:1.1.0-forge-mc1.18")
     // Config library
     implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}")
 
