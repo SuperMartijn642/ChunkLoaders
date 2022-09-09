@@ -1,0 +1,21 @@
+{
+  "pools": [
+    {
+      "name": "pool1",
+      "rolls": 1.0,
+      "conditions": [
+        {
+          "condition": "supermartijn642corelib:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "weight": 1,
+          "quality": 0,
+          "type": "item",
+          "name": "chunkloaders:single_chunk_loader"
+        }
+      ]
+    }
+  ]
+}

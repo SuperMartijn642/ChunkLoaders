@@ -1,17 +1,28 @@
 {
   "parent": "minecraft:recipes/root",
-  "rewards": {
-    "recipes": [
-      "chunkloaders:single_chunk_loader"
-    ]
+  "display": {
+    "icon": {
+      "item": "chunkloaders:single_chunk_loader"
+    },
+    "title": {
+      "translate": "chunkloaders.advancement.recipes/chunkloaders/single_chunk_loader.title"
+    },
+    "description": {
+      "translate": "chunkloaders.advancement.recipes/chunkloaders/single_chunk_loader.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
   },
   "criteria": {
-    "has_basic_chunk_loader": {
+    "can_unlock_recipe": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "item": "chunkloaders:basic_chunk_loader"
+            "item": "chunkloaders:basic_chunk_loader",
+            "data": 0
           }
         ]
       }
@@ -25,8 +36,13 @@
   },
   "requirements": [
     [
-      "has_basic_chunk_loader",
-      "has_the_recipe"
+      "has_the_recipe",
+      "can_unlock_recipe"
     ]
-  ]
+  ],
+  "rewards": {
+    "recipes": [
+      "chunkloaders:single_chunk_loader"
+    ]
+  }
 }

@@ -1,14 +1,17 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "forge:ore_shaped",
   "pattern": [
     "AAA",
     "AAA",
     "AAA"
   ],
   "key": {
-    "A": {
-      "item": "chunkloaders:single_chunk_loader"
-    }
+    "A": [
+      {
+        "type": "minecraft:item",
+        "item": "chunkloaders:single_chunk_loader"
+      }
+    ]
   },
   "result": {
     "item": "chunkloaders:basic_chunk_loader"

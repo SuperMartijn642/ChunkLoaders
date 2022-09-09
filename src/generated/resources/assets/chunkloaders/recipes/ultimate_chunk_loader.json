@@ -1,5 +1,5 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "forge:ore_shaped",
   "pattern": [
     "ABA",
     "CDC",
@@ -14,12 +14,18 @@
       "type": "forge:ore_dict",
       "ore": "gemDiamond"
     },
-    "C": {
-      "item": "minecraft:ender_eye"
-    },
-    "D": {
-      "item": "chunkloaders:advanced_chunk_loader"
-    }
+    "C": [
+      {
+        "type": "minecraft:item",
+        "item": "minecraft:ender_eye"
+      }
+    ],
+    "D": [
+      {
+        "type": "minecraft:item",
+        "item": "chunkloaders:advanced_chunk_loader"
+      }
+    ]
   },
   "result": {
     "item": "chunkloaders:ultimate_chunk_loader"

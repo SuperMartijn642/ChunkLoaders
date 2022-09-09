@@ -1,5 +1,5 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "forge:ore_shaped",
   "pattern": [
     "ABA",
     "BCB",
@@ -14,9 +14,12 @@
       "type": "forge:ore_dict",
       "ore": "obsidian"
     },
-    "C": {
-      "item": "minecraft:ender_pearl"
-    }
+    "C": [
+      {
+        "type": "minecraft:item",
+        "item": "minecraft:ender_pearl"
+      }
+    ]
   },
   "result": {
     "item": "chunkloaders:basic_chunk_loader"

@@ -1,21 +1,27 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "forge:ore_shaped",
   "pattern": [
     "ABA",
     "BCB",
     "ABA"
   ],
   "key": {
-    "A": {
-      "item": "minecraft:blaze_powder"
-    },
+    "A": [
+      {
+        "type": "minecraft:item",
+        "item": "minecraft:blaze_powder"
+      }
+    ],
     "B": {
       "type": "forge:ore_dict",
       "ore": "ingotGold"
     },
-    "C": {
-      "item": "chunkloaders:basic_chunk_loader"
-    }
+    "C": [
+      {
+        "type": "minecraft:item",
+        "item": "chunkloaders:basic_chunk_loader"
+      }
+    ]
   },
   "result": {
     "item": "chunkloaders:advanced_chunk_loader"
