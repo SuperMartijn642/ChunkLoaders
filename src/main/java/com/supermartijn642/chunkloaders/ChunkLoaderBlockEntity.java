@@ -59,6 +59,6 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
 
     @Override
     protected void readData(CompoundNBT compound){
-        this.owner = compound.contains("owner", Constants.NBT.TAG_INT_ARRAY) ? compound.getUUID("owner") : null;
+        this.owner = compound.contains("ownerLeast", Constants.NBT.TAG_LONG) ? compound.getUUID("owner") : null;
     }
 }
