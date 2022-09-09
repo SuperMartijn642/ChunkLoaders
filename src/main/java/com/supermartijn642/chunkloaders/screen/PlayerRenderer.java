@@ -7,6 +7,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -35,9 +36,9 @@ public class PlayerRenderer {
     private static final Map<UUID,GameProfile> PLAYER_PROFILE_MAP = new HashMap<>();
     private static final HashSet<UUID> FETCH_QUEUE = new HashSet<>();
 
-    public static void renderPlayerHead(UUID player, int x, int y, int width, int height){
+    public static void renderPlayerHead(UUID player, MatrixStack poseStack, int x, int y, int width, int height){
         ScreenUtils.bindTexture(getPlayerSkin(player));
-        ScreenUtils.drawTexture(x, y, width, height, 1 / 8f, 1 / 8f, 1 / 8f, 1 / 8f);
+        ScreenUtils.drawTexture(poseStack, x, y, width, height, 1 / 8f, 1 / 8f, 1 / 8f, 1 / 8f);
     }
 
     public static String getPlayerUsername(UUID player){
