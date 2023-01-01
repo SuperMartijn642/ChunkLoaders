@@ -2,6 +2,7 @@ package com.supermartijn642.chunkloaders.screen;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
@@ -59,7 +60,9 @@ public class ChunkImage {
                 }
 
                 BlockState state = this.world.getBlockState(pos);
-                int rgb = state.getMapColor(this.world, pos).col;
+                MaterialColor color = state.getMapColor(this.world, pos);
+                // Apparently blocks can return null map color #66
+                int rgb = color == null ? MaterialColor.NONE.col : color.col;
 
                 int red = ((rgb >> 16) & 255);
                 int green = ((rgb >> 8) & 255);
