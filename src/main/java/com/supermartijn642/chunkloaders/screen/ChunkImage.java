@@ -8,6 +8,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.MaterialColor;
 
 /**
  * Created 8/19/2020 by SuperMartijn642
@@ -59,7 +60,9 @@ public class ChunkImage {
                 }
 
                 BlockState state = this.world.getBlockState(pos);
-                int rgb = state.getMapColor(this.world, pos).col;
+                MaterialColor color = state.getMapColor(this.world, pos);
+                // Apparently blocks can return null map color #66
+                int rgb = color == null ? MaterialColor.NONE.col : color.col;
 
                 int red = ((rgb >> 16) & 255);
                 int green = ((rgb >> 8) & 255);
