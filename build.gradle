@@ -202,3 +202,8 @@ task publishAll {
     // Also build the file so I have a copy locally
     dependsOn "build"
 }
+
+// Disable the check because I don't actually need any mixins
+mixin {
+    disableAnnotationProcessorCheck()
+}
