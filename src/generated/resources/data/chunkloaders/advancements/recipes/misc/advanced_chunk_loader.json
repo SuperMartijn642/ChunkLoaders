@@ -5,10 +5,10 @@
       "item": "chunkloaders:advanced_chunk_loader"
     },
     "title": {
-      "translate": "chunkloaders.advancement.recipes/chunkloaders/advanced_chunk_loader.title"
+      "translate": "chunkloaders.advancement.recipes/misc/advanced_chunk_loader.title"
     },
     "description": {
-      "translate": "chunkloaders.advancement.recipes/chunkloaders/advanced_chunk_loader.description"
+      "translate": "chunkloaders.advancement.recipes/misc/advanced_chunk_loader.description"
     },
     "frame": "task",
     "show_toast": false,

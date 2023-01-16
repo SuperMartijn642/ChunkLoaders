@@ -1,7 +1,6 @@
 package com.supermartijn642.chunkloaders;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -11,6 +10,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.data.ModelData;
+import org.joml.Quaternionf;
 
 /**
  * Created 8/18/2020 by SuperMartijn642
@@ -34,13 +34,15 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
 
         poseStack.translate(0.5, 0.5, 0.5);
         if(this.fullRotation){
-            float angleX = (System.currentTimeMillis() + entity.animationOffset) % 13000 / 13000f * 360f;
-            float angleY = (System.currentTimeMillis() + entity.animationOffset) % 15000 / 15000f * 360f;
-            float angleZ = (System.currentTimeMillis() + entity.animationOffset) % 16000 / 16000f * 360f;
-            poseStack.mulPose(new Quaternion(angleX, angleY, angleZ, true));
+            float angleX = (System.currentTimeMillis() + entity.animationOffset) % 13000 / 13000f * 2 * (float)Math.PI;
+            float angleY = (System.currentTimeMillis() + entity.animationOffset) % 15000 / 15000f * 2 * (float)Math.PI;
+            float angleZ = (System.currentTimeMillis() + entity.animationOffset) % 16000 / 16000f * 2 * (float)Math.PI;
+            poseStack.mulPose(new Quaternionf().setAngleAxis(angleX, 1, 0, 0));
+            poseStack.mulPose(new Quaternionf().setAngleAxis(angleY, 0, 1, 0));
+            poseStack.mulPose(new Quaternionf().setAngleAxis(angleZ, 0, 0, 1));
         }else{
-            float angle = (System.currentTimeMillis() + entity.animationOffset) % 11000 / 11000f * 360f;
-            poseStack.mulPose(new Quaternion(0, angle, 0, true));
+            float angle = (System.currentTimeMillis() + entity.animationOffset) % 11000 / 11000f * 2 * (float)Math.PI;
+            poseStack.mulPose(new Quaternionf().setAngleAxis(angle, 0, 1, 0));
         }
         poseStack.translate(-0.5, -0.5, -0.5);
 
