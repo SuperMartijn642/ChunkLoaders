@@ -7,10 +7,10 @@
   ],
   "key": {
     "A": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:redstone_dusts"
     },
     "B": {
-      "tag": "forge:gems/diamond"
+      "tag": "c:diamonds"
     },
     "C": {
       "item": "minecraft:ender_eye"

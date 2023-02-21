@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "SuperMartijn642"
+  ],
+  "contact": {
+    "homepage": "${mod_page}",
+    "sources": "${mod_sources}"
+  },
+  "license": "${mod_license}",
+  "icon": "${mod_id}.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "${mod_package}.${mod_main_class}"
+    ],
+    "client": [
+      "${mod_package}.${mod_client_class}"
+    ],
+    "jade": [
+      "com.supermartijn642.entangled.integration.EntangledWailaPlugin"
+    ]
+  },
+  "mixins": [
+    "${mod_id}.mixins.json"
+  ],
+  "accessWidener": "${mod_id}.accesswidener",
+  "depends": {
+    "fabricloader": "${fabric_loader_dependency}",
+    "fabric": "${fabric_api_dependency}",
+    "minecraft": "${minecraft_dependency}",
+    "java": "${java_dependency}",
+    "supermartijn642corelib": "${core_library_dependency}",
+    "supermartijn642configlib": "${config_library_dependency}"
+  }
+}

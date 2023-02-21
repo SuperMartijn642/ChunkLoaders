@@ -3,8 +3,8 @@ package com.supermartijn642.chunkloaders.generators;
 import com.supermartijn642.chunkloaders.ChunkLoaderType;
 import com.supermartijn642.core.generator.RecipeGenerator;
 import com.supermartijn642.core.generator.ResourceCache;
+import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.Tags;
 
 /**
  * Created 25/06/2022 by SuperMartijn642
@@ -33,17 +33,17 @@ public class ChunkLoadersRecipeGenerator extends RecipeGenerator {
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
-            .input('A', Tags.Items.INGOTS_IRON)
-            .input('B', Tags.Items.OBSIDIAN)
-            .input('C', Tags.Items.ENDER_PEARLS)
-            .unlockedBy(Tags.Items.ENDER_PEARLS);
+            .input('A', ConventionalItemTags.IRON_INGOTS)
+            .input('B', Items.OBSIDIAN)
+            .input('C', Items.ENDER_PEARL)
+            .unlockedBy(Items.ENDER_PEARL);
         // Advanced chunk loader
         this.shaped(ChunkLoaderType.ADVANCED.getItem())
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
             .input('A', Items.BLAZE_POWDER)
-            .input('B', Tags.Items.INGOTS_GOLD)
+            .input('B', ConventionalItemTags.GOLD_INGOTS)
             .input('C', ChunkLoaderType.BASIC.getItem())
             .unlockedBy(ChunkLoaderType.BASIC.getItem());
         // Ultimate chunk loader
@@ -51,8 +51,8 @@ public class ChunkLoadersRecipeGenerator extends RecipeGenerator {
             .pattern("ABA")
             .pattern("CDC")
             .pattern("ABA")
-            .input('A', Tags.Items.DUSTS_REDSTONE)
-            .input('B', Tags.Items.GEMS_DIAMOND)
+            .input('A', ConventionalItemTags.REDSTONE_DUSTS)
+            .input('B', ConventionalItemTags.DIAMONDS)
             .input('C', Items.ENDER_EYE)
             .input('D', ChunkLoaderType.ADVANCED.getItem())
             .unlockedBy(ChunkLoaderType.ADVANCED.getItem());

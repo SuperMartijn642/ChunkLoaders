@@ -45,7 +45,6 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
         return this.owner != null;
     }
 
-    @Override
     public void onLoad(){
         if(!this.level.isClientSide && this.owner != null)
             ChunkLoadingCapability.get(this.level).castServer().addChunkLoader(this);

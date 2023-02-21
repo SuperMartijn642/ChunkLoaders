@@ -2,19 +2,17 @@ package com.supermartijn642.chunkloaders.capability;
 
 import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.ChunkLoadersConfig;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +21,14 @@ import java.util.*;
 /**
  * Created 23/02/2022 by SuperMartijn642
  */
-@Mod.EventBusSubscriber
 public class PlayerActivityTracker {
+
+    public static void registerCallbacks(){
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onPlayerJoin(handler.getPlayer()));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onPlayerLeave(handler.getPlayer()));
+        ServerTickEvents.START_SERVER_TICK.register(PlayerActivityTracker::onServerTick);
+        ServerLifecycleEvents.SERVER_STARTING.register(PlayerActivityTracker::onServerStarting);
+    }
 
     /**
      * Store all players who are currently online or who have been online within the inactivity timeout period
@@ -45,14 +49,13 @@ public class PlayerActivityTracker {
 
     private static boolean dirty = false;
 
-    @SubscribeEvent
-    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent e){
-        UUID playerId = e.getPlayer().getUUID();
+    public static void onPlayerJoin(Player player){
+        UUID playerId = player.getUUID();
         onlinePlayers.add(playerId);
         if(!activePlayers.contains(playerId)){
             activePlayers.add(playerId);
             if(isInactivityTimeOutEnabled())
-                e.getPlayer().getServer().getAllLevels().forEach(level -> ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(playerId, true));
+                player.getServer().getAllLevels().forEach(level -> ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(playerId, true));
         }
         ActiveTime lastActiveTime = lastActiveTimePerPlayer.remove(playerId);
         if(lastActiveTime != null)
@@ -60,9 +63,8 @@ public class PlayerActivityTracker {
         dirty = true;
     }
 
-    @SubscribeEvent
-    public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent e){
-        UUID playerId = e.getPlayer().getUUID();
+    public static void onPlayerLeave(Player player){
+        UUID playerId = player.getUUID();
         onlinePlayers.remove(playerId);
         ActiveTime lastActiveTime = new ActiveTime(playerId, System.currentTimeMillis());
         lastActiveTimePerPlayer.put(playerId, lastActiveTime);
@@ -70,11 +72,7 @@ public class PlayerActivityTracker {
         dirty = true;
     }
 
-    @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent e){
-        if(e.phase == TickEvent.Phase.END)
-            return;
-
+    public static void onServerTick(MinecraftServer server){
         long timeoutTime = System.currentTimeMillis() - getInactivityTimeout();
         // Remove players who have timed out
         ActiveTime earliestExpiringTime;
@@ -85,12 +83,11 @@ public class PlayerActivityTracker {
             dirty = true;
             final ActiveTime finalEarliestExpiringTime = earliestExpiringTime;
             if(isInactivityTimeOutEnabled())
-                ServerLifecycleHooks.getCurrentServer().getAllLevels().forEach(level -> ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(finalEarliestExpiringTime.player, false));
+                server.getAllLevels().forEach(level -> ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(finalEarliestExpiringTime.player, false));
         }
     }
 
-    @SubscribeEvent
-    public static void onServerStarting(ServerAboutToStartEvent e){
+    public static void onServerStarting(MinecraftServer server){
         // Clear all values when switching between saves
         activePlayers.clear();
         onlinePlayers.clear();
@@ -99,7 +96,7 @@ public class PlayerActivityTracker {
         dirty = false;
 
         // Load the data from the world folder
-        File file = new File(e.getServer().getWorldPath(LevelResource.ROOT).toFile(), "chunkloaders/active_players.nbt");
+        File file = new File(server.getWorldPath(LevelResource.ROOT).toFile(), "chunkloaders/active_players.nbt");
         if(!file.exists())
             return;
         try{
@@ -111,15 +108,11 @@ public class PlayerActivityTracker {
         }
     }
 
-    @SubscribeEvent
-    public static void onWorldSave(WorldEvent.Save e){
-        if(!(e.getWorld() instanceof ServerLevel))
-            return;
-
+    public static void onWorldSave(ServerLevel level){
         // Save everything when world gets saved
         if(dirty){
             CompoundTag data = write();
-            File file = new File(((ServerLevel)e.getWorld()).getServer().getWorldPath(LevelResource.ROOT).toFile(), "chunkloaders/active_players.nbt");
+            File file = new File(level.getServer().getWorldPath(LevelResource.ROOT).toFile(), "chunkloaders/active_players.nbt");
             file.getParentFile().mkdirs();
             try{
                 NbtIo.write(data, file);

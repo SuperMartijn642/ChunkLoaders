@@ -16,27 +16,29 @@
     "hidden": false
   },
   "criteria": {
-    "can_unlock_recipe": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "tag": "forge:ender_pearls"
-          }
-        ]
-      }
-    },
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
         "recipe": "chunkloaders:basic_chunk_loader"
+      }
+    },
+    "recipe_condition": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:ender_pearl"
+            ]
+          }
+        ]
       }
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "can_unlock_recipe"
+      "recipe_condition"
     ]
   ],
   "rewards": {

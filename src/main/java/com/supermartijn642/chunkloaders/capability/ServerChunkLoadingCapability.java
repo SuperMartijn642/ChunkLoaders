@@ -9,21 +9,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.world.ForgeChunkManager;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created 22/02/2022 by SuperMartijn642
  */
 public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
 
-    private static final UUID CHUNK_LOADER_GLOBAL_UUID = UUID.fromString("399cf0ed-1eb4-4e3d-92ca-856f579aac84");
+    private static final TicketType<ChunkPos> CHUNK_LOADING_TICKET_TYPE = TicketType.create("chunkloaders:loaded", Comparator.comparingLong(ChunkPos::toLong));
 
     public ServerChunkLoadingCapability(Level level){
         super(level);
@@ -183,16 +180,15 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
     }
 
     private void loadChunk(ChunkPos pos){
-        ForgeChunkManager.forceChunk((ServerLevel)this.level, "chunkloaders", CHUNK_LOADER_GLOBAL_UUID, pos.x, pos.z, true, true);
+        ((ServerLevel)this.level).getChunkSource().addRegionTicket(CHUNK_LOADING_TICKET_TYPE, pos, 31, pos);
     }
 
     private void unloadChunk(ChunkPos pos){
-        ForgeChunkManager.forceChunk((ServerLevel)this.level, "chunkloaders", CHUNK_LOADER_GLOBAL_UUID, pos.x, pos.z, false, true);
+        ((ServerLevel)this.level).getChunkSource().removeRegionTicket(CHUNK_LOADING_TICKET_TYPE, pos, 31, pos);
     }
 
-    public void onLoadLevel(ForgeChunkManager.TicketHelper ticketHelper){
-        // Clear all tickets and reload the ones from the capability to naturally fix possible errors when the world is reloaded
-        ticketHelper.removeAllTickets(CHUNK_LOADER_GLOBAL_UUID);
+    public void onLoadLevel(){
+        // Reload the chunks from the capability to naturally fix possible errors when the world is reloaded
         for(ChunkPos pos : this.activePlayersPerLoadedChunk.keySet())
             this.loadChunk(pos);
     }

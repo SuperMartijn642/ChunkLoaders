@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.data.EmptyModelData;
 
 /**
  * Created 8/18/2020 by SuperMartijn642
@@ -43,12 +42,9 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
         }
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        for(RenderType type : RenderType.chunkBufferLayers()){
-            if(ItemBlockRenderTypes.canRenderInLayer(this.block.defaultBlockState(), type)){
-                BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(this.block.defaultBlockState());
-                ClientUtils.getBlockRenderer().getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(type), this.block.defaultBlockState(), model, 1, 1, 1, combinedLight, combinedOverlay, EmptyModelData.INSTANCE);
-            }
-        }
+        RenderType type = ItemBlockRenderTypes.getRenderType(this.block.defaultBlockState(), true);
+        BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(this.block.defaultBlockState());
+        ClientUtils.getBlockRenderer().getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(type), this.block.defaultBlockState(), model, 1, 1, 1, combinedLight, combinedOverlay);
 
         poseStack.popPose();
     }

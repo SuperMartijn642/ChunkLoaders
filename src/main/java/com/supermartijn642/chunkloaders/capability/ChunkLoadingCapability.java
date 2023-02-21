@@ -1,7 +1,7 @@
 package com.supermartijn642.chunkloaders.capability;
 
-import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.ChunkLoadersConfig;
+import com.supermartijn642.chunkloaders.extensions.ChunkLoadersLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class ChunkLoadingCapability {
 
     public static ChunkLoadingCapability get(Level level){
-        return level.getCapability(ChunkLoaders.CHUNK_LOADING_CAPABILITY).orElse(null);
+        return ((ChunkLoadersLevel)level).getChunkLoadingCapability();
     }
 
     protected final Level level;

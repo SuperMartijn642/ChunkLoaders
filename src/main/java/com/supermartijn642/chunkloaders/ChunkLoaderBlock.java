@@ -34,8 +34,6 @@ import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 
@@ -70,10 +68,8 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
             }else if(player.isShiftKeyDown()){ // Legacy stuff
                 if(level.isClientSide)
                     player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_success").color(ChatFormatting.WHITE).get(), true);
-                else{
+                else
                     ((ChunkLoaderBlockEntity)entity).setOwner(player.getUUID());
-                    level.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
-                }
             }else if(level.isClientSide)
                 player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_message").color(ChatFormatting.RED).get(), true);
         }
@@ -109,14 +105,11 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
         if(!worldIn.isClientSide && entity instanceof ChunkLoaderBlockEntity){
             if(((ChunkLoaderBlockEntity)entity).hasOwner())
                 ChunkLoadingCapability.get(worldIn).castServer().removeChunkLoader((ChunkLoaderBlockEntity)entity);
-            else // Remove from legacy capability
-                worldIn.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
         }
         super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, BlockGetter world, List<Component> tooltip, TooltipFlag advanced){
         if(this.type.getGridSize() == 1)
             tooltip.add(TextComponents.translation("chunkloaders.chunk_loader.info.single").color(ChatFormatting.AQUA).get());

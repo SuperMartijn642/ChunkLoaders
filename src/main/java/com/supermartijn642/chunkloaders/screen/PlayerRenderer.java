@@ -15,9 +15,8 @@ import net.minecraft.client.resources.SkinManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.common.UsernameCache;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,7 +39,7 @@ public class PlayerRenderer {
 
     public static String getPlayerUsername(UUID player){
         GameProfile profile = fetchPlayerProfile(player);
-        return profile == null ? UsernameCache.getLastKnownUsername(player) : profile.getName();
+        return profile == null ? null : profile.getName();
     }
 
     public static ResourceLocation getPlayerSkin(UUID player){
