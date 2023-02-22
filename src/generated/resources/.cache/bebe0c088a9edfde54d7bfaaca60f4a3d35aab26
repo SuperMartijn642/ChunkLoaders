@@ -1,0 +1,5 @@
+// 1.19.3	2023-02-22T01:29:24.9606316	Chunk Loaders/Chunk Loaders Loot Table Generator
+2dc55073e6c40daa0d2744e3a95b4236073c72e7 data\chunkloaders\loot_tables\blocks\advanced_chunk_loader.json
+73222385b11a3b91e6e6446c045786bdc42527c0 data\chunkloaders\loot_tables\blocks\single_chunk_loader.json
+5fabb1eca388b9c165f5e5fc840856a396be0fa2 data\chunkloaders\loot_tables\blocks\basic_chunk_loader.json
+910733003fd970332f6ec57aa750743236284bff data\chunkloaders\loot_tables\blocks\ultimate_chunk_loader.json

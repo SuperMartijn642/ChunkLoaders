@@ -17,7 +17,6 @@
   "chunkloaders.block.ultimate_chunk_loader": "Ultimate Chunk Loader",
   "chunkloaders.gui.loaded_chunks.count_max": "%1$s / %2$s",
   "chunkloaders.keys.open_screen": "View Chunk Loaders",
-  "chunkloaders": "Chunk Loaders",
   "chunkloaders.block.basic_chunk_loader": "Basic Chunk Loader",
   "chunkloaders.gui.chunk.available": "Click to load",
   "chunkloaders.block.advanced_chunk_loader": "Advanced Chunk Loader",

@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "chunkloaders:ultimate_chunk_loader"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "chunkloaders:advanced_chunk_loader"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "chunkloaders:basic_chunk_loader"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "chunkloaders:single_chunk_loader"
+    }
+  ]
+}
