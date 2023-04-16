@@ -35,10 +35,10 @@ dependencies {
 
     // Core library
 //    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}")
-    modImplementation "com.supermartijn642:supermartijn642corelib:1.1.1-fabric-mc1.19"
+    modImplementation "com.supermartijn642:supermartijn642corelib:1.1.7-fabric-mc1.19"
 //    // Config library
 //    implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}")
-    modImplementation "com.supermartijn642:supermartijn642configlib:1.1.0-fabric-mc1.19"
+    modImplementation "com.supermartijn642:supermartijn642configlib:1.1.6-fabric-mc1.19"
 
     // Just Enough Items
     modRuntimeOnly "curse.maven:jei-238222:${project.just_enough_items_file}"
