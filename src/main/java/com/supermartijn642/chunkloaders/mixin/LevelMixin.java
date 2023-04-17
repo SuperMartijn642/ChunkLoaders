@@ -5,6 +5,7 @@ import com.supermartijn642.chunkloaders.capability.ClientChunkLoadingCapability;
 import com.supermartijn642.chunkloaders.capability.ServerChunkLoadingCapability;
 import com.supermartijn642.chunkloaders.extensions.ChunkLoadersLevel;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -30,7 +31,7 @@ public class LevelMixin implements ChunkLoadersLevel {
         method = "<init>",
         at = @At("TAIL")
     )
-    private void constructor(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l, int i, CallbackInfo ci){
+    private void constructor(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, RegistryAccess registryAccess, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l, int i, CallbackInfo ci){
         //noinspection DataFlowIssue
         Level level = (Level)(Object)this;
         this.chunkloadersChunkLoadingCapability = level instanceof ServerLevel ?
