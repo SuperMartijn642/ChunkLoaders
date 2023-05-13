@@ -180,11 +180,11 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
     }
 
     private void loadChunk(ChunkPos pos){
-        ((ServerLevel)this.level).getChunkSource().addRegionTicket(CHUNK_LOADING_TICKET_TYPE, pos, 31, pos);
+        ((ServerLevel)this.level).getChunkSource().addRegionTicket(CHUNK_LOADING_TICKET_TYPE, pos, 2, pos);
     }
 
     private void unloadChunk(ChunkPos pos){
-        ((ServerLevel)this.level).getChunkSource().removeRegionTicket(CHUNK_LOADING_TICKET_TYPE, pos, 31, pos);
+        ((ServerLevel)this.level).getChunkSource().removeRegionTicket(CHUNK_LOADING_TICKET_TYPE, pos, 2, pos);
     }
 
     public void onLoadLevel(){
