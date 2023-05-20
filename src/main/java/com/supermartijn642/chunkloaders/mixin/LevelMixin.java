@@ -30,7 +30,7 @@ public class LevelMixin implements ChunkLoadersLevel {
         method = "<init>",
         at = @At("TAIL")
     )
-    private void constructor(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l, CallbackInfo ci){
+    private void constructor(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l, int i, CallbackInfo ci){
         //noinspection DataFlowIssue
         Level level = (Level)(Object)this;
         this.chunkloadersChunkLoadingCapability = level instanceof ServerLevel ?
