@@ -21,7 +21,7 @@ public class ChunkLoadingEventHandler {
         if(!(player instanceof ServerPlayer))
             return;
 
-        ChunkLoadingCapability capability = ChunkLoadingCapability.get(((ServerPlayer)player).getLevel());
+        ChunkLoadingCapability capability = ChunkLoadingCapability.get(((ServerPlayer)player).level());
         ChunkLoaders.CHANNEL.sendToPlayer(player, new PacketFullCapabilityData(capability.castServer().writeClientInfo()));
     }
 
@@ -29,7 +29,7 @@ public class ChunkLoadingEventHandler {
         if(!(player instanceof ServerPlayer))
             return;
 
-        ChunkLoadingCapability capability = ChunkLoadingCapability.get(player.getLevel());
+        ChunkLoadingCapability capability = ChunkLoadingCapability.get(player.level());
         ChunkLoaders.CHANNEL.sendToPlayer(player, new PacketFullCapabilityData(capability.castServer().writeClientInfo()));
     }
 }
