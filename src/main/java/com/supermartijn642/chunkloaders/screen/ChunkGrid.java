@@ -1,11 +1,11 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.Widget;
+import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
@@ -76,14 +76,14 @@ public class ChunkGrid extends BaseWidget {
     }
 
     @Override
-    public void renderBackground(PoseStack poseStack, int mouseX, int mouseY){
-        ScreenUtils.fillRect(poseStack, this.x + 1, this.y, this.width - 2, 1, 0, 0, 0, 1);
-        ScreenUtils.fillRect(poseStack, this.x, this.y + 1, this.width, this.height - 2, 0, 0, 0, 1);
-        ScreenUtils.fillRect(poseStack, this.x + 1, this.y + this.height - 1, this.width - 2, 1, 0, 0, 0, 1);
+    public void renderBackground(WidgetRenderContext context, int mouseX, int mouseY){
+        ScreenUtils.fillRect(context.poseStack(), this.x + 1, this.y, this.width - 2, 1, 0, 0, 0, 1);
+        ScreenUtils.fillRect(context.poseStack(), this.x, this.y + 1, this.width, this.height - 2, 0, 0, 0, 1);
+        ScreenUtils.fillRect(context.poseStack(), this.x + 1, this.y + this.height - 1, this.width - 2, 1, 0, 0, 0, 1);
         ScreenUtils.bindTexture(GRID_OVERLAY);
-        ScreenUtils.drawTexture(poseStack, this.x + 1, this.y + 1, this.width - 2, this.height - 2, 0, 0, this.columns, this.rows);
+        ScreenUtils.drawTexture(context.poseStack(), this.x + 1, this.y + 1, this.width - 2, this.height - 2, 0, 0, this.columns, this.rows);
 
-        super.renderBackground(poseStack, mouseX, mouseY);
+        super.renderBackground(context, mouseX, mouseY);
     }
 
     @Override
@@ -158,8 +158,8 @@ public class ChunkGrid extends BaseWidget {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY){
-        super.render(poseStack, mouseX, mouseY);
+    public void render(WidgetRenderContext context, int mouseX, int mouseY){
+        super.render(context, mouseX, mouseY);
 
         // Update dragged cells
         if(this.doDrag){

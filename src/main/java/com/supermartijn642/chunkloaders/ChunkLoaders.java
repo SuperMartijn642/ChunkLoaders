@@ -116,7 +116,6 @@ public class ChunkLoaders {
         handler.addGenerator(ChunkLoadersLanguageGenerator::new);
         handler.addGenerator(ChunkLoadersLootTableGenerator::new);
         handler.addGenerator(ChunkLoadersRecipeGenerator::new);
-        handler.addGenerator(ChunkLoadersRecipeGenerator::new);
         handler.addGenerator(ChunkLoadersTagGenerator::new);
     }
 }

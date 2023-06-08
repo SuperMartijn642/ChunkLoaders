@@ -8,6 +8,7 @@ import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.gui.widget.BaseWidget;
+import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -59,28 +60,28 @@ public class ChunkGridCell extends BaseWidget {
     }
 
     @Override
-    public void renderBackground(PoseStack poseStack, int mouseX, int mouseY){
+    public void renderBackground(WidgetRenderContext context, int mouseX, int mouseY){
         this.image.bindTexture();
-        ScreenUtils.drawTexture(poseStack, this.x + 1, this.y + 1, 16, 16);
+        ScreenUtils.drawTexture(context.poseStack(), this.x + 1, this.y + 1, 16, 16);
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY){
+    public void render(WidgetRenderContext context, int mouseX, int mouseY){
         // Draw chunks claimed by others
-        this.drawOutline(poseStack, this.isLoadedByOtherPlayer, 40 / 255f, 40 / 255f, 40 / 255f, 196 / 255f, 196 / 255f, 196 / 255f, 97 / 255f);
+        this.drawOutline(context.poseStack(), this.isLoadedByOtherPlayer, 40 / 255f, 40 / 255f, 40 / 255f, 196 / 255f, 196 / 255f, 196 / 255f, 97 / 255f);
 
         // Draw chunks within range
-        this.drawOutline(poseStack, this.isWithinRange, 0 / 255f, 82 / 255f, 196 / 255f, 0 / 255f, 82 / 255f, 196 / 255f, 58 / 255f);
+        this.drawOutline(context.poseStack(), this.isWithinRange, 0 / 255f, 82 / 255f, 196 / 255f, 0 / 255f, 82 / 255f, 196 / 255f, 58 / 255f);
 
         // Draw claimed chunks
-        this.drawOutline(poseStack, this.isLoaded, 0 / 255f, 99 / 255f, 11 / 255f, 0 / 255f, 99 / 255f, 11 / 255f, 116 / 255f);
+        this.drawOutline(context.poseStack(), this.isLoaded, 0 / 255f, 99 / 255f, 11 / 255f, 0 / 255f, 99 / 255f, 11 / 255f, 116 / 255f);
     }
 
     @Override
-    public void renderForeground(PoseStack poseStack, int mouseX, int mouseY){
+    public void renderForeground(WidgetRenderContext context, int mouseX, int mouseY){
         if(this.isFocused() && this.canPlayerToggleChunk()){
             ScreenUtils.bindTexture(CELL_OVERLAY);
-            ScreenUtils.drawTexture(poseStack, this.x - 1, this.y - 1, this.width + 2, this.height + 2);
+            ScreenUtils.drawTexture(context.poseStack(), this.x - 1, this.y - 1, this.width + 2, this.height + 2);
         }
     }
 

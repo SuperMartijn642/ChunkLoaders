@@ -1,12 +1,12 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.chunkloaders.ChunkLoadersConfig;
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.gui.widget.BaseWidget;
+import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ChunkPos;
@@ -49,35 +49,35 @@ public class ChunkLoaderScreen extends BaseWidget {
     }
 
     @Override
-    public void renderBackground(PoseStack poseStack, int mouseX, int mouseY){
+    public void renderBackground(WidgetRenderContext context, int mouseX, int mouseY){
         // Side panel
         String username = PlayerRenderer.getPlayerUsername(this.chunkLoaderOwner);
         int usernameWidth = username == null ? 0 : ClientUtils.getFontRenderer().width(TextComponents.string(username).color(ChatFormatting.WHITE).get());
-        ScreenUtils.drawScreenBackground(poseStack, this.width - 10, this.height / 2f - 30, Math.max(100, usernameWidth + 39), 60);
+        ScreenUtils.drawScreenBackground(context.poseStack(), this.width - 10, this.height / 2f - 30, Math.max(100, usernameWidth + 39), 60);
         // Center grid background
-        ScreenUtils.drawScreenBackground(poseStack, 0, 0, this.width, this.height);
+        ScreenUtils.drawScreenBackground(context.poseStack(), 0, 0, this.width, this.height);
 
-        super.renderBackground(poseStack, mouseX, mouseY);
+        super.renderBackground(context, mouseX, mouseY);
     }
 
     @Override
-    public void renderForeground(PoseStack poseStack, int mouseX, int mouseY){
-        super.renderForeground(poseStack, mouseX, mouseY);
+    public void renderForeground(WidgetRenderContext context, int mouseX, int mouseY){
+        super.renderForeground(context, mouseX, mouseY);
         // Side panel
         float panelX = this.width, panelY = this.height / 2f - 30;
         // Owner
-        ScreenUtils.drawString(poseStack, TextComponents.translation("chunkloaders.gui.owner").get(), panelX + 5, panelY + 7);
-        PlayerRenderer.renderPlayerHead(this.chunkLoaderOwner, poseStack, (int)panelX + 5, (int)panelY + 18, 12, 12);
+        ScreenUtils.drawString(context.poseStack(), TextComponents.translation("chunkloaders.gui.owner").get(), panelX + 5, panelY + 7);
+        PlayerRenderer.renderPlayerHead(this.chunkLoaderOwner, context.poseStack(), (int)panelX + 5, (int)panelY + 18, 12, 12);
         String username = PlayerRenderer.getPlayerUsername(this.chunkLoaderOwner);
         if(username != null)
-            ScreenUtils.drawStringWithShadow(poseStack, TextComponents.string(username).color(ChatFormatting.WHITE).get(), panelX + 21, panelY + 20);
+            ScreenUtils.drawStringWithShadow(context.poseStack(), TextComponents.string(username).color(ChatFormatting.WHITE).get(), panelX + 21, panelY + 20);
         // Loaded chunks
-        ScreenUtils.drawString(poseStack, TextComponents.translation("chunkloaders.gui.loaded_chunks").get(), panelX + 5, panelY + 33);
+        ScreenUtils.drawString(context.poseStack(), TextComponents.translation("chunkloaders.gui.loaded_chunks").get(), panelX + 5, panelY + 33);
         int loadedCount = ChunkLoadingCapability.get(ClientUtils.getWorld()).getChunksLoadedByPlayer(this.chunkLoaderOwner).size();
         int maxLoaded = ChunkLoadersConfig.maxLoadedChunksPerPlayer.get();
         TextComponents.TextComponentBuilder loadedText = maxLoaded > 0 ?
             TextComponents.translation("chunkloaders.gui.loaded_chunks.count_max", loadedCount, maxLoaded).color(loadedCount < maxLoaded ? ChatFormatting.WHITE : ChatFormatting.RED) :
             TextComponents.translation("chunkloaders.gui.loaded_chunks.count", loadedCount).color(ChatFormatting.WHITE);
-        ScreenUtils.drawStringWithShadow(poseStack, loadedText.get(), panelX + 5, panelY + 44);
+        ScreenUtils.drawStringWithShadow(context.poseStack(), loadedText.get(), panelX + 5, panelY + 44);
     }
 }
