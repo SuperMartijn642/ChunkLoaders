@@ -1,8 +1,6 @@
 package com.supermartijn642.chunkloaders.screen;
 
 import com.google.common.collect.Iterables;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
@@ -120,7 +118,7 @@ public class PlayerRenderer {
 
     private static String fetchPlayerName(UUID player){
         try{
-            InputStream inputStream = new URL("https://api.mojang.com/user/profiles/" + player + "/names").openStream();
+            InputStream inputStream = new URL("https://api.mojang.com/user/profile/" + player).openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             StringBuilder builder = new StringBuilder();
             String s;
@@ -128,18 +126,9 @@ public class PlayerRenderer {
                 builder.append(s);
             if(builder.length() > 0){
                 // No tools to just read an array I guess
-                JsonArray array = ((JsonObject)Streams.parse(new JsonReader(new StringReader("{\"array\":" + builder + "}")))).getAsJsonArray("array");
-                String latestName = null;
-                long changeDate = -1;
-                for(JsonElement element : array){
-                    long date = element.getAsJsonObject().has("changedToAt") ? element.getAsJsonObject().get("changedToAt").getAsLong() : 0;
-                    if(date > changeDate){
-                        latestName = element.getAsJsonObject().get("name").getAsString();
-                        changeDate = date;
-                    }
-                }
-                if(latestName != null)
-                    return latestName;
+                JsonObject json = Streams.parse(new JsonReader(new StringReader(builder.toString()))).getAsJsonObject();
+                if(json.has("name"))
+                    return json.get("name").getAsString();
             }
         }catch(Exception ignore){}
         return null;
