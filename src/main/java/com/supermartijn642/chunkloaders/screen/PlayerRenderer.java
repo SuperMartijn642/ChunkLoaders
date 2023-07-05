@@ -1,16 +1,13 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.google.common.collect.Iterables;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.properties.Property;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.SkinManager;
-import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.UsernameCache;
@@ -63,8 +60,7 @@ public class PlayerRenderer {
         }
 
         synchronized(FETCH_QUEUE){
-            if(!FETCH_QUEUE.contains(player)){
-                FETCH_QUEUE.add(player);
+            if(FETCH_QUEUE.add(player)){
                 new Thread(() -> {
                     boolean success = false;
                     String name = fetchPlayerName(player);
@@ -87,7 +83,7 @@ public class PlayerRenderer {
                     synchronized(FETCH_QUEUE){
                         FETCH_QUEUE.remove(player);
                     }
-                }, "Tesseract - UUID to username").start();
+                }, "Chunk Loaders - Game profile fetching").start();
             }
         }
 
@@ -96,20 +92,9 @@ public class PlayerRenderer {
 
     @Nullable
     private static GameProfile updateGameProfile(@Nullable GameProfile input){
-        if(input != null && input.getName() != null && !input.getName().isEmpty()){
-            if(!input.isComplete() || !input.getProperties().containsKey("textures")){
-                PlayerProfileCache profileCache = getProfileCache();
-                MinecraftSessionService sessionService = getSessionService();
-                if(profileCache != null && sessionService != null){
-                    GameProfile gameprofile = profileCache.get(input.getName());
-                    if(gameprofile != null){
-                        Property property = Iterables.getFirst(gameprofile.getProperties().get("textures"), null);
-                        if(property == null)
-                            gameprofile = sessionService.fillProfileProperties(gameprofile, true);
-                        return gameprofile;
-                    }
-                }
-            }
+        if(input != null && input.getId() != null){
+            MinecraftSessionService sessionService = getSessionService();
+            return sessionService.fillProfileProperties(input, true);
         }
         return null;
     }
@@ -130,10 +115,6 @@ public class PlayerRenderer {
             }
         }catch(Exception ignore){}
         return null;
-    }
-
-    private static PlayerProfileCache getProfileCache(){
-        return ClientUtils.getMinecraft().getSingleplayerServer().getProfileCache();
     }
 
     private static MinecraftSessionService getSessionService(){
