@@ -147,7 +147,7 @@ public class ChunkGridCell extends BaseWidget {
                 tooltips.add(canToggleChunk ? 1 : 0, TextComponents.translation("chunkloaders.gui.chunk.others").color(TextFormatting.WHITE).get());
             if(!ClientUtils.getPlayer().getUUID().equals(this.player) && ClientUtils.getPlayer().hasPermissions(2) && !Screen.hasShiftDown()
                 && (this.isWithinRange.apply(0, 0) || this.isLoaded.apply(0, 0))){
-                ITextComponent keyName = TextComponents.fromTextComponent(ClientUtils.getMinecraft().options.keyShift.getTranslatedKeyMessage()).color(TextFormatting.GOLD).get();
+                ITextComponent keyName = TextComponents.translation("key.keyboard.left.shift").color(TextFormatting.GOLD).get();
                 tooltips.add(TextComponents.translation("chunkloaders.gui.chunk.overwrite", keyName).color(TextFormatting.WHITE).get());
             }
             tooltips.forEach(tooltipConsumer);
