@@ -1,3 +1,6 @@
+### Chunk Loaders 1.2.6
+- Chunk overwrite tooltip now displays shift key instead of crouch keybind
+
 ### Chunk Loaders 1.2.5
 - Fixed player skins not rendering sometimes
 
