@@ -10,6 +10,7 @@ import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.ITextComponent;
@@ -146,7 +147,7 @@ public class ChunkGridCell extends BaseWidget {
                 tooltips.add(canToggleChunk ? 1 : 0, TextComponents.translation("chunkloaders.gui.chunk.others").color(TextFormatting.WHITE).get());
             if(!ClientUtils.getPlayer().getUniqueID().equals(this.player) && ((EntityPlayerSP)ClientUtils.getPlayer()).getPermissionLevel() >= 2 && !GuiScreen.isShiftKeyDown()
                 && (this.isWithinRange.apply(0, 0) || this.isLoaded.apply(0, 0))){
-                ITextComponent keyName = TextComponents.string(ClientUtils.getMinecraft().gameSettings.keyBindSneak.getDisplayName()).color(TextFormatting.GOLD).get();
+                ITextComponent keyName = TextComponents.string(GameSettings.getKeyDisplayString(42 /* left shift key */)).color(TextFormatting.GOLD).get();
                 tooltips.add(TextComponents.translation("chunkloaders.gui.chunk.overwrite", keyName).color(TextFormatting.WHITE).get());
             }
             tooltips.forEach(tooltipConsumer);
