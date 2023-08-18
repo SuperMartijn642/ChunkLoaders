@@ -1,3 +1,7 @@
+### Chunk Loaders 1.2.7
+- Updated Russian translations (thanks to Andrew-71!)
+- Fixed text extending past the width of the gui background in certain languages
+
 ### Chunk Loaders 1.2.6
 - Chunk overwrite tooltip now displays shift key instead of crouch keybind
 
