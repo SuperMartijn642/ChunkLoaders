@@ -51,7 +51,10 @@ public class ChunkLoaderScreen extends BaseWidget {
         // Side panel
         String username = PlayerRenderer.getPlayerUsername(this.chunkLoaderOwner);
         int usernameWidth = username == null ? 0 : ClientUtils.getFontRenderer().width(TextComponents.string(username).color(TextFormatting.WHITE).get());
-        ScreenUtils.drawScreenBackground(poseStack, this.width - 10, this.height / 2f - 30, Math.max(100, usernameWidth + 39), 60);
+        int ownerHintWidth = ClientUtils.getFontRenderer().width(TextComponents.translation("chunkloaders.gui.owner").get());
+        int loadedChunksHintWidth = ClientUtils.getFontRenderer().width(TextComponents.translation("chunkloaders.gui.loaded_chunks").get());
+        int sidePanelWidth = 22 + Math.max(39 + usernameWidth, Math.max(ownerHintWidth, loadedChunksHintWidth));
+        ScreenUtils.drawScreenBackground(poseStack, this.width - 10, this.height / 2f - 30, sidePanelWidth, 60);
         // Center grid background
         ScreenUtils.drawScreenBackground(poseStack, 0, 0, this.width, this.height);
 
