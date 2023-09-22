@@ -14,11 +14,15 @@ public class ChunkLoadingCapabilitySaveData extends SavedData {
     private final ChunkLoadingCapability capability;
 
     public static void init(ServerLevel level, ChunkLoadingCapability capability){
-        level.getDataStorage().computeIfAbsent(tag -> {
-            ChunkLoadingCapabilitySaveData saveData = new ChunkLoadingCapabilitySaveData(capability);
-            saveData.load(tag);
-            return saveData;
-        }, () -> new ChunkLoadingCapabilitySaveData(capability), IDENTIFIER);
+        level.getDataStorage().computeIfAbsent(new Factory<SavedData>(
+            () -> new ChunkLoadingCapabilitySaveData(capability),
+            tag -> {
+                ChunkLoadingCapabilitySaveData saveData = new ChunkLoadingCapabilitySaveData(capability);
+                saveData.load(tag);
+                return saveData;
+            },
+            null
+        ), IDENTIFIER);
     }
 
     public ChunkLoadingCapabilitySaveData(ChunkLoadingCapability capability){

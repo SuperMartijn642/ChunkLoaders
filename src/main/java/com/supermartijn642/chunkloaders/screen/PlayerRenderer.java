@@ -2,13 +2,12 @@ package com.supermartijn642.chunkloaders.screen;
 
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.SkinManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
@@ -43,13 +42,9 @@ public class PlayerRenderer {
 
     public static ResourceLocation getPlayerSkin(UUID player){
         GameProfile profile = fetchPlayerProfile(player);
-        if(profile != null){
-            SkinManager skinManager = ClientUtils.getMinecraft().getSkinManager();
-            Map<MinecraftProfileTexture.Type,MinecraftProfileTexture> map = skinManager.getInsecureSkinInformation(profile);
-            if(map.containsKey(MinecraftProfileTexture.Type.SKIN))
-                return skinManager.registerTexture(map.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
-        }
-        return DefaultPlayerSkin.getDefaultSkin(player);
+        if(profile != null)
+            return ClientUtils.getMinecraft().getSkinManager().getInsecureSkin(profile).texture();
+        return DefaultPlayerSkin.get(player).texture();
     }
 
     private static GameProfile fetchPlayerProfile(final UUID player){
@@ -94,7 +89,9 @@ public class PlayerRenderer {
     private static GameProfile updateGameProfile(@Nullable GameProfile input){
         if(input != null && input.getId() != null){
             MinecraftSessionService sessionService = getSessionService();
-            return sessionService.fillProfileProperties(input, true);
+            ProfileResult fetchResult = sessionService.fetchProfile(input.getId(), true);
+            if(fetchResult != null)
+                return fetchResult.profile();
         }
         return null;
     }
