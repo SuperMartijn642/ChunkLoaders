@@ -1,3 +1,7 @@
+### Chunk Loaders 1.2.8
+- Added Japanese translations (thanks to ALFECLARE!)
+- Added workaround for Create contraptions moving chunk loaders
+
 ### Chunk Loaders 1.2.7
 - Updated Russian translations (thanks to Andrew-71!)
 - Fixed text extending past the width of the gui background in certain languages
