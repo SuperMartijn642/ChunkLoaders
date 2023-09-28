@@ -114,6 +114,19 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, I
     }
 
     @Override
+    public void onPlace(BlockState newState, World level, BlockPos pos, BlockState oldState, boolean unknown){
+        if(!level.isClientSide && level.getServer() != null && newState.getBlock() == this){
+            TileEntity entity = level.getBlockEntity(pos);
+            if(entity instanceof ChunkLoaderBlockEntity){
+                level.getServer().submit(() -> {
+                    if(!entity.isRemoved())
+                        entity.onLoad();
+                });
+            }
+        }
+    }
+
+    @Override
     protected void appendItemInformation(ItemStack stack, @Nullable IBlockReader level, Consumer<ITextComponent> info, boolean advanced){
         if(this.type.getGridSize() == 1)
             info.accept(TextComponents.translation("chunkloaders.chunk_loader.info.single").color(TextFormatting.AQUA).get());
