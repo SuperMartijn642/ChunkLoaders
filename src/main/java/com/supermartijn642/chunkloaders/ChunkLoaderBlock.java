@@ -10,6 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.TickTask;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -107,6 +108,19 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
                 ChunkLoadingCapability.get(worldIn).castServer().removeChunkLoader((ChunkLoaderBlockEntity)entity);
         }
         super.onRemove(state, worldIn, pos, newState, isMoving);
+    }
+
+    @Override
+    public void onPlace(BlockState newState, Level level, BlockPos pos, BlockState oldState, boolean unknown){
+        if(!level.isClientSide && level.getServer() != null && newState.getBlock() == this){
+            BlockEntity entity = level.getBlockEntity(pos);
+            if(entity instanceof ChunkLoaderBlockEntity){
+                level.getServer().tell(new TickTask(1, () -> {
+                    if(!entity.isRemoved())
+                        ((ChunkLoaderBlockEntity)entity).onLoad();
+                }));
+            }
+        }
     }
 
     @Override
