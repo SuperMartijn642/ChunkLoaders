@@ -19,6 +19,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -113,6 +114,15 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
                 worldIn.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
         }
         super.onRemove(state, worldIn, pos, newState, isMoving);
+    }
+
+    @Override
+    public void onBlockStateChange(LevelReader level, BlockPos pos, BlockState oldState, BlockState newState){
+        if(newState.is(this)){
+            BlockEntity entity = level.getBlockEntity(pos);
+            if(entity instanceof ChunkLoaderBlockEntity)
+                entity.onLoad();
+        }
     }
 
     @Override
