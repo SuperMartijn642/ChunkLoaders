@@ -27,24 +27,26 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
 
     public void addChunkLoader(ChunkLoaderBlockEntity entity){
         BlockPos pos = entity.getPos();
-        ChunkPos chunkPos = new ChunkPos(pos);
-        this.chunkLoadersPerChunk.putIfAbsent(chunkPos, new HashSet<>());
-        this.chunkLoadersPerChunk.get(chunkPos).add(pos);
         UUID owner = entity.getOwner();
-        this.chunkLoadersPerPlayer.putIfAbsent(owner, new HashSet<>());
-        this.chunkLoadersPerPlayer.get(owner).add(pos);
-        this.chunkLoaderCacheMap.put(pos, new ChunkLoaderCache(pos, entity.getChunkLoaderType(), owner));
+        if(!this.chunkLoadersPerPlayer.containsKey(owner) || !this.chunkLoadersPerPlayer.get(owner).contains(pos)){
+            ChunkPos chunkPos = new ChunkPos(pos);
+            this.chunkLoadersPerChunk.putIfAbsent(chunkPos, new HashSet<>());
+            this.chunkLoadersPerChunk.get(chunkPos).add(pos);
+            this.chunkLoadersPerPlayer.putIfAbsent(owner, new HashSet<>());
+            this.chunkLoadersPerPlayer.get(owner).add(pos);
+            this.chunkLoaderCacheMap.put(pos, new ChunkLoaderCache(pos, entity.getChunkLoaderType(), owner));
 
-        int centerChunkX = entity.getPos().getX() >> 4, centerChunkZ = entity.getPos().getZ() >> 4;
-        int range = entity.getChunkLoaderType().getRange();
-        this.availableChunksPerPlayer.putIfAbsent(owner, new HashSet<>());
-        for(int x = -range + 1; x < range; x++){
-            for(int z = -range + 1; z < range; z++){
-                this.availableChunksPerPlayer.get(owner).add(new ChunkPos(centerChunkX + x, centerChunkZ + z));
+            int centerChunkX = entity.getPos().getX() >> 4, centerChunkZ = entity.getPos().getZ() >> 4;
+            int range = entity.getChunkLoaderType().getRange();
+            this.availableChunksPerPlayer.putIfAbsent(owner, new HashSet<>());
+            for(int x = -range + 1; x < range; x++){
+                for(int z = -range + 1; z < range; z++){
+                    this.availableChunksPerPlayer.get(owner).add(new ChunkPos(centerChunkX + x, centerChunkZ + z));
+                }
             }
-        }
 
-        this.sendToAllPlayers(new PackedChunkLoaderAdded(pos, owner, entity.getChunkLoaderType()));
+            this.sendToAllPlayers(new PackedChunkLoaderAdded(pos, owner, entity.getChunkLoaderType()));
+        }
     }
 
     public void removeChunkLoader(ChunkLoaderBlockEntity entity){
@@ -217,7 +219,8 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
             entry.getValue().stream().map(pos -> {
                 NBTTagCompound tag = new NBTTagCompound();
                 tag.setInteger("chunkX", pos.x);
-                tag.setInteger("chunkZ", pos.z); return tag;
+                tag.setInteger("chunkZ", pos.z);
+                return tag;
             }).forEach(chunksTag::appendTag);
             playerTag.setTag("chunks", chunksTag);
             if(PlayerActivityTracker.isPlayerActive(entry.getKey()))

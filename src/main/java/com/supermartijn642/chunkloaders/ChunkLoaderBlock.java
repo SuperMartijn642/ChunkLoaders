@@ -105,6 +105,15 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock {
     }
 
     @Override
+    public void onBlockAdded(World level, BlockPos pos, IBlockState newState){
+        if(newState.getBlock() == this){
+            TileEntity entity = level.getTileEntity(pos);
+            if(entity instanceof ChunkLoaderBlockEntity)
+                entity.onLoad();
+        }
+    }
+
+    @Override
     public boolean isOpaqueCube(IBlockState state){
         return false;
     }
