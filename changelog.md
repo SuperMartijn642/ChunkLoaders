@@ -1,3 +1,6 @@
+### Chunk Loaders 1.2.8a
+- Fixed chunk loaders dimensions from Multiworld not getting loaded properly
+
 ### Chunk Loaders 1.2.8
 - Added Japanese translations (thanks to ALFECLARE!)
 - Added workaround for Create contraptions moving chunk loaders
