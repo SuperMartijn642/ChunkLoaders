@@ -6,7 +6,6 @@
   "refmap": "${mod_id}.mixins.refmap.json",
   "mixins": [
     "LevelMixin",
-    "MinecraftServerMixin",
     "ServerChunkCacheMixin",
     "ServerLevelMixin"
   ],
