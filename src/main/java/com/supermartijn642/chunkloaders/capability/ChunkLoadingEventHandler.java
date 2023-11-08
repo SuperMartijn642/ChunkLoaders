@@ -30,4 +30,13 @@ public class ChunkLoadingEventHandler {
         ChunkLoadingCapability capability = ChunkLoadingCapability.get(((ServerPlayer)e.getEntity()).getLevel());
         ChunkLoaders.CHANNEL.sendToPlayer(e.getEntity(), new PacketFullCapabilityData(capability.castServer().writeClientInfo()));
     }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent e){
+        if(!(e.getEntity() instanceof ServerPlayer))
+            return;
+
+        ChunkLoadingCapability capability = ChunkLoadingCapability.get(((ServerPlayer)e.getEntity()).getLevel());
+        ChunkLoaders.CHANNEL.sendToPlayer(e.getEntity(), new PacketFullCapabilityData(capability.castServer().writeClientInfo()));
+    }
 }
