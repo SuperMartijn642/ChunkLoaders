@@ -29,7 +29,8 @@ public class ChunkLoadingEventHandler {
      * {@link net.minecraft.world.server.ChunkManager#noPlayersCloseForSpawning(ChunkPos)}
      */
     private static final Method noPlayersCloseForSpawning;
-    static {
+
+    static{
         noPlayersCloseForSpawning = ObfuscationReflectionHelper.findMethod(ChunkManager.class, "func_219243_d", ChunkPos.class);
         noPlayersCloseForSpawning.setAccessible(true);
     }
@@ -49,6 +50,15 @@ public class ChunkLoadingEventHandler {
             return;
 
         ChunkLoadingCapability capability = ChunkLoadingCapability.get(((ServerPlayerEntity)e.getPlayer()).getLevel());
+        ChunkLoaders.CHANNEL.sendToPlayer(e.getPlayer(), new PacketFullCapabilityData(capability.castServer().writeClientInfo()));
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent e){
+        if(!(e.getEntity() instanceof ServerPlayerEntity))
+            return;
+
+        ChunkLoadingCapability capability = ChunkLoadingCapability.get(((ServerPlayerEntity)e.getEntity()).getLevel());
         ChunkLoaders.CHANNEL.sendToPlayer(e.getPlayer(), new PacketFullCapabilityData(capability.castServer().writeClientInfo()));
     }
 
@@ -74,7 +84,7 @@ public class ChunkLoadingEventHandler {
         }
     }
 
-    private static boolean noPlayersCloseForSpawning(ChunkManager chunkManager, ChunkPos chunk) {
+    private static boolean noPlayersCloseForSpawning(ChunkManager chunkManager, ChunkPos chunk){
         try{
             return (boolean)noPlayersCloseForSpawning.invoke(chunkManager, chunk);
         }catch(InvocationTargetException | IllegalAccessException e){
