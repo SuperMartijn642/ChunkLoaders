@@ -40,6 +40,15 @@ public class ChunkLoadingEventHandler {
     }
 
     @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent e){
+        if(!(e.player instanceof EntityPlayerMP))
+            return;
+
+        ChunkLoadingCapability capability = ChunkLoadingCapability.get(e.player.getEntityWorld());
+        ChunkLoaders.CHANNEL.sendToPlayer(e.player, new PacketFullCapabilityData(capability.castServer().writeClientInfo()));
+    }
+
+    @SubscribeEvent
     public static void onTick(TickEvent.WorldTickEvent e){
         if(e.phase != TickEvent.Phase.END || !(e.world instanceof WorldServer))
             return;
