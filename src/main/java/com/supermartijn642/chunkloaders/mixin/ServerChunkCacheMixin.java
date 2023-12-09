@@ -7,7 +7,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.storage.LevelData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,7 +35,7 @@ public class ServerChunkCacheMixin {
         ),
         locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void tickChunks(CallbackInfo ci, long l, long m, boolean isDebug, LevelData levelData, ProfilerFiller profilerFiller, int randomTickSpeed, boolean bl2, int j, NaturalSpawner.SpawnState spawnState, List<?> chunks, boolean bl3, Iterator<?> chunkIterator, ServerChunkCache.ChunkAndHolder chunkAndHolder, LevelChunk chunk, ChunkPos chunkPos){
+    private void tickChunks(CallbackInfo ci, long l, long m, ProfilerFiller profilerFiller, List<?> chunks, int j, NaturalSpawner.SpawnState spawnState, boolean bl3, int randomTickSpeed, boolean bl2, Iterator<?> chunkIterator, ServerChunkCache.ChunkAndHolder chunkAndHolder, LevelChunk chunk, ChunkPos chunkPos){
         //noinspection DataFlowIssue
         ServerChunkCache cache = (ServerChunkCache)(Object)this;
         if((!this.level.isNaturalSpawningAllowed(chunkPos) || !cache.chunkMap.anyPlayerCloseEnoughForSpawning(chunkPos) || !this.level.shouldTickBlocksAt(chunkPos.toLong()))
