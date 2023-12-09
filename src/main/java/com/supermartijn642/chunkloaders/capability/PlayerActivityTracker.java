@@ -16,8 +16,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -99,11 +100,11 @@ public class PlayerActivityTracker {
         dirty = false;
 
         // Load the data from the world folder
-        File file = new File(e.getServer().getWorldPath(LevelResource.ROOT).toFile(), "chunkloaders/active_players.nbt");
-        if(!file.exists())
+        Path path = e.getServer().getWorldPath(LevelResource.ROOT).resolve("chunkloaders/active_players.nbt");
+        if(!Files.exists(path))
             return;
         try{
-            CompoundTag data = NbtIo.read(file);
+            CompoundTag data = NbtIo.read(path);
             if(data != null)
                 read(data);
         }catch(IOException exception){
@@ -119,10 +120,10 @@ public class PlayerActivityTracker {
         // Save everything when world gets saved
         if(dirty){
             CompoundTag data = write();
-            File file = new File(((ServerLevel)e.getLevel()).getServer().getWorldPath(LevelResource.ROOT).toFile(), "chunkloaders/active_players.nbt");
-            file.getParentFile().mkdirs();
+            Path path = e.getLevel().getServer().getWorldPath(LevelResource.ROOT).resolve("chunkloaders/active_players.nbt");
             try{
-                NbtIo.write(data, file);
+                Files.createDirectories(path.getParent());
+                NbtIo.write(data, path);
             }catch(IOException exception){
                 ChunkLoaders.LOGGER.error("Failed to write active player data!", exception);
                 return;
