@@ -11,7 +11,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.world.ForgeChunkManager;
+import net.neoforged.neoforge.common.world.chunk.TicketHelper;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -185,14 +185,14 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
     }
 
     private void loadChunk(ChunkPos pos){
-        ForgeChunkManager.forceChunk((ServerLevel)this.level, "chunkloaders", CHUNK_LOADER_GLOBAL_UUID, pos.x, pos.z, true, true);
+        ChunkLoaders.TICKET_CONTROLLER.forceChunk((ServerLevel)this.level, CHUNK_LOADER_GLOBAL_UUID, pos.x, pos.z, true, true);
     }
 
     private void unloadChunk(ChunkPos pos){
-        ForgeChunkManager.forceChunk((ServerLevel)this.level, "chunkloaders", CHUNK_LOADER_GLOBAL_UUID, pos.x, pos.z, false, true);
+        ChunkLoaders.TICKET_CONTROLLER.forceChunk((ServerLevel)this.level, CHUNK_LOADER_GLOBAL_UUID, pos.x, pos.z, false, true);
     }
 
-    public void onLoadLevel(ForgeChunkManager.TicketHelper ticketHelper){
+    public void onLoadLevel(TicketHelper ticketHelper){
         // Clear all tickets and reload the ones from the capability to naturally fix possible errors when the world is reloaded
         ticketHelper.removeAllTickets(CHUNK_LOADER_GLOBAL_UUID);
         for(ChunkPos pos : this.activePlayersPerLoadedChunk.keySet())

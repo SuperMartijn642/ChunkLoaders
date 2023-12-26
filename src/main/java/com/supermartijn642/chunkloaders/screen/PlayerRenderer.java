@@ -10,7 +10,7 @@ import com.supermartijn642.core.gui.ScreenUtils;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.common.UsernameCache;
+import net.neoforged.neoforge.common.UsernameCache;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -111,7 +111,8 @@ public class PlayerRenderer {
                 if(json.has("name"))
                     return json.get("name").getAsString();
             }
-        }catch(Exception ignore){}
+        }catch(Exception ignore){
+        }
         return null;
     }
 

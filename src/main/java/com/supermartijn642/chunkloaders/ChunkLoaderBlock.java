@@ -14,7 +14,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -35,10 +34,9 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Created 7/10/2020 by SuperMartijn642
@@ -71,10 +69,8 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
             }else if(player.isShiftKeyDown()){ // Legacy stuff
                 if(level.isClientSide)
                     player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_success").color(ChatFormatting.WHITE).get(), true);
-                else{
+                else
                     ((ChunkLoaderBlockEntity)entity).setOwner(player.getUUID());
-                    level.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
-                }
             }else if(level.isClientSide)
                 player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_message").color(ChatFormatting.RED).get(), true);
         }
@@ -107,12 +103,8 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
     @Override
     public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving){
         BlockEntity entity = worldIn.getBlockEntity(pos);
-        if(!worldIn.isClientSide && entity instanceof ChunkLoaderBlockEntity){
-            if(((ChunkLoaderBlockEntity)entity).hasOwner())
-                ChunkLoadingCapability.get(worldIn).castServer().removeChunkLoader((ChunkLoaderBlockEntity)entity);
-            else // Remove from legacy capability
-                worldIn.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(pos));
-        }
+        if(!worldIn.isClientSide && entity instanceof ChunkLoaderBlockEntity && ((ChunkLoaderBlockEntity)entity).hasOwner())
+            ChunkLoadingCapability.get(worldIn).castServer().removeChunkLoader((ChunkLoaderBlockEntity)entity);
         super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
@@ -126,12 +118,11 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, BlockGetter world, List<Component> tooltip, TooltipFlag advanced){
+    protected void appendItemInformation(ItemStack stack, @Nullable BlockGetter level, Consumer<Component> info, boolean advanced){
         if(this.type.getGridSize() == 1)
-            tooltip.add(TextComponents.translation("chunkloaders.chunk_loader.info.single").color(ChatFormatting.AQUA).get());
+            info.accept(TextComponents.translation("chunkloaders.chunk_loader.info.single").color(ChatFormatting.AQUA).get());
         else
-            tooltip.add(TextComponents.translation("chunkloaders.chunk_loader.info.multiple", this.type.getGridSize()).color(ChatFormatting.AQUA).get());
+            info.accept(TextComponents.translation("chunkloaders.chunk_loader.info.multiple", this.type.getGridSize()).color(ChatFormatting.AQUA).get());
     }
 
     @Override

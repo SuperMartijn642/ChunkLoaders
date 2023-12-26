@@ -4,7 +4,7 @@ import com.supermartijn642.chunkloaders.ChunkLoaderType;
 import com.supermartijn642.core.generator.RecipeGenerator;
 import com.supermartijn642.core.generator.ResourceCache;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.Tags;
+import net.neoforged.neoforge.common.Tags;
 
 /**
  * Created 25/06/2022 by SuperMartijn642

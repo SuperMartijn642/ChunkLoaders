@@ -9,12 +9,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * Created 7/11/2020 by SuperMartijn642
@@ -35,7 +35,7 @@ public class ChunkLoadersClient {
         // Register key to open chunk loader screen
         CHUNK_LOADING_SCREEN_KEY = new KeyMapping("chunkloaders.keys.open_screen", 67/*'c'*/, "chunkloaders.keys.category");
         e.register(CHUNK_LOADING_SCREEN_KEY);
-        MinecraftForge.EVENT_BUS.addListener(ChunkLoadersClient::onKey);
+        NeoForge.EVENT_BUS.addListener(ChunkLoadersClient::onKey);
     }
 
     public static void onKey(InputEvent.Key e){
