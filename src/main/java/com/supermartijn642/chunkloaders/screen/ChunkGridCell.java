@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  */
 public class ChunkGridCell extends BaseWidget {
 
-    private static final ResourceLocation CELL_OVERLAY = new ResourceLocation("chunkloaders", "textures/gui/cell_overlay.png");
+    private static final ResourceLocation CELL_OVERLAY = ResourceLocation.fromNamespaceAndPath("chunkloaders", "textures/gui/cell_overlay.png");
 
     private final ChunkPos pos;
     private final UUID player;
