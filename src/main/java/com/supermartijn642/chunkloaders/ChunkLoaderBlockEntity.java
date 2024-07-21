@@ -75,12 +75,11 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
             BlockState state = this.getBlockState();
             this.level.getServer().doRunTask(new TickTask(1, () -> {
                 LevelChunk chunk = this.level.getChunkSource().getChunkNow(SectionPos.blockToSectionCoord(this.worldPosition.getX()), SectionPos.blockToSectionCoord(this.worldPosition.getY()));
-                if(chunk != null && !chunk.getBlockState(this.worldPosition).is(state.getBlock()) && !(chunk.getBlockEntity(this.worldPosition) instanceof ChunkLoaderBlockEntity)){
-                    if(this.hasOwner())
-                        ChunkLoadingCapability.get(this.level).castServer().removeChunkLoader(this);
-                    else // Remove from legacy capability
-                        this.level.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(cap -> cap.remove(this.worldPosition));
-                }
+                if(chunk != null
+                    && !chunk.getBlockState(this.worldPosition).is(state.getBlock())
+                    && !(chunk.getBlockEntity(this.worldPosition) instanceof ChunkLoaderBlockEntity)
+                    && this.hasOwner())
+                    ChunkLoadingCapability.get(this.level).castServer().removeChunkLoader(this);
             }));
         }
     }

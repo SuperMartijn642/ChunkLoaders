@@ -65,16 +65,12 @@ public class ChunkLoaders {
         // Set the chunk loading callback
         ForgeChunkManager.setForcedChunkLoadingCallback("chunkloaders", (level, ticketHelper) -> {
             level.getCapability(CHUNK_LOADING_CAPABILITY).ifPresent(capability -> capability.castServer().onLoadLevel(ticketHelper));
-            level.getCapability(LegacyChunkLoadingCapability.TRACKER_CAPABILITY).ifPresent(capability -> capability.onLoadLevel(ticketHelper));
         });
     }
 
     public void registerCapabilities(RegisterCapabilitiesEvent e){
         // Register the chunk loading capability
         e.register(ChunkLoadingCapability.class);
-
-        // Register the legacy capability
-        LegacyChunkLoadingCapability.register(e);
     }
 
     public void attachCapabilities(AttachCapabilitiesEvent<Level> e){

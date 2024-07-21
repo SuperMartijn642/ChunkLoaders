@@ -72,10 +72,7 @@ public class PlayerActivityTracker {
     }
 
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent e){
-        if(e.phase == TickEvent.Phase.END)
-            return;
-
+    public static void onServerTick(TickEvent.ServerTickEvent.Post e){
         long timeoutTime = System.currentTimeMillis() - getInactivityTimeout();
         // Remove players who have timed out
         ActiveTime earliestExpiringTime;
