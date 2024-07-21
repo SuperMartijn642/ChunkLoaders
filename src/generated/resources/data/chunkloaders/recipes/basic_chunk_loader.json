@@ -7,16 +7,16 @@
   ],
   "key": {
     "A": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:ingots/iron"
     },
     "B": {
-      "tag": "forge:obsidian"
+      "tag": "c:obsidians"
     },
     "C": {
-      "tag": "forge:ender_pearls"
+      "tag": "c:ender_pearls"
     }
   },
   "result": {
-    "item": "chunkloaders:basic_chunk_loader"
+    "id": "chunkloaders:basic_chunk_loader"
   }
 }

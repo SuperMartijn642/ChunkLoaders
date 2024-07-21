@@ -34,7 +34,7 @@ public class ChunkLoadersRecipeGenerator extends RecipeGenerator {
             .pattern("BCB")
             .pattern("ABA")
             .input('A', Tags.Items.INGOTS_IRON)
-            .input('B', Tags.Items.OBSIDIAN)
+            .input('B', Tags.Items.OBSIDIANS)
             .input('C', Tags.Items.ENDER_PEARLS)
             .unlockedBy(Tags.Items.ENDER_PEARLS);
         // Advanced chunk loader

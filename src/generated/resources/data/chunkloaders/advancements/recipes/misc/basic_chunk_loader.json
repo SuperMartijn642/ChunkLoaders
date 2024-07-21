@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "display": {
     "icon": {
-      "item": "chunkloaders:basic_chunk_loader"
+      "id": "chunkloaders:basic_chunk_loader"
     },
     "title": {
       "translate": "chunkloaders.advancement.recipes/misc/basic_chunk_loader.title"
@@ -27,7 +27,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:ender_pearls"
+            "items": "#c:ender_pearls"
           }
         ]
       }

@@ -10,13 +10,13 @@
       "item": "minecraft:blaze_powder"
     },
     "B": {
-      "tag": "forge:ingots/gold"
+      "tag": "c:ingots/gold"
     },
     "C": {
       "item": "chunkloaders:basic_chunk_loader"
     }
   },
   "result": {
-    "item": "chunkloaders:advanced_chunk_loader"
+    "id": "chunkloaders:advanced_chunk_loader"
   }
 }

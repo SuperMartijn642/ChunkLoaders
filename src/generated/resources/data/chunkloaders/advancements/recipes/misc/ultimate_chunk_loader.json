@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "display": {
     "icon": {
-      "item": "chunkloaders:ultimate_chunk_loader"
+      "id": "chunkloaders:ultimate_chunk_loader"
     },
     "title": {
       "translate": "chunkloaders.advancement.recipes/misc/ultimate_chunk_loader.title"
@@ -27,9 +27,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "chunkloaders:advanced_chunk_loader"
-            ]
+            "items": "chunkloaders:advanced_chunk_loader"
           }
         ]
       }

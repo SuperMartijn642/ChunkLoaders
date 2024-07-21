@@ -4,13 +4,13 @@ import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.packet.PacketFullCapabilityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
  * Created 26/06/2022 by SuperMartijn642
  */
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class ChunkLoadingEventHandler {
 
     @SubscribeEvent

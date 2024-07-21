@@ -9,11 +9,11 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * Created 23/02/2022 by SuperMartijn642
  */
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class PlayerActivityTracker {
 
     /**
@@ -72,10 +72,7 @@ public class PlayerActivityTracker {
     }
 
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent e){
-        if(e.phase == TickEvent.Phase.END)
-            return;
-
+    public static void onServerTick(ServerTickEvent.Post e){
         long timeoutTime = System.currentTimeMillis() - getInactivityTimeout();
         // Remove players who have timed out
         ActiveTime earliestExpiringTime;

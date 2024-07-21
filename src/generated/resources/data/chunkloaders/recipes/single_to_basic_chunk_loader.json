@@ -11,6 +11,6 @@
     }
   },
   "result": {
-    "item": "chunkloaders:basic_chunk_loader"
+    "id": "chunkloaders:basic_chunk_loader"
   }
 }

@@ -7,10 +7,10 @@
   ],
   "key": {
     "A": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:dusts/redstone"
     },
     "B": {
-      "tag": "forge:gems/diamond"
+      "tag": "c:gems/diamond"
     },
     "C": {
       "item": "minecraft:ender_eye"
@@ -20,6 +20,6 @@
     }
   },
   "result": {
-    "item": "chunkloaders:ultimate_chunk_loader"
+    "id": "chunkloaders:ultimate_chunk_loader"
   }
 }
