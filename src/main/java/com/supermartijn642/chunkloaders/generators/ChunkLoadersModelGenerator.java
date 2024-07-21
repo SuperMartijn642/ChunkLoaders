@@ -17,6 +17,6 @@ public class ChunkLoadersModelGenerator extends ModelGenerator {
     @Override
     public void generate(){
         for(ChunkLoaderType type : ChunkLoaderType.values())
-            this.model("item/" + type.getRegistryName()).parent(new ResourceLocation("chunkloaders", "block/" + type.getRegistryName()));
+            this.model("item/" + type.getRegistryName()).parent(ResourceLocation.fromNamespaceAndPath("chunkloaders", "block/" + type.getRegistryName()));
     }
 }

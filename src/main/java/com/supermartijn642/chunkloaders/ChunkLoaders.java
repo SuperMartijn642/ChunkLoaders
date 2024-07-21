@@ -27,7 +27,7 @@ public class ChunkLoaders {
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("chunkloaders", ChunkLoaderType.ADVANCED::getItem);
 
     public static final TicketController TICKET_CONTROLLER = new TicketController(
-        new ResourceLocation("chunkloaders", "chunks"),
+        ResourceLocation.fromNamespaceAndPath("chunkloaders", "chunks"),
         (level, ticketHelper) -> ChunkLoadingCapability.get(level).castServer().onLoadLevel(ticketHelper)
     );
 
