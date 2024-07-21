@@ -1,5 +1,6 @@
 package com.supermartijn642.chunkloaders.capability;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -16,7 +17,7 @@ public class ChunkLoadingCapabilitySaveData extends SavedData {
     public static void init(ServerLevel level, ChunkLoadingCapability capability){
         level.getDataStorage().computeIfAbsent(new Factory<SavedData>(
             () -> new ChunkLoadingCapabilitySaveData(capability),
-            tag -> {
+            (tag, provider) -> {
                 ChunkLoadingCapabilitySaveData saveData = new ChunkLoadingCapabilitySaveData(capability);
                 saveData.load(tag);
                 return saveData;
@@ -30,7 +31,7 @@ public class ChunkLoadingCapabilitySaveData extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag){
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider provider){
         return this.capability.write();
     }
 

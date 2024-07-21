@@ -3,7 +3,7 @@ package com.supermartijn642.chunkloaders.generators;
 import com.supermartijn642.chunkloaders.ChunkLoaderType;
 import com.supermartijn642.core.generator.RecipeGenerator;
 import com.supermartijn642.core.generator.ResourceCache;
-import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.minecraft.world.item.Items;
 
 /**
@@ -52,7 +52,7 @@ public class ChunkLoadersRecipeGenerator extends RecipeGenerator {
             .pattern("CDC")
             .pattern("ABA")
             .input('A', ConventionalItemTags.REDSTONE_DUSTS)
-            .input('B', ConventionalItemTags.DIAMONDS)
+            .input('B', ConventionalItemTags.DIAMOND_GEMS)
             .input('C', Items.ENDER_EYE)
             .input('D', ChunkLoaderType.ADVANCED.getItem())
             .unlockedBy(ChunkLoaderType.ADVANCED.getItem());
