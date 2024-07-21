@@ -8,6 +8,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Created 26/06/2022 by SuperMartijn642
  */
+@AutoRegisterCapability
 public class ChunkLoadingCapability {
 
     public static ChunkLoadingCapability get(Level level){

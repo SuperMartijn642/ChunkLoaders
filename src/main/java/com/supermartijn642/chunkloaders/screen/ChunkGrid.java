@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 public class ChunkGrid extends BaseWidget {
 
-    private static final ResourceLocation GRID_OVERLAY = new ResourceLocation("chunkloaders", "textures/gui/grid_overlay.png");
+    private static final ResourceLocation GRID_OVERLAY = ResourceLocation.fromNamespaceAndPath("chunkloaders", "textures/gui/grid_overlay.png");
 
     private final int rows, columns;
     private final ChunkPos topLeftChunk;

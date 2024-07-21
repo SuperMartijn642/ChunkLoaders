@@ -11,12 +11,16 @@ import com.supermartijn642.core.network.PacketChannel;
 import com.supermartijn642.core.registry.GeneratorRegistrationHandler;
 import com.supermartijn642.core.registry.RegistrationHandler;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.*;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -44,7 +48,6 @@ public class ChunkLoaders {
 
     public ChunkLoaders(){
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
         MinecraftForge.EVENT_BUS.addGenericListener(Level.class, this::attachCapabilities);
 
         CHANNEL.registerMessage(PackedChunkLoaderAdded.class, PackedChunkLoaderAdded::new, true);
@@ -68,15 +71,10 @@ public class ChunkLoaders {
         });
     }
 
-    public void registerCapabilities(RegisterCapabilitiesEvent e){
-        // Register the chunk loading capability
-        e.register(ChunkLoadingCapability.class);
-    }
-
     public void attachCapabilities(AttachCapabilitiesEvent<Level> e){
         Level level = e.getObject();
         LazyOptional<ChunkLoadingCapability> tracker = LazyOptional.of(() -> level.isClientSide ? new ClientChunkLoadingCapability(level) : new ServerChunkLoadingCapability(level));
-        e.addCapability(new ResourceLocation("chunkloaders", "chunk_loading_capability"), new ICapabilitySerializable<>() {
+        e.addCapability(ResourceLocation.fromNamespaceAndPath("chunkloaders", "chunk_loading_capability"), new ICapabilitySerializable<>() {
             @Nonnull
             @Override
             public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side){
@@ -84,12 +82,12 @@ public class ChunkLoaders {
             }
 
             @Override
-            public Tag serializeNBT(){
+            public Tag serializeNBT(HolderLookup.Provider provider){
                 return tracker.map(ChunkLoadingCapability::write).orElse(null);
             }
 
             @Override
-            public void deserializeNBT(Tag nbt){
+            public void deserializeNBT(HolderLookup.Provider provider, Tag nbt){
                 tracker.ifPresent(cap -> cap.read((CompoundTag)nbt));
             }
         });
