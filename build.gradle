@@ -130,8 +130,15 @@ tasks.register('prepareDataResources', Sync) {
     into layout.buildDirectory.dir("/data_resources")
     inputs.property "version", version
 
+    // Replace the mod version
+    Map<String, ?> copyProperties = project.properties.clone() as Map<String, ?>
+    //noinspection UnnecessaryQualifiedReference
+    var matcher = java.util.regex.Pattern.compile("[^.0-9]").matcher(copyProperties.mod_version as String)
+    if (matcher.find())
+        copyProperties.mod_version = copyProperties.mod_version.substring(0, matcher.start()) + "+" + copyProperties.mod_version.substring(matcher.start())
+
     filesMatching(["META-INF/mods.toml", "modid.mixins.json", "pack.mcmeta"]) {
-        expand properties
+        expand copyProperties
     }
 
     exclude "**/*.pdn"
@@ -142,9 +149,12 @@ tasks.register('prepareDataResources', Sync) {
 
 // Run prepareDataResources before prepareRunData
 tasks.configureEach {
-    if (it.name == "prepareRunData")
+    if (it.name == "prepareRunData" || it.name == "prepareRunDataCompile")
         it.dependsOn "prepareDataResources"
 }
+
+// Force the jar to be reobfuscated
+jar.finalizedBy('reobfJar')
 
 publishMods {
     file = jar.archiveFile
