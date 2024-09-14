@@ -181,6 +181,8 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
     }
 
     private void loadChunk(ChunkPos pos){
+        if(this.ticket == null)
+            this.ticket = ForgeChunkManager.requestTicket(ChunkLoaders.instance, this.level, ForgeChunkManager.Type.NORMAL);
         ForgeChunkManager.forceChunk(this.ticket, pos);
     }
 
@@ -191,7 +193,8 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
     public void onLoadLevel(List<ForgeChunkManager.Ticket> tickets){
         // Clear all tickets and reload the ones from the capability to naturally fix possible errors when the world is reloaded
         tickets.forEach(ForgeChunkManager::releaseTicket);
-        this.ticket = ForgeChunkManager.requestTicket(ChunkLoaders.instance, this.level, ForgeChunkManager.Type.NORMAL);
+        if(this.ticket == null)
+            this.ticket = ForgeChunkManager.requestTicket(ChunkLoaders.instance, this.level, ForgeChunkManager.Type.NORMAL);
         for(ChunkPos pos : this.activePlayersPerLoadedChunk.keySet())
             this.loadChunk(pos);
     }
