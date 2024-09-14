@@ -1,3 +1,6 @@
+### Chunk Loaders 1.2.8b
+- Fixed chunk loaders not working if there were no loaded chunks when the last save occurred
+
 ### Chunk Loaders 1.2.8a
 - Fixed chunk loader data not being sent after a player respawns
 
