@@ -52,7 +52,8 @@ public class ServerLevelMixin {
 
     @ModifyVariable(
         method = "tick",
-        at = @At("STORE")
+        at = @At(value = "STORE"),
+        ordinal = 1
     )
     private boolean tick(boolean shouldTick){
         //noinspection DataFlowIssue
