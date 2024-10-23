@@ -6,18 +6,10 @@
     "ABA"
   ],
   "key": {
-    "A": {
-      "tag": "c:dusts/redstone"
-    },
-    "B": {
-      "tag": "c:gems/diamond"
-    },
-    "C": {
-      "item": "minecraft:ender_eye"
-    },
-    "D": {
-      "item": "chunkloaders:advanced_chunk_loader"
-    }
+    "A": "#c:dusts/redstone",
+    "B": "#c:gems/diamond",
+    "C": "minecraft:ender_eye",
+    "D": "chunkloaders:advanced_chunk_loader"
   },
   "result": {
     "id": "chunkloaders:ultimate_chunk_loader"

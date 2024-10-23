@@ -80,8 +80,7 @@ public class ChunkGrid extends BaseWidget {
         ScreenUtils.fillRect(context.poseStack(), this.x + 1, this.y, this.width - 2, 1, 0, 0, 0, 1);
         ScreenUtils.fillRect(context.poseStack(), this.x, this.y + 1, this.width, this.height - 2, 0, 0, 0, 1);
         ScreenUtils.fillRect(context.poseStack(), this.x + 1, this.y + this.height - 1, this.width - 2, 1, 0, 0, 0, 1);
-        ScreenUtils.bindTexture(GRID_OVERLAY);
-        ScreenUtils.drawTexture(context.poseStack(), this.x + 1, this.y + 1, this.width - 2, this.height - 2, 0, 0, this.columns, this.rows);
+        ScreenUtils.drawTexture(GRID_OVERLAY, context.poseStack(), this.x + 1, this.y + 1, this.width - 2, this.height - 2, 0, 0, this.columns, this.rows);
 
         super.renderBackground(context, mouseX, mouseY);
     }

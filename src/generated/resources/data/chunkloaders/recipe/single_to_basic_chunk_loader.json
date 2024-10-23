@@ -6,9 +6,7 @@
     "AAA"
   ],
   "key": {
-    "A": {
-      "item": "chunkloaders:single_chunk_loader"
-    }
+    "A": "chunkloaders:single_chunk_loader"
   },
   "result": {
     "id": "chunkloaders:basic_chunk_loader"

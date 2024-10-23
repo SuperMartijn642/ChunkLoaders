@@ -3,19 +3,19 @@ package com.supermartijn642.chunkloaders.mixin;
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created 21/02/2023 by SuperMartijn642
@@ -23,23 +23,36 @@ import java.util.List;
 @Mixin(ServerChunkCache.class)
 public class ServerChunkCacheMixin {
 
+    @Final
     @Shadow
     private ServerLevel level;
+    @Final
+    @Shadow
+    private List<LevelChunk> tickingChunks;
+    @Unique
+    private final Set<ChunkPos> tickingChunksSet = new HashSet<>();
 
     @Inject(
-        method = "tickChunks",
+        method = "tickChunks()V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerLevel;isNaturalSpawningAllowed(Lnet/minecraft/world/level/ChunkPos;)Z",
-            shift = At.Shift.BEFORE
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD
+            target = "Lnet/minecraft/server/level/ServerChunkCache;collectTickingChunks(Ljava/util/List;)V",
+            shift = At.Shift.AFTER
+        )
     )
-    private void tickChunks(CallbackInfo ci, long l, long m, ProfilerFiller profilerFiller, List<?> chunks, int j, NaturalSpawner.SpawnState spawnState, boolean bl3, int randomTickSpeed, boolean bl2, Iterator<?> chunkIterator, ServerChunkCache.ChunkAndHolder chunkAndHolder, LevelChunk chunk, ChunkPos chunkPos){
-        //noinspection DataFlowIssue
-        ServerChunkCache cache = (ServerChunkCache)(Object)this;
-        if((!this.level.isNaturalSpawningAllowed(chunkPos) || !cache.chunkMap.anyPlayerCloseEnoughForSpawning(chunkPos) || !this.level.shouldTickBlocksAt(chunkPos.toLong()))
-            && ChunkLoadingCapability.get(this.level).castServer().getChunksToBeTicked().contains(chunkPos))
-            this.level.tickChunk(chunk, randomTickSpeed);
+    private void addChunkLoadedChunksForTicking(CallbackInfo ci){
+        // Put all chunks currently in the list into a set, so we can look them up quickly
+        for(LevelChunk levelChunk : this.tickingChunks)
+            this.tickingChunksSet.add(levelChunk.getPos());
+        // Go through all chunk loaded chunks
+        for(ChunkPos pos : ChunkLoadingCapability.get(this.level).castServer().getChunksToBeTicked()){
+            // Check the chunk is not already in the list
+            if(this.tickingChunksSet.contains(pos))
+                continue;
+            // Get the chunk and add it to the list
+            LevelChunk chunk = this.level.getChunk(pos.x, pos.z);
+            this.tickingChunks.add(chunk);
+        }
+        this.tickingChunksSet.clear();
     }
 }

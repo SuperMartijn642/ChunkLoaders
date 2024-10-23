@@ -31,8 +31,7 @@ public class PlayerRenderer {
     private static final HashSet<UUID> FETCH_QUEUE = new HashSet<>();
 
     public static void renderPlayerHead(UUID player, PoseStack poseStack, int x, int y, int width, int height){
-        ScreenUtils.bindTexture(getPlayerSkin(player));
-        ScreenUtils.drawTexture(poseStack, x, y, width, height, 1 / 8f, 1 / 8f, 1 / 8f, 1 / 8f);
+        ScreenUtils.drawTexture(getPlayerSkin(player), poseStack, x, y, width, height, 1 / 8f, 1 / 8f, 1 / 8f, 1 / 8f);
     }
 
     public static String getPlayerUsername(UUID player){
@@ -110,7 +109,8 @@ public class PlayerRenderer {
                 if(json.has("name"))
                     return json.get("name").getAsString();
             }
-        }catch(Exception ignore){}
+        }catch(Exception ignore){
+        }
         return null;
     }
 

@@ -44,7 +44,7 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
         }
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        RenderType type = ItemBlockRenderTypes.getRenderType(this.block.defaultBlockState(), true);
+        RenderType type = ItemBlockRenderTypes.getRenderType(this.block.defaultBlockState());
         BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(this.block.defaultBlockState());
         ClientUtils.getBlockRenderer().getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(type), this.block.defaultBlockState(), model, 1, 1, 1, combinedLight, combinedOverlay);
 
