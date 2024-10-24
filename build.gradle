@@ -39,8 +39,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     // Core library
-//    modImplementation "curse.maven:supermartijn642s-core-lib-454372:${core_library_file}"
-    modImplementation "a:supermartijn642corelib:1.1.17-fabric-mc1.21.3"
+    modImplementation "curse.maven:supermartijn642s-core-lib-454372:${core_library_file}"
     // Config library
     modImplementation "curse.maven:supermartijn642s-config-lib-438332:${config_library_file}"
 
