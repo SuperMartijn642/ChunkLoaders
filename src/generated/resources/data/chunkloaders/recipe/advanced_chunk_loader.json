@@ -6,15 +6,9 @@
     "ABA"
   ],
   "key": {
-    "A": {
-      "item": "minecraft:blaze_powder"
-    },
-    "B": {
-      "tag": "c:ingots/gold"
-    },
-    "C": {
-      "item": "chunkloaders:basic_chunk_loader"
-    }
+    "A": "minecraft:blaze_powder",
+    "B": "#c:ingots/gold",
+    "C": "chunkloaders:basic_chunk_loader"
   },
   "result": {
     "id": "chunkloaders:advanced_chunk_loader"

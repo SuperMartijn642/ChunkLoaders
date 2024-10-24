@@ -1,6 +1,7 @@
 package com.supermartijn642.chunkloaders.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.chunkloaders.packet.PacketToggleChunk;
@@ -12,10 +13,12 @@ import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +65,7 @@ public class ChunkGridCell extends BaseWidget {
     @Override
     public void renderBackground(WidgetRenderContext context, int mouseX, int mouseY){
         this.image.bindTexture();
-        ScreenUtils.drawTexture(context.poseStack(), this.x + 1, this.y + 1, 16, 16);
+        drawTexture(context.poseStack(), this.x + 1, this.y + 1, 16, 16);
     }
 
     @Override
@@ -79,10 +82,8 @@ public class ChunkGridCell extends BaseWidget {
 
     @Override
     public void renderForeground(WidgetRenderContext context, int mouseX, int mouseY){
-        if(this.isFocused() && this.canPlayerToggleChunk()){
-            ScreenUtils.bindTexture(CELL_OVERLAY);
-            ScreenUtils.drawTexture(context.poseStack(), this.x - 1, this.y - 1, this.width + 2, this.height + 2);
-        }
+        if(this.isFocused() && this.canPlayerToggleChunk())
+            ScreenUtils.drawTexture(CELL_OVERLAY, context.poseStack(), this.x - 1, this.y - 1, this.width + 2, this.height + 2);
     }
 
     private void drawOutline(PoseStack poseStack, BiFunction<Integer,Integer,Boolean> shouldConnect, float redBorder, float greenBorder, float blueBorder, float redFiller, float greenFiller, float blueFiller, float alphaFiller){
@@ -175,5 +176,20 @@ public class ChunkGridCell extends BaseWidget {
     @Override
     public void discard(){
         this.image.dispose();
+    }
+
+    public static void drawTexture(PoseStack poseStack, float x, float y, float width, float height){
+        //noinspection resource
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+        Matrix4f matrix = poseStack.last().pose();
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        buffer.addVertex(matrix, x, y + height, 0).setUv(0, 1);
+        buffer.addVertex(matrix, x + width, y + height, 0).setUv(1, 1);
+        buffer.addVertex(matrix, x + width, y, 0).setUv(1, 0);
+        buffer.addVertex(matrix, x, y, 0).setUv(0, 0);
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
     }
 }

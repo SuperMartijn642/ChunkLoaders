@@ -73,7 +73,7 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
         // Add check to see if block gets removed 1 tick later, for cases like Create's contraptions
         if(!this.level.isClientSide && this.level.getServer() != null){
             BlockState state = this.getBlockState();
-            this.level.getServer().doRunTask(new TickTask(1, () -> {
+            this.level.getServer().schedule(new TickTask(1, () -> {
                 LevelChunk chunk = this.level.getChunkSource().getChunkNow(SectionPos.blockToSectionCoord(this.worldPosition.getX()), SectionPos.blockToSectionCoord(this.worldPosition.getY()));
                 if(chunk != null
                     && !chunk.getBlockState(this.worldPosition).is(state.getBlock())
