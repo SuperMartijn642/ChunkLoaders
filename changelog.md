@@ -1,5 +1,2 @@
-### Chunk Loaders 1.2.8b
-- Fixed loaded chunks not receiving ticks when there's no player in the same dimension
-
-### Chunk Loaders 1.2.8a
-- Initial release of Chunk Loaders for Minecraft 1.21
+### Chunk Loaders 1.2.8
+- Initial release of Chunk Loaders for Minecraft 1.21.2 & 1.21.3
