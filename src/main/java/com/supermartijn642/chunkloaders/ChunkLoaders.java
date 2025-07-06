@@ -2,6 +2,7 @@ package com.supermartijn642.chunkloaders;
 
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingEventHandler;
 import com.supermartijn642.chunkloaders.capability.PlayerActivityTracker;
+import com.supermartijn642.chunkloaders.capability.ServerChunkLoadingCapability;
 import com.supermartijn642.chunkloaders.generators.*;
 import com.supermartijn642.chunkloaders.packet.*;
 import com.supermartijn642.core.item.CreativeItemGroup;
@@ -10,6 +11,10 @@ import com.supermartijn642.core.registry.GeneratorRegistrationHandler;
 import com.supermartijn642.core.registry.RegistrationHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.TicketType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,6 +55,11 @@ public class ChunkLoaders implements ModInitializer {
             handler.registerBlockEntityTypeCallback(type::registerBlockEntity);
             handler.registerItemCallback(type::registerItem);
         }
+        ServerChunkLoadingCapability.CHUNK_LOADING_TICKET_TYPE = Registry.register(
+            BuiltInRegistries.TICKET_TYPE,
+            ResourceLocation.fromNamespaceAndPath("chunkloaders", "loaded"),
+            new TicketType(0, false, TicketType.TicketUse.LOADING_AND_SIMULATION)
+        );
     }
 
     private static void registerGenerators(){

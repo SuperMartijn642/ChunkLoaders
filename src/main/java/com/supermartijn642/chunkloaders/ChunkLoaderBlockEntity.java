@@ -4,8 +4,8 @@ import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.core.block.BaseBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.TickTask;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -57,13 +57,13 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
     protected CompoundTag writeData(){
         CompoundTag compound = new CompoundTag();
         if(this.owner != null)
-            compound.putUUID("owner", this.owner);
+            compound.putIntArray("owner", UUIDUtil.uuidToIntArray(this.owner));
         return compound;
     }
 
     @Override
     protected void readData(CompoundTag compound){
-        this.owner = compound.contains("owner", Tag.TAG_INT_ARRAY) ? compound.getUUID("owner") : null;
+        this.owner = compound.getIntArray("owner").map(UUIDUtil::uuidFromIntArray).orElse(null);
     }
 
     @Override
@@ -80,5 +80,11 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
                 }
             }));
         }
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState){
+        if(!this.level.isClientSide && this.hasOwner())
+            ChunkLoadingCapability.get(this.level).castServer().removeChunkLoader(this);
     }
 }

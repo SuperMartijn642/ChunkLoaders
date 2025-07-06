@@ -2,5 +2,3 @@ accessWidener v1 named
 
 # ChunkMap
 accessible method net/minecraft/server/level/ChunkMap anyPlayerCloseEnoughForSpawning (Lnet/minecraft/world/level/ChunkPos;)Z
-# ServerChunkCache$ChunkAndHolder
-accessible class net/minecraft/server/level/ServerChunkCache$ChunkAndHolder

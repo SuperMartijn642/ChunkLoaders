@@ -6,7 +6,8 @@ import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.world.level.block.Block;
 import org.joml.Quaternionf;
 
@@ -45,8 +46,8 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
         poseStack.translate(-0.5, -0.5, -0.5);
 
         RenderType type = ItemBlockRenderTypes.getRenderType(this.block.defaultBlockState());
-        BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(this.block.defaultBlockState());
-        ClientUtils.getBlockRenderer().getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(type), this.block.defaultBlockState(), model, 1, 1, 1, combinedLight, combinedOverlay);
+        BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(this.block.defaultBlockState());
+        ModelBlockRenderer.renderModel(poseStack.last(), bufferSource.getBuffer(type), model, 1, 1, 1, combinedLight, combinedOverlay);
 
         poseStack.popPose();
     }

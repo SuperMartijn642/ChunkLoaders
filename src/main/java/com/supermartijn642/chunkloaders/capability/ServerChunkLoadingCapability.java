@@ -6,6 +6,7 @@ import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.packet.*;
 import com.supermartijn642.core.network.BasePacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
@@ -13,14 +14,17 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created 22/02/2022 by SuperMartijn642
  */
 public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
 
-    private static final TicketType<ChunkPos> CHUNK_LOADING_TICKET_TYPE = TicketType.create("chunkloaders:loaded", Comparator.comparingLong(ChunkPos::toLong));
+    public static TicketType CHUNK_LOADING_TICKET_TYPE;
 
     public ServerChunkLoadingCapability(Level level){
         super(level);
@@ -182,11 +186,11 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
     }
 
     private void loadChunk(ChunkPos pos){
-        ((ServerLevel)this.level).getChunkSource().addRegionTicket(CHUNK_LOADING_TICKET_TYPE, pos, 2, pos);
+        ((ServerLevel)this.level).getChunkSource().addTicketWithRadius(CHUNK_LOADING_TICKET_TYPE, pos, 2);
     }
 
     private void unloadChunk(ChunkPos pos){
-        ((ServerLevel)this.level).getChunkSource().removeRegionTicket(CHUNK_LOADING_TICKET_TYPE, pos, 2, pos);
+        ((ServerLevel)this.level).getChunkSource().removeTicketWithRadius(CHUNK_LOADING_TICKET_TYPE, pos, 2);
     }
 
     public void onLoadLevel(){
@@ -213,7 +217,7 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
         ListTag loadedChunksPerInactivePlayerTag = new ListTag();
         for(Map.Entry<UUID,Set<ChunkPos>> entry : this.loadedChunksPerPlayer.entrySet()){
             CompoundTag playerTag = new CompoundTag();
-            playerTag.putUUID("player", entry.getKey());
+            playerTag.putIntArray("player", UUIDUtil.uuidToIntArray(entry.getKey()));
             playerTag.putLongArray("chunks", entry.getValue().stream().mapToLong(ChunkPos::toLong).toArray());
             if(PlayerActivityTracker.isPlayerActive(entry.getKey()))
                 loadedChunksPerActivePlayerTag.add(playerTag);

@@ -1,6 +1,5 @@
 package com.supermartijn642.chunkloaders;
 
-import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.block.BaseBlock;
 import com.supermartijn642.core.block.BlockProperties;
@@ -102,16 +101,6 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
     }
 
     @Override
-    public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving){
-        BlockEntity entity = worldIn.getBlockEntity(pos);
-        if(!worldIn.isClientSide && entity instanceof ChunkLoaderBlockEntity){
-            if(((ChunkLoaderBlockEntity)entity).hasOwner())
-                ChunkLoadingCapability.get(worldIn).castServer().removeChunkLoader((ChunkLoaderBlockEntity)entity);
-        }
-        super.onRemove(state, worldIn, pos, newState, isMoving);
-    }
-
-    @Override
     public void onPlace(BlockState newState, Level level, BlockPos pos, BlockState oldState, boolean unknown){
         if(!level.isClientSide && level.getServer() != null && newState.getBlock() == this){
             BlockEntity entity = level.getBlockEntity(pos);
@@ -125,7 +114,7 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
     }
 
     @Override
-    protected void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
+    public void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
         if(this.type.getGridSize() == 1)
             info.accept(TextComponents.translation("chunkloaders.chunk_loader.info.single").color(ChatFormatting.AQUA).get());
         else

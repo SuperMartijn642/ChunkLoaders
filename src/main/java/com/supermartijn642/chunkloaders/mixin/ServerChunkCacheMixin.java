@@ -28,21 +28,21 @@ public class ServerChunkCacheMixin {
     private ServerLevel level;
     @Final
     @Shadow
-    private List<LevelChunk> tickingChunks;
+    private List<LevelChunk> spawningChunks;
     @Unique
     private final Set<ChunkPos> tickingChunksSet = new HashSet<>();
 
     @Inject(
-        method = "tickChunks()V",
+        method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerChunkCache;collectTickingChunks(Ljava/util/List;)V",
+            target = "Lnet/minecraft/server/level/ChunkMap;collectSpawningChunks(Ljava/util/List;)V",
             shift = At.Shift.AFTER
         )
     )
     private void addChunkLoadedChunksForTicking(CallbackInfo ci){
         // Put all chunks currently in the list into a set, so we can look them up quickly
-        for(LevelChunk levelChunk : this.tickingChunks)
+        for(LevelChunk levelChunk : this.spawningChunks)
             this.tickingChunksSet.add(levelChunk.getPos());
         // Go through all chunk loaded chunks
         for(ChunkPos pos : ChunkLoadingCapability.get(this.level).castServer().getChunksToBeTicked()){
@@ -51,7 +51,7 @@ public class ServerChunkCacheMixin {
                 continue;
             // Get the chunk and add it to the list
             LevelChunk chunk = this.level.getChunk(pos.x, pos.z);
-            this.tickingChunks.add(chunk);
+            this.spawningChunks.add(chunk);
         }
         this.tickingChunksSet.clear();
     }
