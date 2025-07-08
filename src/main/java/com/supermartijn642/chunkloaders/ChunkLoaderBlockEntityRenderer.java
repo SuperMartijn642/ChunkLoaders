@@ -4,12 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.util.RandomSource;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 
 /**
@@ -47,9 +45,8 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
         poseStack.translate(-0.5, -0.5, -0.5);
 
         BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
-        BakedModel model = blockRenderer.getBlockModel(this.block.defaultBlockState());
-        for(RenderType type : model.getRenderTypes(this.block.defaultBlockState(), RandomSource.create(), ModelData.EMPTY))
-            blockRenderer.getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(type), this.block.defaultBlockState(), model, 1, 1, 1, combinedLight, combinedOverlay, ModelData.EMPTY, type);
+        BlockStateModel model = blockRenderer.getBlockModel(this.block.defaultBlockState());
+        ModelBlockRenderer.renderModel(poseStack.last(), bufferSource, model, 1, 1, 1, combinedLight, combinedOverlay, entity.getLevel(), entity.getBlockPos(), this.block.defaultBlockState());
 
         poseStack.popPose();
     }

@@ -180,9 +180,9 @@ public class ChunkGridCell extends BaseWidget {
 
     public static void drawTexture(PoseStack poseStack, VertexConsumer buffer, float x, float y, float width, float height){
         Matrix4f matrix = poseStack.last().pose();
-        buffer.addVertex(matrix, x, y + height, 0).setUv(0, 1);
-        buffer.addVertex(matrix, x + width, y + height, 0).setUv(1, 1);
-        buffer.addVertex(matrix, x + width, y, 0).setUv(1, 0);
-        buffer.addVertex(matrix, x, y, 0).setUv(0, 0);
+        buffer.addVertex(matrix, x, y + height, 0).setUv(0, 1).setColor(1, 1, 1, 1f);
+        buffer.addVertex(matrix, x + width, y + height, 0).setUv(1, 1).setColor(1, 1, 1, 1f);
+        buffer.addVertex(matrix, x + width, y, 0).setUv(1, 0).setColor(1, 1, 1, 1f);
+        buffer.addVertex(matrix, x, y, 0).setUv(0, 0).setColor(1, 1, 1, 1f);
     }
 }

@@ -2,6 +2,7 @@ package com.supermartijn642.chunkloaders.capability;
 
 import com.supermartijn642.chunkloaders.ChunkLoaderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
 
@@ -34,12 +35,17 @@ public class ChunkLoaderCache {
         CompoundTag compound = new CompoundTag();
         compound.putLong("chunkLoaderPos", this.chunkLoaderPos.asLong());
         compound.putInt("chunkLoaderType", this.chunkLoaderType.getIndex());
-        compound.putUUID("owner", this.owner);
+        compound.putIntArray("owner", UUIDUtil.uuidToIntArray(this.owner));
         return compound;
     }
 
     public static ChunkLoaderCache read(CompoundTag compound){
-        return new ChunkLoaderCache(BlockPos.of(compound.getLong("chunkLoaderPos")), ChunkLoaderType.byIndex(compound.getInt("chunkLoaderType")), compound.getUUID("owner"));
+        //noinspection OptionalGetWithoutIsPresent
+        return new ChunkLoaderCache(
+            BlockPos.of(compound.getLong("chunkLoaderPos").get()),
+            ChunkLoaderType.byIndex(compound.getInt("chunkLoaderType").get()),
+            UUIDUtil.uuidFromIntArray(compound.getIntArray("owner").get())
+        );
     }
 
     @Override

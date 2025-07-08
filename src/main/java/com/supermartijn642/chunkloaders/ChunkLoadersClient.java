@@ -19,7 +19,7 @@ import net.neoforged.neoforge.common.NeoForge;
 /**
  * Created 7/11/2020 by SuperMartijn642
  */
-@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class ChunkLoadersClient {
 
     private static KeyMapping CHUNK_LOADING_SCREEN_KEY;

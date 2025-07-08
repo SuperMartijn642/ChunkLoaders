@@ -2,8 +2,7 @@ package com.supermartijn642.chunkloaders.screen;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -22,12 +21,11 @@ public class ChunkImage {
     private static ChunkImage lastRequestedImage;
     private static final RenderType RENDER_TYPE = RenderType.create(
         "chunkloaders:map_cell",
-        DefaultVertexFormat.POSITION_TEX,
-        VertexFormat.Mode.QUADS,
-        DefaultVertexFormat.POSITION_TEX.getVertexSize() * 4,
+        1536,
+        false,
+        false,
+        RenderPipelines.GUI_TEXTURED,
         RenderType.CompositeState.builder()
-            .setShaderState(RenderStateShard.POSITION_TEX_SHADER)
-            .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
             .setTextureState(new RenderStateShard.EmptyTextureStateShard(() -> lastRequestedImage.bindTexture(), () -> {}))
             .createCompositeState(false)
     );
@@ -45,8 +43,8 @@ public class ChunkImage {
 
     public void bindTexture(){
         if(this.texture == null)
-            this.texture = new DynamicTexture(this.createImage());
-        RenderSystem.setShaderTexture(0, this.texture.getId());
+            this.texture = new DynamicTexture(() -> "Chunk Loaders map tile", this.createImage());
+        RenderSystem.setShaderTexture(0, this.texture.getTexture());
     }
 
     public RenderType getRenderType(){
