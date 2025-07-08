@@ -5,10 +5,11 @@ import com.supermartijn642.core.block.BaseBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.TickTask;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Random;
 import java.util.UUID;
@@ -54,16 +55,14 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected CompoundTag writeData(){
-        CompoundTag compound = new CompoundTag();
+    protected void writeData(ValueOutput output){
         if(this.owner != null)
-            compound.putIntArray("owner", UUIDUtil.uuidToIntArray(this.owner));
-        return compound;
+            output.putIntArray("owner", UUIDUtil.uuidToIntArray(this.owner));
     }
 
     @Override
-    protected void readData(CompoundTag compound){
-        this.owner = compound.getIntArray("owner").map(UUIDUtil::uuidFromIntArray).orElse(null);
+    protected void readData(ValueInput input){
+        this.owner = input.getIntArray("owner").map(UUIDUtil::uuidFromIntArray).orElse(null);
     }
 
     @Override

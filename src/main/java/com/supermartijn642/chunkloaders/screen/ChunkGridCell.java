@@ -7,7 +7,7 @@ import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.chunkloaders.packet.PacketToggleChunk;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
-import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
@@ -31,7 +31,8 @@ import java.util.function.Consumer;
  */
 public class ChunkGridCell extends BaseWidget {
 
-    private static final ResourceLocation CELL_OVERLAY = ResourceLocation.fromNamespaceAndPath("chunkloaders", "textures/gui/cell_overlay.png");
+    public static final ResourceLocation CELL_OVERLAY = ResourceLocation.fromNamespaceAndPath("chunkloaders", "gui/cell_overlay");
+    public static final ResourceLocation GRID_OVERLAY = ResourceLocation.fromNamespaceAndPath("chunkloaders", "gui/grid_overlay");
 
     private final ChunkPos pos;
     private final UUID player;
@@ -62,61 +63,60 @@ public class ChunkGridCell extends BaseWidget {
     }
 
     @Override
-    public void renderBackground(WidgetRenderContext context, int mouseX, int mouseY){
-        VertexConsumer buffer = context.buffers().getBuffer(this.image.getRenderType());
-        drawTexture(context.poseStack(), buffer, this.x + 1, this.y + 1, 16, 16);
-        context.buffers().endLastBatch(); // Need to draw it immediately as the texture reference will be overridden
+    public void renderBackground(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
+        graphics.submitSprite(GRID_OVERLAY, this.x, this.y, this.width, this.height);
+        graphics.submitTexture(this.image.getTexture(), this.x + 1, this.y + 1, 16, 16);
     }
 
     @Override
-    public void render(WidgetRenderContext context, int mouseX, int mouseY){
+    public void render(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
         // Draw chunks claimed by others
-        this.drawOutline(context.poseStack(), this.isLoadedByOtherPlayer, 40 / 255f, 40 / 255f, 40 / 255f, 196 / 255f, 196 / 255f, 196 / 255f, 97 / 255f);
+        this.drawOutline(graphics, this.isLoadedByOtherPlayer, 40, 40, 40, 196, 196, 196, 97);
 
         // Draw chunks within range
-        this.drawOutline(context.poseStack(), this.isWithinRange, 0 / 255f, 82 / 255f, 196 / 255f, 0 / 255f, 82 / 255f, 196 / 255f, 58 / 255f);
+        this.drawOutline(graphics, this.isWithinRange, 0, 82, 196, 0, 82, 196, 58);
 
         // Draw claimed chunks
-        this.drawOutline(context.poseStack(), this.isLoaded, 0 / 255f, 99 / 255f, 11 / 255f, 0 / 255f, 99 / 255f, 11 / 255f, 116 / 255f);
+        this.drawOutline(graphics, this.isLoaded, 0, 99, 11, 0, 99, 11, 116);
     }
 
     @Override
-    public void renderForeground(WidgetRenderContext context, int mouseX, int mouseY){
+    public void renderForeground(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
         if(this.isFocused() && this.canPlayerToggleChunk())
-            ScreenUtils.drawTexture(CELL_OVERLAY, context.poseStack(), this.x - 1, this.y - 1, this.width + 2, this.height + 2);
+            graphics.submitSprite(CELL_OVERLAY, this.x - 1, this.y - 1, this.width + 2, this.height + 2);
     }
 
-    private void drawOutline(PoseStack poseStack, BiFunction<Integer,Integer,Boolean> shouldConnect, float redBorder, float greenBorder, float blueBorder, float redFiller, float greenFiller, float blueFiller, float alphaFiller){
+    private void drawOutline(GuiGraphicsHelper graphics, BiFunction<Integer,Integer,Boolean> shouldConnect, int redBorder, int greenBorder, int blueBorder, int redFiller, int greenFiller, int blueFiller, int alphaFiller){
         if(!shouldConnect.apply(0, 0))
             return;
 
-        ScreenUtils.fillRect(poseStack, this.x, this.y, this.width, this.height, redFiller, greenFiller, blueFiller, alphaFiller);
+        graphics.submitRectangle(this.x, this.y, this.width, this.height, p -> p.color(redFiller, greenFiller, blueFiller, alphaFiller));
 
         // Top
         if(!shouldConnect.apply(0, -1))
-            ScreenUtils.fillRect(poseStack, this.x, this.y, this.width, 1, redBorder, greenBorder, blueBorder, 1);
+            graphics.submitRectangle(this.x, this.y, this.width, 1, p -> p.color(redBorder, greenBorder, blueBorder, 1));
         // Right
         if(!shouldConnect.apply(1, 0))
-            ScreenUtils.fillRect(poseStack, this.x + this.width - 1, this.y, 1, this.height, redBorder, greenBorder, blueBorder, 1);
+            graphics.submitRectangle(this.x + this.width - 1, this.y, 1, this.height, p -> p.color(redBorder, greenBorder, blueBorder, 1));
         // Bottom
         if(!shouldConnect.apply(0, 1))
-            ScreenUtils.fillRect(poseStack, this.x, this.y + this.height - 1, this.width, 1, redBorder, greenBorder, blueBorder, 1);
+            graphics.submitRectangle(this.x, this.y + this.height - 1, this.width, 1, p -> p.color(redBorder, greenBorder, blueBorder, 1));
         // Left
         if(!shouldConnect.apply(-1, 0))
-            ScreenUtils.fillRect(poseStack, this.x, this.y, 1, this.height, redBorder, greenBorder, blueBorder, 1);
+            graphics.submitRectangle(this.x, this.y, 1, this.height, p -> p.color(redBorder, greenBorder, blueBorder, 1));
 
         // Top-left
         if(shouldConnect.apply(0, -1) && shouldConnect.apply(-1, 0) && !shouldConnect.apply(-1, -1))
-            ScreenUtils.fillRect(poseStack, this.x, this.y, 1, 1, redBorder, greenBorder, blueBorder, 1);
+            graphics.submitRectangle(this.x, this.y, 1, 1, p -> p.color(redBorder, greenBorder, blueBorder, 1));
         // Top-right
         if(shouldConnect.apply(0, -1) && shouldConnect.apply(1, 0) && !shouldConnect.apply(1, -1))
-            ScreenUtils.fillRect(poseStack, this.x + this.width - 1, this.y, 1, 1, redBorder, greenBorder, blueBorder, 1);
+            graphics.submitRectangle(this.x + this.width - 1, this.y, 1, 1, p -> p.color(redBorder, greenBorder, blueBorder, 1));
         // Bottom-left
         if(shouldConnect.apply(0, 1) && shouldConnect.apply(-1, 0) && !shouldConnect.apply(-1, 1))
-            ScreenUtils.fillRect(poseStack, this.x, this.y + this.height - 1, 1, 1, redBorder, greenBorder, blueBorder, 1);
+            graphics.submitRectangle(this.x, this.y + this.height - 1, 1, 1, p -> p.color(redBorder, greenBorder, blueBorder, 1));
         // Bottom-right
         if(shouldConnect.apply(0, 1) && shouldConnect.apply(1, 0) && !shouldConnect.apply(1, 1))
-            ScreenUtils.fillRect(poseStack, this.x + this.width - 1, this.y + this.height - 1, 1, 1, redBorder, greenBorder, blueBorder, 1);
+            graphics.submitRectangle(this.x + this.width - 1, this.y + this.height - 1, 1, 1, p -> p.color(redBorder, greenBorder, blueBorder, 1));
     }
 
     @Override
