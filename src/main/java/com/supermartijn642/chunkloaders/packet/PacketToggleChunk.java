@@ -45,7 +45,7 @@ public class PacketToggleChunk implements BasePacket {
         if(!this.owner.equals(player.getUUID()) && !player.getServer().getPlayerList().isOp(player.getGameProfile()))
             return;
 
-        ServerChunkLoadingCapability capability = ChunkLoadingCapability.get(player.getCommandSenderWorld()).castServer();
+        ServerChunkLoadingCapability capability = ChunkLoadingCapability.get(player.level()).castServer();
 
         if(capability.isChunkLoadedByPlayer(this.owner, this.pos))
             capability.stopLoadingChunk(this.owner, this.pos);

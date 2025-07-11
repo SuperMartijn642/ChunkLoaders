@@ -4,7 +4,7 @@ import com.supermartijn642.chunkloaders.ChunkLoadersConfig;
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
-import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import net.minecraft.ChatFormatting;
@@ -49,38 +49,39 @@ public class ChunkLoaderScreen extends BaseWidget {
     }
 
     @Override
-    public void renderBackground(WidgetRenderContext context, int mouseX, int mouseY){
+    public void renderBackground(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
         // Side panel
         String username = PlayerRenderer.getPlayerUsername(this.chunkLoaderOwner);
         int usernameWidth = username == null ? 0 : ClientUtils.getFontRenderer().width(TextComponents.string(username).color(ChatFormatting.WHITE).get());
         int ownerHintWidth = ClientUtils.getFontRenderer().width(TextComponents.translation("chunkloaders.gui.owner").get());
         int loadedChunksHintWidth = ClientUtils.getFontRenderer().width(TextComponents.translation("chunkloaders.gui.loaded_chunks").get());
         int sidePanelWidth = 22 + Math.max(39 + usernameWidth, Math.max(ownerHintWidth, loadedChunksHintWidth));
-        ScreenUtils.drawScreenBackground(context.poseStack(), this.width - 10, this.height / 2f - 30, sidePanelWidth, 60);
+        graphics.submitDefaultScreenBackground(this.width - 10, this.height / 2f - 30, sidePanelWidth, 60);
         // Center grid background
-        ScreenUtils.drawScreenBackground(context.poseStack(), 0, 0, this.width, this.height);
+        graphics.submitDefaultScreenBackground(0, 0, this.width, this.height);
 
-        super.renderBackground(context, mouseX, mouseY);
+        super.renderBackground(context, graphics, mouseX, mouseY);
     }
 
+    @SuppressWarnings("Convert2MethodRef")
     @Override
-    public void renderForeground(WidgetRenderContext context, int mouseX, int mouseY){
-        super.renderForeground(context, mouseX, mouseY);
+    public void renderForeground(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
+        super.renderForeground(context, graphics, mouseX, mouseY);
         // Side panel
         float panelX = this.width, panelY = this.height / 2f - 30;
         // Owner
-        ScreenUtils.drawString(context.poseStack(), TextComponents.translation("chunkloaders.gui.owner").get(), panelX + 5, panelY + 7);
-        PlayerRenderer.renderPlayerHead(this.chunkLoaderOwner, context.poseStack(), (int)panelX + 5, (int)panelY + 18, 12, 12);
+        graphics.submitText(TextComponents.translation("chunkloaders.gui.owner").get(), panelX + 5, panelY + 7);
+        PlayerRenderer.renderPlayerHead(this.chunkLoaderOwner, graphics, (int)panelX + 5, (int)panelY + 18, 12, 12);
         String username = PlayerRenderer.getPlayerUsername(this.chunkLoaderOwner);
         if(username != null)
-            ScreenUtils.drawStringWithShadow(context.poseStack(), TextComponents.string(username).color(ChatFormatting.WHITE).get(), panelX + 21, panelY + 20);
+            graphics.submitText(TextComponents.string(username).color(ChatFormatting.WHITE).get(), panelX + 21, panelY + 20, p -> p.shadow());
         // Loaded chunks
-        ScreenUtils.drawString(context.poseStack(), TextComponents.translation("chunkloaders.gui.loaded_chunks").get(), panelX + 5, panelY + 33);
+        graphics.submitText(TextComponents.translation("chunkloaders.gui.loaded_chunks").get(), panelX + 5, panelY + 33);
         int loadedCount = ChunkLoadingCapability.get(ClientUtils.getWorld()).getChunksLoadedByPlayer(this.chunkLoaderOwner).size();
         int maxLoaded = ChunkLoadersConfig.maxLoadedChunksPerPlayer.get();
         TextComponents.TextComponentBuilder loadedText = maxLoaded > 0 ?
             TextComponents.translation("chunkloaders.gui.loaded_chunks.count_max", loadedCount, maxLoaded).color(loadedCount < maxLoaded ? ChatFormatting.WHITE : ChatFormatting.RED) :
             TextComponents.translation("chunkloaders.gui.loaded_chunks.count", loadedCount).color(ChatFormatting.WHITE);
-        ScreenUtils.drawStringWithShadow(context.poseStack(), loadedText.get(), panelX + 5, panelY + 44);
+        graphics.submitText(loadedText.get(), panelX + 5, panelY + 44, p -> p.shadow());
     }
 }
