@@ -1,10 +1,7 @@
 package com.supermartijn642.chunkloaders.screen;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -18,18 +15,6 @@ import net.minecraft.world.level.material.MapColor;
  */
 public class ChunkImage {
 
-    private static ChunkImage lastRequestedImage;
-    private static final RenderType RENDER_TYPE = RenderType.create(
-        "chunkloaders:map_cell",
-        1536,
-        false,
-        false,
-        RenderPipelines.GUI_TEXTURED,
-        RenderType.CompositeState.builder()
-            .setTextureState(new RenderStateShard.EmptyTextureStateShard(() -> lastRequestedImage.bindTexture(), () -> {}))
-            .createCompositeState(false)
-    );
-
     private final Level world;
     private final ChunkPos chunkPos;
     private final int yLevel;
@@ -41,15 +26,10 @@ public class ChunkImage {
         this.yLevel = yLevel;
     }
 
-    public void bindTexture(){
+    public GpuTextureView getTexture(){
         if(this.texture == null)
             this.texture = new DynamicTexture(() -> "Chunk Loaders map tile", this.createImage());
-        RenderSystem.setShaderTexture(0, this.texture.getTexture());
-    }
-
-    public RenderType getRenderType(){
-        lastRequestedImage = this;
-        return RENDER_TYPE;
+        return this.texture.getTextureView();
     }
 
     public void dispose(){

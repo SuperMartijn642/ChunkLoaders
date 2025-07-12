@@ -1,0 +1,12 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "chunkloaders:gui/grid_overlay"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "chunkloaders:gui/cell_overlay"
+    }
+  ]
+}

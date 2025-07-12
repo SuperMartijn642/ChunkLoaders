@@ -4,9 +4,8 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.ProfileResult;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
-import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -31,8 +30,8 @@ public class PlayerRenderer {
     private static final Map<UUID,GameProfile> PLAYER_PROFILE_MAP = new HashMap<>();
     private static final HashSet<UUID> FETCH_QUEUE = new HashSet<>();
 
-    public static void renderPlayerHead(UUID player, PoseStack poseStack, int x, int y, int width, int height){
-        ScreenUtils.drawTexture(getPlayerSkin(player), poseStack, x, y, width, height, 1 / 8f, 1 / 8f, 1 / 8f, 1 / 8f);
+    public static void renderPlayerHead(UUID player, GuiGraphicsHelper graphics, int x, int y, int width, int height){
+        graphics.submitTexture(getPlayerSkin(player), x, y, width, height, p -> p.uv(1 / 8f, 1 / 8f, 1 / 8f, 1 / 8f));
     }
 
     public static String getPlayerUsername(UUID player){

@@ -1,2 +1,2 @@
 ### Chunk Loaders 1.2.8
-- Initial release of Chunk Loaders for Minecraft 1.21.5
+- Initial release of Chunk Loaders for Minecraft 1.21.6 & 1.21.7

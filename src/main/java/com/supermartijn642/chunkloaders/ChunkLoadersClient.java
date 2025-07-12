@@ -9,33 +9,30 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
  * Created 7/11/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChunkLoadersClient {
 
     private static KeyMapping CHUNK_LOADING_SCREEN_KEY;
 
-    public static void register(){
+    public static void register(FMLJavaModLoadingContext context){
+        RegisterKeyMappingsEvent.getBus(context.getModBusGroup()).addListener(ChunkLoadersClient::registerKeyBindings);
+        InputEvent.Key.BUS.addListener(ChunkLoadersClient::onKey);
+
         ClientRegistrationHandler handler = ClientRegistrationHandler.get("chunkloaders");
         for(ChunkLoaderType type : ChunkLoaderType.values())
             handler.registerCustomBlockEntityRenderer(type::getBlockEntityType, () -> new ChunkLoaderBlockEntityRenderer(type.getBlock(), type.getFullRotation()));
     }
 
-    @SubscribeEvent
     public static void registerKeyBindings(RegisterKeyMappingsEvent e){
         // Register key to open chunk loader screen
         CHUNK_LOADING_SCREEN_KEY = new KeyMapping("chunkloaders.keys.open_screen", 67/*'c'*/, "chunkloaders.keys.category");
         e.register(CHUNK_LOADING_SCREEN_KEY);
-        MinecraftForge.EVENT_BUS.addListener(ChunkLoadersClient::onKey);
     }
 
     public static void onKey(InputEvent.Key e){

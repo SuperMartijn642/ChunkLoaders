@@ -4,12 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.client.RenderTypeHelper;
 import net.minecraftforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 
@@ -51,8 +52,8 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
 
         BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
         BlockStateModel model = blockRenderer.getBlockModel(this.block.defaultBlockState());
-        for(RenderType renderType : model.getRenderTypes(this.block.defaultBlockState(), RANDOM, ModelData.EMPTY))
-            ModelBlockRenderer.renderModel(poseStack.last(), bufferSource.getBuffer(renderType), model, 1, 1, 1, combinedLight, combinedOverlay, ModelData.EMPTY, renderType);
+        for(ChunkSectionLayer layer : model.getRenderTypes(this.block.defaultBlockState(), RANDOM, ModelData.EMPTY))
+            ModelBlockRenderer.renderModel(poseStack.last(), bufferSource.getBuffer(RenderTypeHelper.getMovingBlockRenderType(layer)), model, 1, 1, 1, combinedLight, combinedOverlay, ModelData.EMPTY, layer);
 
         poseStack.popPose();
     }

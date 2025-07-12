@@ -20,7 +20,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -36,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
 
 /**
  * Created 7/7/2020 by SuperMartijn642
@@ -52,8 +50,8 @@ public class ChunkLoaders {
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("chunkloaders", ChunkLoaderType.ADVANCED::getItem);
 
     public ChunkLoaders(FMLJavaModLoadingContext context){
-        MinecraftForge.EVENT_BUS.addGenericListener(Level.class, this::attachCapabilities);
-        MinecraftForge.EVENT_BUS.addListener((Consumer<LevelEvent.Load>)e -> {
+        AttachCapabilitiesEvent.Levels.BUS.addListener(this::attachCapabilities);
+        LevelEvent.Load.BUS.addListener(e -> {
             if(!e.getLevel().isClientSide() && e.getLevel() instanceof Level)
                 ChunkLoadingCapability.get((Level)e.getLevel()).castServer().onLoadLevel();
         });
@@ -68,11 +66,11 @@ public class ChunkLoaders {
 
         register(context);
         if(CommonUtils.getEnvironmentSide().isClient())
-            ChunkLoadersClient.register();
+            ChunkLoadersClient.register(context);
         registerGenerators();
     }
 
-    public void attachCapabilities(AttachCapabilitiesEvent<Level> e){
+    public void attachCapabilities(AttachCapabilitiesEvent.Levels e){
         Level level = e.getObject();
         LazyOptional<ChunkLoadingCapability> tracker = LazyOptional.of(() -> level.isClientSide ? new ClientChunkLoadingCapability(level) : new ServerChunkLoadingCapability(level));
         e.addCapability(ResourceLocation.fromNamespaceAndPath("chunkloaders", "chunk_loading_capability"), new ICapabilitySerializable<>() {
@@ -102,7 +100,7 @@ public class ChunkLoaders {
             handler.registerBlockEntityTypeCallback(type::registerBlockEntity);
             handler.registerItemCallback(type::registerItem);
         }
-        context.getModEventBus().addListener((Consumer<RegisterEvent>)e -> {
+        RegisterEvent.getBus(context.getModBusGroup()).addListener(e -> {
             if(e.getRegistryKey() == Registries.TICKET_TYPE){
                 ServerChunkLoadingCapability.CHUNK_LOADING_TICKET_TYPE = Registry.register(
                     BuiltInRegistries.TICKET_TYPE,
@@ -116,6 +114,7 @@ public class ChunkLoaders {
     private static void registerGenerators(){
         GeneratorRegistrationHandler handler = GeneratorRegistrationHandler.get("chunkloaders");
         handler.addGenerator(ChunkLoadersModelGenerator::new);
+        handler.addGenerator(ChunkLoadersAtlasSourceGenerator::new);
         handler.addGenerator(ChunkLoadersBlockStateGenerator::new);
         handler.addGenerator(ChunkLoadersItemInfoGenerator::new);
         handler.addGenerator(ChunkLoadersLanguageGenerator::new);

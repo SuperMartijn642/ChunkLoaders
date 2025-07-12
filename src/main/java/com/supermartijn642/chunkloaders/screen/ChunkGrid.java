@@ -2,12 +2,11 @@ package com.supermartijn642.chunkloaders.screen;
 
 import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapability;
 import com.supermartijn642.core.ClientUtils;
-import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.Widget;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 
 import java.util.ArrayList;
@@ -19,8 +18,6 @@ import java.util.UUID;
  * Created 25/06/2022 by SuperMartijn642
  */
 public class ChunkGrid extends BaseWidget {
-
-    private static final ResourceLocation GRID_OVERLAY = ResourceLocation.fromNamespaceAndPath("chunkloaders", "textures/gui/grid_overlay.png");
 
     private final int rows, columns;
     private final ChunkPos topLeftChunk;
@@ -76,13 +73,13 @@ public class ChunkGrid extends BaseWidget {
     }
 
     @Override
-    public void renderBackground(WidgetRenderContext context, int mouseX, int mouseY){
-        ScreenUtils.fillRect(context.poseStack(), this.x + 1, this.y, this.width - 2, 1, 0, 0, 0, 1);
-        ScreenUtils.fillRect(context.poseStack(), this.x, this.y + 1, this.width, this.height - 2, 0, 0, 0, 1);
-        ScreenUtils.fillRect(context.poseStack(), this.x + 1, this.y + this.height - 1, this.width - 2, 1, 0, 0, 0, 1);
-        ScreenUtils.drawTexture(GRID_OVERLAY, context.poseStack(), this.x + 1, this.y + 1, this.width - 2, this.height - 2, 0, 0, this.columns, this.rows);
+    public void renderBackground(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
+        graphics.submitRectangle(this.x + 1, this.y, this.width - 2, 1, p -> p.color(0, 0, 0, 255));
+        graphics.submitRectangle(this.x, this.y + 1, this.width, this.height - 2, p -> p.color(0, 0, 0, 255));
+        graphics.submitRectangle(this.x + 1, this.y + this.height - 1, this.width - 2, 1, p -> p.color(0, 0, 0, 255));
+        graphics.submitSprite(ChunkGridCell.GRID_OVERLAY, this.x + 1, this.y + 1, this.width - 2, this.height - 2, p -> p.uv(0, 0, this.columns, this.rows));
 
-        super.renderBackground(context, mouseX, mouseY);
+        super.renderBackground(context, graphics, mouseX, mouseY);
     }
 
     @Override
@@ -157,8 +154,8 @@ public class ChunkGrid extends BaseWidget {
     }
 
     @Override
-    public void render(WidgetRenderContext context, int mouseX, int mouseY){
-        super.render(context, mouseX, mouseY);
+    public void render(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
+        super.render(context, graphics, mouseX, mouseY);
 
         // Update dragged cells
         if(this.doDrag){
