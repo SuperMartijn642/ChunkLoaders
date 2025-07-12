@@ -12,9 +12,13 @@ import com.supermartijn642.core.registry.GeneratorRegistrationHandler;
 import com.supermartijn642.core.registry.RegistrationHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
@@ -22,16 +26,17 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 /**
  * Created 7/7/2020 by SuperMartijn642
@@ -46,9 +51,12 @@ public class ChunkLoaders {
     public static final PacketChannel CHANNEL = PacketChannel.create("chunkloaders");
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("chunkloaders", ChunkLoaderType.ADVANCED::getItem);
 
-    public ChunkLoaders(){
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+    public ChunkLoaders(FMLJavaModLoadingContext context){
         MinecraftForge.EVENT_BUS.addGenericListener(Level.class, this::attachCapabilities);
+        MinecraftForge.EVENT_BUS.addListener((Consumer<LevelEvent.Load>)e -> {
+            if(!e.getLevel().isClientSide() && e.getLevel() instanceof Level)
+                ChunkLoadingCapability.get((Level)e.getLevel()).castServer().onLoadLevel();
+        });
 
         CHANNEL.registerMessage(PackedChunkLoaderAdded.class, PackedChunkLoaderAdded::new, true);
         CHANNEL.registerMessage(PackedChunkLoaderRemoved.class, PackedChunkLoaderRemoved::new, true);
@@ -58,17 +66,10 @@ public class ChunkLoaders {
         CHANNEL.registerMessage(PacketFullCapabilityData.class, PacketFullCapabilityData::new, true);
         CHANNEL.registerMessage(PacketToggleChunk.class, PacketToggleChunk::new, true);
 
-        register();
+        register(context);
         if(CommonUtils.getEnvironmentSide().isClient())
             ChunkLoadersClient.register();
         registerGenerators();
-    }
-
-    public void init(FMLCommonSetupEvent e){
-        // Set the chunk loading callback
-        ForgeChunkManager.setForcedChunkLoadingCallback("chunkloaders", (level, ticketHelper) -> {
-            level.getCapability(CHUNK_LOADING_CAPABILITY).ifPresent(capability -> capability.castServer().onLoadLevel(ticketHelper));
-        });
     }
 
     public void attachCapabilities(AttachCapabilitiesEvent<Level> e){
@@ -94,13 +95,22 @@ public class ChunkLoaders {
         e.addListener(tracker::invalidate);
     }
 
-    private static void register(){
+    private static void register(FMLJavaModLoadingContext context){
         RegistrationHandler handler = RegistrationHandler.get("chunkloaders");
         for(ChunkLoaderType type : ChunkLoaderType.values()){
             handler.registerBlockCallback(type::registerBlock);
             handler.registerBlockEntityTypeCallback(type::registerBlockEntity);
             handler.registerItemCallback(type::registerItem);
         }
+        context.getModEventBus().addListener((Consumer<RegisterEvent>)e -> {
+            if(e.getRegistryKey() == Registries.TICKET_TYPE){
+                ServerChunkLoadingCapability.CHUNK_LOADING_TICKET_TYPE = Registry.register(
+                    BuiltInRegistries.TICKET_TYPE,
+                    ResourceLocation.fromNamespaceAndPath("chunkloaders", "loaded"),
+                    new TicketType(0, false, TicketType.TicketUse.LOADING_AND_SIMULATION)
+                );
+            }
+        });
     }
 
     private static void registerGenerators(){

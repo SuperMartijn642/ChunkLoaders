@@ -2,6 +2,7 @@ package com.supermartijn642.chunkloaders.capability;
 
 import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.ChunkLoadersConfig;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
@@ -148,7 +149,7 @@ public class PlayerActivityTracker {
         // Write currently active players
         for(UUID player : onlinePlayers){
             CompoundTag tag = new CompoundTag();
-            tag.putUUID("player", player);
+            tag.putIntArray("player", UUIDUtil.uuidToIntArray(player));
             tag.putLong("time", System.currentTimeMillis());
             activeTimes.add(tag);
         }
@@ -156,7 +157,7 @@ public class PlayerActivityTracker {
         // Write previously online players
         for(ActiveTime activeTime : lastActiveTimePerPlayer.values()){
             CompoundTag tag = new CompoundTag();
-            tag.putUUID("player", activeTime.player);
+            tag.putIntArray("player", UUIDUtil.uuidToIntArray(activeTime.player));
             tag.putLong("time", activeTime.lastActiveTime);
             activeTimes.add(tag);
         }
@@ -170,16 +171,17 @@ public class PlayerActivityTracker {
 
     private static void read(CompoundTag tag){
         // Get the list from the tag
-        ListTag activeTimes = tag.getList("times", Tag.TAG_COMPOUND);
+        ListTag activeTimes = tag.getListOrEmpty("times");
         for(Tag nbt : activeTimes){
             if(!(nbt instanceof CompoundTag))
                 continue;
 
             CompoundTag timeTag = (CompoundTag)nbt;
-            if(!timeTag.contains("player", Tag.TAG_INT_ARRAY) || !timeTag.contains("time", Tag.TAG_LONG))
+            if(!timeTag.contains("player") || !timeTag.contains("time"))
                 continue;
 
-            ActiveTime activeTime = new ActiveTime(timeTag.getUUID("player"), timeTag.getLong("time"));
+            //noinspection OptionalGetWithoutIsPresent
+            ActiveTime activeTime = new ActiveTime(timeTag.getIntArray("player").map(UUIDUtil::uuidFromIntArray).get(), timeTag.getLong("time").get());
             activePlayers.add(activeTime.player);
             sortedActiveTimes.add(activeTime);
         }

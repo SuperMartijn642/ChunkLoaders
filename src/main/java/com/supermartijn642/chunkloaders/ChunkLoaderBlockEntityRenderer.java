@@ -6,7 +6,8 @@ import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.data.ModelData;
@@ -16,6 +17,8 @@ import org.joml.Quaternionf;
  * Created 8/18/2020 by SuperMartijn642
  */
 public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer<ChunkLoaderBlockEntity> {
+
+    private static final RandomSource RANDOM = RandomSource.create();
 
     private final Block block;
     private final boolean fullRotation;
@@ -47,9 +50,9 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
         poseStack.translate(-0.5, -0.5, -0.5);
 
         BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
-        BakedModel model = blockRenderer.getBlockModel(this.block.defaultBlockState());
-        for(RenderType type : model.getRenderTypes(this.block.defaultBlockState(), RandomSource.create(), ModelData.EMPTY))
-            blockRenderer.getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(type), this.block.defaultBlockState(), model, 1, 1, 1, combinedLight, combinedOverlay, ModelData.EMPTY, type);
+        BlockStateModel model = blockRenderer.getBlockModel(this.block.defaultBlockState());
+        for(RenderType renderType : model.getRenderTypes(this.block.defaultBlockState(), RANDOM, ModelData.EMPTY))
+            ModelBlockRenderer.renderModel(poseStack.last(), bufferSource.getBuffer(renderType), model, 1, 1, 1, combinedLight, combinedOverlay, ModelData.EMPTY, renderType);
 
         poseStack.popPose();
     }

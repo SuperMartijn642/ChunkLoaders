@@ -2,14 +2,13 @@ package com.supermartijn642.chunkloaders.capability;
 
 import com.supermartijn642.chunkloaders.ChunkLoaderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created 26/06/2022 by SuperMartijn642
@@ -160,8 +159,8 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
 
     public void readServerInfo(CompoundTag compound){
         // Read chunkLoaderCacheMap
-        ListTag chunkLoaderCachesTag = compound.getList("chunkLoaderCaches", Tag.TAG_COMPOUND);
-        chunkLoaderCachesTag.stream().map(CompoundTag.class::cast).map(ChunkLoaderCache::read).forEach(
+        ListTag chunkLoaderCachesTag = compound.getListOrEmpty("chunkLoaderCaches");
+        chunkLoaderCachesTag.stream().filter(CompoundTag.class::isInstance).map(CompoundTag.class::cast).map(ChunkLoaderCache::read).forEach(
             cache -> {
                 this.chunkLoaderCacheMap.put(cache.chunkLoaderPos, cache);
                 this.chunkLoadersPerChunk.putIfAbsent(cache.chunkPos, new HashSet<>());
@@ -180,11 +179,12 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
         );
 
         // Read loadedChunksPerPlayer for active players
-        ListTag loadedChunksPerActivePlayerTag = compound.getList("loadedChunksPerActivePlayer", Tag.TAG_COMPOUND);
-        loadedChunksPerActivePlayerTag.stream().map(CompoundTag.class::cast).forEach(
+        ListTag loadedChunksPerActivePlayerTag = compound.getListOrEmpty("loadedChunksPerActivePlayer");
+        loadedChunksPerActivePlayerTag.stream().filter(CompoundTag.class::isInstance).map(CompoundTag.class::cast).forEach(
             playerTag -> {
-                UUID player = playerTag.getUUID("player");
-                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks")).mapToObj(ChunkPos::new).collect(Collectors.toList());
+                //noinspection OptionalGetWithoutIsPresent
+                UUID player = UUIDUtil.uuidFromIntArray(playerTag.getIntArray("player").get());
+                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks").orElseGet(() -> new long[0])).mapToObj(ChunkPos::new).toList();
                 this.loadedChunksPerPlayer.putIfAbsent(player, new HashSet<>());
                 this.loadedChunksPerPlayer.get(player).addAll(chunks);
                 for(ChunkPos chunk : chunks){
@@ -195,11 +195,12 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
         );
 
         // Read loadedChunksPerPlayer for inactive players
-        ListTag loadedChunksPerInactivePlayerTag = compound.getList("loadedChunksPerInactivePlayer", Tag.TAG_COMPOUND);
-        loadedChunksPerInactivePlayerTag.stream().map(CompoundTag.class::cast).forEach(
+        ListTag loadedChunksPerInactivePlayerTag = compound.getListOrEmpty("loadedChunksPerInactivePlayer");
+        loadedChunksPerInactivePlayerTag.stream().filter(CompoundTag.class::isInstance).map(CompoundTag.class::cast).forEach(
             playerTag -> {
-                UUID player = playerTag.getUUID("player");
-                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks")).mapToObj(ChunkPos::new).collect(Collectors.toList());
+                //noinspection OptionalGetWithoutIsPresent
+                UUID player = UUIDUtil.uuidFromIntArray(playerTag.getIntArray("player").get());
+                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks").orElseGet(() -> new long[0])).mapToObj(ChunkPos::new).toList();
                 this.loadedChunksPerPlayer.putIfAbsent(player, new HashSet<>());
                 this.loadedChunksPerPlayer.get(player).addAll(chunks);
                 for(ChunkPos chunk : chunks){

@@ -6,12 +6,13 @@ import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.packet.*;
 import com.supermartijn642.core.network.BasePacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.world.ForgeChunkManager;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -23,7 +24,7 @@ import java.util.UUID;
  */
 public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
 
-    private static final UUID CHUNK_LOADER_GLOBAL_UUID = UUID.fromString("399cf0ed-1eb4-4e3d-92ca-856f579aac84");
+    public static TicketType CHUNK_LOADING_TICKET_TYPE;
 
     public ServerChunkLoadingCapability(Level level){
         super(level);
@@ -185,16 +186,15 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
     }
 
     private void loadChunk(ChunkPos pos){
-        ForgeChunkManager.forceChunk((ServerLevel)this.level, "chunkloaders", CHUNK_LOADER_GLOBAL_UUID, pos.x, pos.z, true, true);
+        ((ServerLevel)this.level).getChunkSource().addTicketWithRadius(CHUNK_LOADING_TICKET_TYPE, pos, 2);
     }
 
     private void unloadChunk(ChunkPos pos){
-        ForgeChunkManager.forceChunk((ServerLevel)this.level, "chunkloaders", CHUNK_LOADER_GLOBAL_UUID, pos.x, pos.z, false, true);
+        ((ServerLevel)this.level).getChunkSource().removeTicketWithRadius(CHUNK_LOADING_TICKET_TYPE, pos, 2);
     }
 
-    public void onLoadLevel(ForgeChunkManager.TicketHelper ticketHelper){
-        // Clear all tickets and reload the ones from the capability to naturally fix possible errors when the world is reloaded
-        ticketHelper.removeAllTickets(CHUNK_LOADER_GLOBAL_UUID);
+    public void onLoadLevel(){
+        // Reload the chunks from the capability to naturally fix possible errors when the world is reloaded
         for(ChunkPos pos : this.activePlayersPerLoadedChunk.keySet())
             this.loadChunk(pos);
     }
@@ -217,7 +217,7 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
         ListTag loadedChunksPerInactivePlayerTag = new ListTag();
         for(Map.Entry<UUID,Set<ChunkPos>> entry : this.loadedChunksPerPlayer.entrySet()){
             CompoundTag playerTag = new CompoundTag();
-            playerTag.putUUID("player", entry.getKey());
+            playerTag.putIntArray("player", UUIDUtil.uuidToIntArray(entry.getKey()));
             playerTag.putLongArray("chunks", entry.getValue().stream().mapToLong(ChunkPos::toLong).toArray());
             if(PlayerActivityTracker.isPlayerActive(entry.getKey()))
                 loadedChunksPerActivePlayerTag.add(playerTag);
