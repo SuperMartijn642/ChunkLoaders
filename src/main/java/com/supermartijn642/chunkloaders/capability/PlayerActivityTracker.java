@@ -182,6 +182,7 @@ public class PlayerActivityTracker {
             ActiveTime activeTime = new ActiveTime(timeTag.getUUID("player"), timeTag.getLong("time"));
             activePlayers.add(activeTime.player);
             sortedActiveTimes.add(activeTime);
+            lastActiveTimePerPlayer.put(activeTime.player, activeTime);
         }
     }
 
