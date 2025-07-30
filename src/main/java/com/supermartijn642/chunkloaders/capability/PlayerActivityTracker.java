@@ -180,6 +180,7 @@ public class PlayerActivityTracker {
             ActiveTime activeTime = new ActiveTime(timeTag.getIntArray("player").map(UUIDUtil::uuidFromIntArray).get(), timeTag.getLong("time").get());
             activePlayers.add(activeTime.player);
             sortedActiveTimes.add(activeTime);
+            lastActiveTimePerPlayer.put(activeTime.player, activeTime);
         }
     }
 
