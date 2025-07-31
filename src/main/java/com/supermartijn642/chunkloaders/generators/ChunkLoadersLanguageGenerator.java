@@ -39,6 +39,12 @@ public class ChunkLoadersLanguageGenerator extends LanguageGenerator {
         this.translation("chunkloaders.gui.speech.chunk.others", "Loaded by other players");
         this.translation("chunkloaders.gui.speech.chunk.not_loaded", "Not loaded");
         this.translation("chunkloaders.gui.disabled", "The chunk loader map is disabled on this server");
+        // Inactivity message
+        this.translation("chunkloaders.inactivity.header", "[Chunk Loaders]");
+        this.translation("chunkloaders.inactivity.notification", "%s Your chunk loaders were disabled after you were offline for more than %s. They are now active again.");
+        this.translation("chunkloaders.inactivity.days", "%s days");
+        this.translation("chunkloaders.inactivity.hours", "%s hours");
+        this.translation("chunkloaders.inactivity.minutes", "%s minutes");
         // Legacy messages
         this.translation("chunkloaders.legacy_message", "Please shift-right-click this chunk loader to set its owner!");
         this.translation("chunkloaders.legacy_success", "You are now the owner of this chunk loader!");
