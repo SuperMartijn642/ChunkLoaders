@@ -18,10 +18,10 @@
   "chunkloaders.gui.speech.chunk.others": "Загружен другими игроками",
   "chunkloaders.gui.speech.chunk.not_loaded": "Не загружен",
   "chunkloaders.gui.disabled": "Карта загрузчиков чанков отключена на этом сервере",
-  "chunkloaders.legacy_message": "Пожалуйста нажмите на этот чанк shift+ПКМ чтобы стать его владельцем!",
-  "chunkloaders.legacy_success": "Теперь вы - владелец этого загрузчика чанков!",
+  "chunkloaders.legacy_message": "Пожалуйста, щёлкните Shift+ПКМ по этому загрузчику чанков, чтобы стать его владельцем!",
+  "chunkloaders.legacy_success": "Теперь вы являетесь владельцем этого загрузчика чанков!",
   "chunkloaders.block.single_chunk_loader": "Загрузчик одного чанка",
   "chunkloaders.block.basic_chunk_loader": "Базовый загрузчик чанков",
   "chunkloaders.block.advanced_chunk_loader": "Продвинутый загрузчик чанков",
-  "chunkloaders.block.ultimate_chunk_loader": "Ультимейтный загрузчик чанков"
+  "chunkloaders.block.ultimate_chunk_loader": "Ультимативный загрузчик чанков"
 }
