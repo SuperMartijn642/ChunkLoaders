@@ -2,10 +2,15 @@ package com.supermartijn642.chunkloaders.capability;
 
 import com.supermartijn642.chunkloaders.ChunkLoaders;
 import com.supermartijn642.chunkloaders.ChunkLoadersConfig;
+import com.supermartijn642.core.TextComponents;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.FolderName;
 import net.minecraftforge.common.util.Constants;
@@ -52,8 +57,13 @@ public class PlayerActivityTracker {
         onlinePlayers.add(playerId);
         if(!activePlayers.contains(playerId)){
             activePlayers.add(playerId);
-            if(isInactivityTimeOutEnabled())
-                e.getPlayer().getServer().getAllLevels().forEach(level -> ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(playerId, true));
+            if(isInactivityTimeOutEnabled()){
+                boolean sendMessage = false;
+                for(ServerWorld level : e.getPlayer().getServer().getAllLevels())
+                    sendMessage |= ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(playerId, true);
+                if(sendMessage)
+                    sendInactivityNotification(e.getPlayer());
+            }
         }
         ActiveTime lastActiveTime = lastActiveTimePerPlayer.remove(playerId);
         if(lastActiveTime != null)
@@ -143,6 +153,38 @@ public class PlayerActivityTracker {
     private static long getInactivityTimeout(){
         // Convert from hours to milliseconds
         return ChunkLoadersConfig.inactivityTimeout.get() * 60 * 1000;
+    }
+
+    private static void sendInactivityNotification(PlayerEntity player){
+        if(!isInactivityTimeOutEnabled())
+            return;
+        // Get text for the inactivity timeout length
+        long timeout = ChunkLoadersConfig.inactivityTimeout.get();
+        int days = (int)(timeout / (24 * 60));
+        int hours = (int)((timeout / 60) % 24);
+        int minutes = (int)(timeout % 60);
+        TextComponents.TextComponentBuilder timeoutText = null;
+        if(days > 0)
+            timeoutText = TextComponents.translation("chunkloaders.inactivity.days", days).color(TextFormatting.GOLD);
+        if(hours > 0){
+            timeoutText = timeoutText == null ?
+                TextComponents.translation("chunkloaders.inactivity.hours", hours).color(TextFormatting.GOLD) :
+                timeoutText.string(" ").translation("chunkloaders.inactivity.hours", hours).color(TextFormatting.GOLD);
+        }
+        if(minutes > 0){
+            timeoutText = timeoutText == null ?
+                TextComponents.translation("chunkloaders.inactivity.minutes", minutes).color(TextFormatting.GOLD) :
+                timeoutText.string(" ").translation("chunkloaders.inactivity.minutes", minutes).color(TextFormatting.GOLD);
+        }
+        if(timeoutText == null)
+            throw new AssertionError("Timeout must be greater than 0!");
+        // Send message
+        ITextComponent header = TextComponents.translation("chunkloaders.inactivity.header").color(TextFormatting.GOLD).get();
+        player.sendMessage(TextComponents.translation(
+            "chunkloaders.inactivity.notification",
+            header,
+            timeoutText.get()
+        ).get(), Util.NIL_UUID);
     }
 
     private static CompoundNBT write(){
