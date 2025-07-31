@@ -10,8 +10,8 @@
       ],
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "chunkloaders:basic_chunk_loader"
+          "name": "chunkloaders:basic_chunk_loader",
+          "type": "minecraft:item"
         }
       ]
     }
