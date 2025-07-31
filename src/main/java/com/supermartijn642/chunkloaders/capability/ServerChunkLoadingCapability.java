@@ -143,7 +143,7 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
     /**
      * Called when a player becomes active/inactive
      */
-    public void togglePlayerActivity(UUID player, boolean active){
+    public boolean togglePlayerActivity(UUID player, boolean active){
         Set<ChunkPos> chunks = this.loadedChunksPerPlayer.get(player);
         if(chunks != null){
             if(active){
@@ -176,7 +176,9 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
             }
 
             this.sendToAllPlayers(new PackedTogglePlayerActivity(player, active));
+            return true;
         }
+        return false;
     }
 
     public Set<ChunkPos> getChunksToBeTicked(){
