@@ -1,0 +1,15 @@
+{
+  "type": "forge:ore_shapeless",
+  "ingredients": [
+    [
+      {
+        "type": "minecraft:item",
+        "item": "chunkloaders:basic_chunk_loader"
+      }
+    ]
+  ],
+  "result": {
+    "item": "chunkloaders:single_chunk_loader",
+    "count": 9
+  }
+}
