@@ -34,7 +34,7 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
     }
 
     void setOwner(UUID owner){
-        if(!this.level.isClientSide && owner != null){
+        if(!this.level.isClientSide() && owner != null){
             this.owner = owner;
             this.dataChanged();
             ChunkLoadingCapability.get(this.level).castServer().addChunkLoader(this);
@@ -50,7 +50,7 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
     }
 
     public void onLoad(){
-        if(!this.level.isClientSide && this.owner != null)
+        if(!this.level.isClientSide() && this.owner != null)
             ChunkLoadingCapability.get(this.level).castServer().addChunkLoader(this);
     }
 
@@ -69,7 +69,7 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
     public void setRemoved(){
         super.setRemoved();
         // Add check to see if block gets removed 1 tick later, for cases like Create's contraptions
-        if(!this.level.isClientSide && this.level.getServer() != null){
+        if(!this.level.isClientSide() && this.level.getServer() != null){
             BlockState state = this.getBlockState();
             this.level.getServer().schedule(new TickTask(1, () -> {
                 LevelChunk chunk = this.level.getChunkSource().getChunkNow(SectionPos.blockToSectionCoord(this.worldPosition.getX()), SectionPos.blockToSectionCoord(this.worldPosition.getY()));
@@ -83,7 +83,7 @@ public class ChunkLoaderBlockEntity extends BaseBlockEntity {
 
     @Override
     public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState){
-        if(!this.level.isClientSide && this.hasOwner())
+        if(!this.level.isClientSide() && this.hasOwner())
             ChunkLoadingCapability.get(this.level).castServer().removeChunkLoader(this);
     }
 }

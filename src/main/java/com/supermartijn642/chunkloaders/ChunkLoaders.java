@@ -58,7 +58,7 @@ public class ChunkLoaders implements ModInitializer {
         ServerChunkLoadingCapability.CHUNK_LOADING_TICKET_TYPE = Registry.register(
             BuiltInRegistries.TICKET_TYPE,
             ResourceLocation.fromNamespaceAndPath("chunkloaders", "loaded"),
-            new TicketType(0, false, TicketType.TicketUse.LOADING_AND_SIMULATION)
+            new TicketType(0, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE)
         );
     }
 

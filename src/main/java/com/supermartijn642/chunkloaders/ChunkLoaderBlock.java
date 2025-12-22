@@ -64,14 +64,14 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
         BlockEntity entity = level.getBlockEntity(pos);
         if(entity instanceof ChunkLoaderBlockEntity){
             if(((ChunkLoaderBlockEntity)entity).hasOwner()){
-                if(level.isClientSide)
+                if(level.isClientSide())
                     ChunkLoadersClient.openChunkLoaderScreen((ChunkLoaderBlockEntity)entity);
             }else if(player.isShiftKeyDown()){ // Legacy stuff
-                if(level.isClientSide)
+                if(level.isClientSide())
                     player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_success").color(ChatFormatting.WHITE).get(), true);
                 else
                     ((ChunkLoaderBlockEntity)entity).setOwner(player.getUUID());
-            }else if(level.isClientSide)
+            }else if(level.isClientSide())
                 player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_message").color(ChatFormatting.RED).get(), true);
         }
         return InteractionFeedback.SUCCESS;
@@ -102,7 +102,7 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
 
     @Override
     public void onPlace(BlockState newState, Level level, BlockPos pos, BlockState oldState, boolean unknown){
-        if(!level.isClientSide && level.getServer() != null && newState.getBlock() == this){
+        if(!level.isClientSide() && level.getServer() != null && newState.getBlock() == this){
             BlockEntity entity = level.getBlockEntity(pos);
             if(entity instanceof ChunkLoaderBlockEntity){
                 level.getServer().schedule(new TickTask(1, () -> {

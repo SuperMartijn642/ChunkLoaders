@@ -1,6 +1,12 @@
 {
     "pack": {
         "description": "${mod_name}'s resources",
-        "pack_format": ${resource_pack_format}
+        "pack_format": 15,
+        "supported_formats": {
+          "min_inclusive": 15,
+          "max_inclusive": 1000
+        },
+        "min_format": 15,
+        "max_format": 1000
     }
 }

@@ -61,7 +61,7 @@ public class PlayerActivityTracker {
             activePlayers.add(playerId);
             if(isInactivityTimeOutEnabled()){
                 boolean sendMessage = false;
-                for(ServerLevel level : player.getServer().getAllLevels())
+                for(ServerLevel level : player.level().getServer().getAllLevels())
                     sendMessage |= ChunkLoadingCapability.get(level).castServer().togglePlayerActivity(playerId, true);
                 if(sendMessage)
                     sendInactivityNotification(player);
