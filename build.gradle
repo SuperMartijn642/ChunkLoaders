@@ -33,14 +33,14 @@ repositories {
 dependencies {
     // Forge
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    // SpongePowered Mixin
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 
     // Core library
-    implementation "curse.maven:supermartijn642s-core-lib-454372:${core_library_file}"
+//    implementation "curse.maven:supermartijn642s-core-lib-454372:${core_library_file}"
+    implementation "a:supermartijn642corelib:1.1.18-forge-mc1.21.10"
     // Config library
     implementation "curse.maven:supermartijn642s-config-lib-438332:${config_library_file}"
-
-    // Just Enough Items
-//    runtimeOnly "curse.maven:jei-238222:${just_enough_items_file}"
 
     // Hack fix for now, force jopt-simple to be exactly 5.0.4 because Mojang ships that version, but some transitive dependencies request 6.0+
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
@@ -107,6 +107,14 @@ minecraft {
         }
     }
 }
+
+// MixinGradle Settings
+mixin {
+    add sourceSets.main, "${mod_id}.mixins.refmap.json"
+    config "${mod_id}.mixins.json"
+}
+
+jar.manifest.attributes "MixinConfigs": "${mod_id}.mixins.json"
 
 // Rename the IntelliJ run configs
 gradle.taskGraph.whenReady {

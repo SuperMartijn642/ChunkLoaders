@@ -42,7 +42,7 @@ public class PacketToggleChunk implements BasePacket {
     public void handle(PacketContext context){
         Player player = context.getSendingPlayer();
         // Prevent malicious packets from setting other players' loaded chunks
-        if(!this.owner.equals(player.getUUID()) && !player.getServer().getPlayerList().isOp(player.getGameProfile()))
+        if(!this.owner.equals(player.getUUID()) && !player.level().getServer().getPlayerList().isOp(player.nameAndId()))
             return;
 
         ServerChunkLoadingCapability capability = ChunkLoadingCapability.get(player.level()).castServer();

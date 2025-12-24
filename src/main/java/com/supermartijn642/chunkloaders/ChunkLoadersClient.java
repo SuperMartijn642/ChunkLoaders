@@ -1,5 +1,6 @@
 package com.supermartijn642.chunkloaders;
 
+import com.supermartijn642.chunkloaders.extensions.ChunkLoadersKeyMappingCategory;
 import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
@@ -7,6 +8,7 @@ import com.supermartijn642.core.gui.WidgetScreen;
 import com.supermartijn642.core.registry.ClientRegistrationHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.client.event.InputEvent;
@@ -21,7 +23,7 @@ public class ChunkLoadersClient {
     private static KeyMapping CHUNK_LOADING_SCREEN_KEY;
 
     public static void register(FMLJavaModLoadingContext context){
-        RegisterKeyMappingsEvent.getBus(context.getModBusGroup()).addListener(ChunkLoadersClient::registerKeyBindings);
+        RegisterKeyMappingsEvent.BUS.addListener(ChunkLoadersClient::registerKeyBindings);
         InputEvent.Key.BUS.addListener(ChunkLoadersClient::onKey);
 
         ClientRegistrationHandler handler = ClientRegistrationHandler.get("chunkloaders");
@@ -31,12 +33,15 @@ public class ChunkLoadersClient {
 
     public static void registerKeyBindings(RegisterKeyMappingsEvent e){
         // Register key to open chunk loader screen
-        CHUNK_LOADING_SCREEN_KEY = new KeyMapping("chunkloaders.keys.open_screen", 67/*'c'*/, "chunkloaders.keys.category");
+        KeyMapping.Category category = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("chunkloaders", "keys"));
+        //noinspection DataFlowIssue
+        ((ChunkLoadersKeyMappingCategory)(Object)category).chunkloadersOverwriteLabel(TextComponents.translation("chunkloaders.keys.category").get());
+        CHUNK_LOADING_SCREEN_KEY = new KeyMapping("chunkloaders.keys.open_screen", 67/*'c'*/, category);
         e.register(CHUNK_LOADING_SCREEN_KEY);
     }
 
     public static void onKey(InputEvent.Key e){
-        if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.matches(e.getKey(), e.getScanCode()) && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
+        if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.consumeClick() && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
             Player player = ClientUtils.getPlayer();
             if(ChunkLoadersConfig.canPlayersUseMap.get())
                 ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(new ChunkPos(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11)));

@@ -72,7 +72,7 @@ public class ChunkLoaders {
 
     public void attachCapabilities(AttachCapabilitiesEvent.Levels e){
         Level level = e.getObject();
-        LazyOptional<ChunkLoadingCapability> tracker = LazyOptional.of(() -> level.isClientSide ? new ClientChunkLoadingCapability(level) : new ServerChunkLoadingCapability(level));
+        LazyOptional<ChunkLoadingCapability> tracker = LazyOptional.of(() -> level.isClientSide() ? new ClientChunkLoadingCapability(level) : new ServerChunkLoadingCapability(level));
         e.addCapability(ResourceLocation.fromNamespaceAndPath("chunkloaders", "chunk_loading_capability"), new ICapabilitySerializable<>() {
             @Nonnull
             @Override
@@ -105,7 +105,7 @@ public class ChunkLoaders {
                 ServerChunkLoadingCapability.CHUNK_LOADING_TICKET_TYPE = Registry.register(
                     BuiltInRegistries.TICKET_TYPE,
                     ResourceLocation.fromNamespaceAndPath("chunkloaders", "loaded"),
-                    new TicketType(0, false, TicketType.TicketUse.LOADING_AND_SIMULATION)
+                    new TicketType(0, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE)
                 );
             }
         });
