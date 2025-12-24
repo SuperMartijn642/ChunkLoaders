@@ -6,6 +6,7 @@ import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.Widget;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ChunkPos;
 
@@ -130,8 +131,8 @@ public class ChunkGrid extends BaseWidget {
     }
 
     @Override
-    public boolean mousePressed(int mouseX, int mouseY, int button, boolean hasBeenHandled){
-        if(button == 0){
+    public boolean mousePressed(int mouseX, int mouseY, MouseButtonInfo info, boolean isDoubleClick, boolean hasBeenHandled){
+        if(info.button() == 0){
             for(ChunkGridCell cell : this.cells){
                 if(cell.isFocused()){
                     this.doDrag = true;
@@ -143,14 +144,14 @@ public class ChunkGrid extends BaseWidget {
                 }
             }
         }
-        return super.mousePressed(mouseX, mouseY, button, hasBeenHandled);
+        return super.mousePressed(mouseX, mouseY, info, isDoubleClick, hasBeenHandled);
     }
 
     @Override
-    public boolean mouseReleased(int mouseX, int mouseY, int button, boolean hasBeenHandled){
-        if(button == 0)
+    public boolean mouseReleased(int mouseX, int mouseY, MouseButtonInfo info, boolean hasBeenHandled){
+        if(info.button() == 0)
             this.doDrag = false;
-        return super.mouseReleased(mouseX, mouseY, button, hasBeenHandled);
+        return super.mouseReleased(mouseX, mouseY, info, hasBeenHandled);
     }
 
     @Override

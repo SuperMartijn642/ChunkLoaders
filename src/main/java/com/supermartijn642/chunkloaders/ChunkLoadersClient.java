@@ -1,5 +1,6 @@
 package com.supermartijn642.chunkloaders;
 
+import com.supermartijn642.chunkloaders.extensions.ChunkLoadersKeyMappingCategory;
 import com.supermartijn642.chunkloaders.screen.ChunkLoaderScreen;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
@@ -7,6 +8,7 @@ import com.supermartijn642.core.gui.WidgetScreen;
 import com.supermartijn642.core.registry.ClientRegistrationHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.neoforged.api.distmarker.Dist;
@@ -33,13 +35,17 @@ public class ChunkLoadersClient {
     @SubscribeEvent
     public static void registerKeyBindings(RegisterKeyMappingsEvent e){
         // Register key to open chunk loader screen
-        CHUNK_LOADING_SCREEN_KEY = new KeyMapping("chunkloaders.keys.open_screen", 67/*'c'*/, "chunkloaders.keys.category");
+        KeyMapping.Category category = new KeyMapping.Category(ResourceLocation.fromNamespaceAndPath("chunkloaders", "keys"));
+        e.registerCategory(category);
+        //noinspection DataFlowIssue
+        ((ChunkLoadersKeyMappingCategory)(Object)category).chunkloadersOverwriteLabel(TextComponents.translation("chunkloaders.keys.category").get());
+        CHUNK_LOADING_SCREEN_KEY = new KeyMapping("chunkloaders.keys.open_screen", 67/*'c'*/, category);
         e.register(CHUNK_LOADING_SCREEN_KEY);
         NeoForge.EVENT_BUS.addListener(ChunkLoadersClient::onKey);
     }
 
     public static void onKey(InputEvent.Key e){
-        if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.matches(e.getKey(), e.getScanCode()) && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
+        if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.consumeClick() && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
             Player player = ClientUtils.getPlayer();
             if(ChunkLoadersConfig.canPlayersUseMap.get())
                 ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(new ChunkPos(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11)));
