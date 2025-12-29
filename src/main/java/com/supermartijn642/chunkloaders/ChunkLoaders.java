@@ -17,7 +17,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
@@ -73,7 +73,7 @@ public class ChunkLoaders {
     public void attachCapabilities(AttachCapabilitiesEvent.Levels e){
         Level level = e.getObject();
         LazyOptional<ChunkLoadingCapability> tracker = LazyOptional.of(() -> level.isClientSide() ? new ClientChunkLoadingCapability(level) : new ServerChunkLoadingCapability(level));
-        e.addCapability(ResourceLocation.fromNamespaceAndPath("chunkloaders", "chunk_loading_capability"), new ICapabilitySerializable<>() {
+        e.addCapability(Identifier.fromNamespaceAndPath("chunkloaders", "chunk_loading_capability"), new ICapabilitySerializable<>() {
             @Nonnull
             @Override
             public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side){
@@ -104,7 +104,7 @@ public class ChunkLoaders {
             if(e.getRegistryKey() == Registries.TICKET_TYPE){
                 ServerChunkLoadingCapability.CHUNK_LOADING_TICKET_TYPE = Registry.register(
                     BuiltInRegistries.TICKET_TYPE,
-                    ResourceLocation.fromNamespaceAndPath("chunkloaders", "loaded"),
+                    Identifier.fromNamespaceAndPath("chunkloaders", "loaded"),
                     new TicketType(0, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE)
                 );
             }

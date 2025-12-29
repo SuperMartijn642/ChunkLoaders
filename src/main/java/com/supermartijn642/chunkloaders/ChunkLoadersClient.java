@@ -8,7 +8,7 @@ import com.supermartijn642.core.gui.WidgetScreen;
 import com.supermartijn642.core.registry.ClientRegistrationHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.client.event.InputEvent;
@@ -33,7 +33,7 @@ public class ChunkLoadersClient {
 
     public static void registerKeyBindings(RegisterKeyMappingsEvent e){
         // Register key to open chunk loader screen
-        KeyMapping.Category category = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("chunkloaders", "keys"));
+        KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("chunkloaders", "keys"));
         //noinspection DataFlowIssue
         ((ChunkLoadersKeyMappingCategory)(Object)category).chunkloadersOverwriteLabel(TextComponents.translation("chunkloaders.keys.category").get());
         CHUNK_LOADING_SCREEN_KEY = new KeyMapping("chunkloaders.keys.open_screen", 67/*'c'*/, category);
