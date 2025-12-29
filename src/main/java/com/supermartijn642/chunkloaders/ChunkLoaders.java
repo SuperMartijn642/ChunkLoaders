@@ -8,7 +8,7 @@ import com.supermartijn642.core.item.CreativeItemGroup;
 import com.supermartijn642.core.network.PacketChannel;
 import com.supermartijn642.core.registry.GeneratorRegistrationHandler;
 import com.supermartijn642.core.registry.RegistrationHandler;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
@@ -27,7 +27,7 @@ public class ChunkLoaders {
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("chunkloaders", ChunkLoaderType.ADVANCED::getItem);
 
     public static final TicketController TICKET_CONTROLLER = new TicketController(
-        ResourceLocation.fromNamespaceAndPath("chunkloaders", "chunks"),
+        Identifier.fromNamespaceAndPath("chunkloaders", "chunks"),
         (level, ticketHelper) -> ChunkLoadingCapability.get(level).castServer().onLoadLevel(ticketHelper)
     );
 
