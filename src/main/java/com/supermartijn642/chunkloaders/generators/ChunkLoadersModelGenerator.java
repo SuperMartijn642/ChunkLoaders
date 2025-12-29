@@ -3,7 +3,7 @@ package com.supermartijn642.chunkloaders.generators;
 import com.supermartijn642.chunkloaders.ChunkLoaderType;
 import com.supermartijn642.core.generator.ModelGenerator;
 import com.supermartijn642.core.generator.ResourceCache;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Created 25/06/2022 by SuperMartijn642
@@ -17,6 +17,6 @@ public class ChunkLoadersModelGenerator extends ModelGenerator {
     @Override
     public void generate(){
         for(ChunkLoaderType type : ChunkLoaderType.values())
-            this.model("item/" + type.getRegistryName()).parent(ResourceLocation.fromNamespaceAndPath("chunkloaders", "block/" + type.getRegistryName()));
+            this.model("item/" + type.getRegistryName()).parent(Identifier.fromNamespaceAndPath("chunkloaders", "block/" + type.getRegistryName()));
     }
 }

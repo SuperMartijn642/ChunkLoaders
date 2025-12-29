@@ -1,5 +1,8 @@
 package com.supermartijn642.chunkloaders.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.chunkloaders.ChunkLoaders;
@@ -14,7 +17,8 @@ import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import org.joml.Matrix4f;
@@ -31,8 +35,8 @@ import java.util.function.Consumer;
  */
 public class ChunkGridCell extends BaseWidget {
 
-    public static final ResourceLocation CELL_OVERLAY = ResourceLocation.fromNamespaceAndPath("chunkloaders", "gui/cell_overlay");
-    public static final ResourceLocation GRID_OVERLAY = ResourceLocation.fromNamespaceAndPath("chunkloaders", "gui/grid_overlay");
+    public static final Identifier CELL_OVERLAY = Identifier.fromNamespaceAndPath("chunkloaders", "gui/cell_overlay");
+    public static final Identifier GRID_OVERLAY = Identifier.fromNamespaceAndPath("chunkloaders", "gui/grid_overlay");
 
     private final ChunkPos pos;
     private final UUID player;
@@ -65,7 +69,8 @@ public class ChunkGridCell extends BaseWidget {
     @Override
     public void renderBackground(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
         graphics.submitSprite(GRID_OVERLAY, this.x, this.y, this.width, this.height);
-        graphics.submitTexture(this.image.getTexture(), this.x + 1, this.y + 1, 16, 16);
+        GpuSampler sampler = RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR);
+        graphics.submitTexture(this.image.getTexture(), sampler, this.x + 1, this.y + 1, 16, 16);
     }
 
     @Override
@@ -147,7 +152,7 @@ public class ChunkGridCell extends BaseWidget {
                 .forEach(tooltips::add);
             if(tooltips.size() > (canToggleChunk ? 1 : 0))
                 tooltips.add(canToggleChunk ? 1 : 0, TextComponents.translation("chunkloaders.gui.chunk.others").color(ChatFormatting.WHITE).get());
-            if(!ClientUtils.getPlayer().getUUID().equals(this.player) && ClientUtils.getPlayer().hasPermissions(2) && !Minecraft.getInstance().hasShiftDown()
+            if(!ClientUtils.getPlayer().getUUID().equals(this.player) && ClientUtils.getPlayer().permissions().hasPermission(Permissions.COMMANDS_MODERATOR) && !Minecraft.getInstance().hasShiftDown()
                 && (this.isWithinRange.apply(0, 0) || this.isLoaded.apply(0, 0))){
                 Component keyName = TextComponents.translation("key.keyboard.left.shift").color(ChatFormatting.GOLD).get();
                 tooltips.add(TextComponents.translation("chunkloaders.gui.chunk.overwrite", keyName).color(ChatFormatting.WHITE).get());
@@ -165,7 +170,7 @@ public class ChunkGridCell extends BaseWidget {
 
     private boolean canPlayerToggleChunk(){
         Player player = ClientUtils.getPlayer();
-        return (player.getUUID().equals(this.player) || (player.hasPermissions(2) && Minecraft.getInstance().hasShiftDown()))
+        return (player.getUUID().equals(this.player) || (player.permissions().hasPermission(Permissions.COMMANDS_MODERATOR) && Minecraft.getInstance().hasShiftDown()))
             && (this.isWithinRange.apply(0, 0) || this.isLoaded.apply(0, 0));
     }
 

@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +22,7 @@ public class PlayerRenderer {
         return getGameProfile(player).map(GameProfile::name).orElse(null);
     }
 
-    public static ResourceLocation getPlayerSkin(UUID player){
+    public static Identifier getPlayerSkin(UUID player){
         return getGameProfile(player)
             .map(profile -> ClientUtils.getMinecraft().getSkinManager().get(profile))
             .flatMap(future -> future.getNow(Optional.empty()))
