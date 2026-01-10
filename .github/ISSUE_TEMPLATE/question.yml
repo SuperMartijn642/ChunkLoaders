@@ -1,0 +1,33 @@
+name: Question
+title: "[Question] Your title here"
+description: Ask a question about this project
+projects: []
+labels:
+  - question
+body:
+  - type: markdown
+    attributes:
+      value: "**If you unsure if something is a bug, please use the 'Bug report'
+        template instead.**"
+  - type: textarea
+    id: textarea-0
+    attributes:
+      label: Relevant Minecraft versions and other mods/projects
+      description: If your question is related to specific Minecraft versions or other
+        mods or projects, please mention them here. Please also shortly explain
+        what the Minecraft versions or other projects do if relevant to the
+        question.
+  - type: textarea
+    id: textarea-1
+    attributes:
+      label: Question
+      description: Please describe your question. If you think It is often clearest if
+        you describe the current behavior and the expected behavior with the
+        feature.
+    validations:
+      required: true
+  - type: textarea
+    id: textarea-2
+    attributes:
+      label: Additional context
+      description: Please share any other context or screenshots for the question here.
