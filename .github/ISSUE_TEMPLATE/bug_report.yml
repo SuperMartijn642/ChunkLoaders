@@ -1,0 +1,54 @@
+name: Bug report
+title: "[Bug] Your title here"
+description: Report of a bug
+labels: bug
+body:
+  - type: input
+    id: input-0
+    attributes:
+      label: Minecraft version
+      description: What Minecraft version are you using?
+    validations:
+      required: true
+  - type: dropdown
+    id: dropdown-1
+    attributes:
+      label: Mod Loader
+      description: Which mod loader are you using?
+      options:
+        - Fabric
+        - Forge
+        - NeoForge
+        - Quilt
+    validations:
+      required: true
+  - type: input
+    id: input-2
+    attributes:
+      label: Chunk Loaders version
+      description: What version of Chunk Loaders are you using?
+    validations:
+      required: true
+  - type: textarea
+    id: textarea-3
+    attributes:
+      label: Bug description
+      description: Please describe your issue. It is often clearest if you describe
+        the current behavior and the expected behavior is.
+    validations:
+      required: true
+  - type: textarea
+    id: textarea-4
+    attributes:
+      label: Steps to reproduce
+      description: Please describe the steps needed to recreate the issue. If you
+        cannot recreate the issue, please describe what you were doing when the
+        issue occurred.
+    validations:
+      required: true
+  - type: textarea
+    id: textarea-5
+    attributes:
+      label: Screenshots
+      description: Please share some screenshots of the issue. If screenshots are not
+        relevant to your issue, you can omit this section.
