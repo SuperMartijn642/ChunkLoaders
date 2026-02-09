@@ -1,3 +1,6 @@
+### Chunk Loaders 1.2.9a
+- Fixed player activity times not being read correctly when restarting server
+
 ### Chunk Loaders 1.2.9
 - Players will now receive a message if their chunk loaders were disabled due to inactivity timeout since they last logged in
 - Fixed players' inactivity timeout not being reset when they log in after a server restart
