@@ -108,7 +108,7 @@ public class ChunkLoaders {
         handler.addGenerator(ChunkLoadersTagGenerator::new);
     }
 
-    @SubscribeEvent
+    @Mod.EventHandler
     public static void onServerStarting(FMLServerAboutToStartEvent e){
         PlayerActivityTracker.onServerStarting(e);
     }
