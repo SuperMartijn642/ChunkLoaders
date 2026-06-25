@@ -28,7 +28,7 @@
   "accessWidener": "${mod_id}.accesswidener",
   "depends": {
     "fabricloader": "${fabric_loader_dependency}",
-    "fabric": "${fabric_api_dependency}",
+    "fabric-api": "${fabric_api_dependency}",
     "minecraft": "${minecraft_dependency}",
     "java": "${java_dependency}",
     "supermartijn642corelib": "${core_library_dependency}",

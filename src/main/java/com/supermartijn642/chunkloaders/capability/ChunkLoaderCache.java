@@ -26,7 +26,7 @@ public class ChunkLoaderCache {
         if(owner == null)
             throw new IllegalArgumentException("Owner must not be null!");
         this.chunkLoaderPos = pos;
-        this.chunkPos = new ChunkPos(pos);
+        this.chunkPos = ChunkPos.containing(pos);
         this.chunkLoaderType = type;
         this.owner = owner;
     }

@@ -50,7 +50,7 @@ public class ServerChunkCacheMixin {
             if(this.tickingChunksSet.contains(pos))
                 continue;
             // Get the chunk and add it to the list
-            LevelChunk chunk = this.level.getChunk(pos.x, pos.z);
+            LevelChunk chunk = this.level.getChunk(pos.x(), pos.z());
             this.spawningChunks.add(chunk);
         }
         this.tickingChunksSet.clear();

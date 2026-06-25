@@ -68,11 +68,11 @@ public class ChunkLoaderBlock extends BaseBlock implements EntityHoldingBlock, S
                     ChunkLoadersClient.openChunkLoaderScreen((ChunkLoaderBlockEntity)entity);
             }else if(player.isShiftKeyDown()){ // Legacy stuff
                 if(level.isClientSide())
-                    player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_success").color(ChatFormatting.WHITE).get(), true);
+                    player.sendOverlayMessage(TextComponents.translation("chunkloaders.legacy_success").color(ChatFormatting.WHITE).get());
                 else
                     ((ChunkLoaderBlockEntity)entity).setOwner(player.getUUID());
             }else if(level.isClientSide())
-                player.displayClientMessage(TextComponents.translation("chunkloaders.legacy_message").color(ChatFormatting.RED).get(), true);
+                player.sendOverlayMessage(TextComponents.translation("chunkloaders.legacy_message").color(ChatFormatting.RED).get());
         }
         return InteractionFeedback.SUCCESS;
     }

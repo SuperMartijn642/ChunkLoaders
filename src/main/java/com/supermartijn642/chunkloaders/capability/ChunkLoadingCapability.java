@@ -103,7 +103,7 @@ public class ChunkLoadingCapability {
         for(Map.Entry<UUID,Set<ChunkPos>> entry : this.loadedChunksPerPlayer.entrySet()){
             CompoundTag playerTag = new CompoundTag();
             playerTag.putIntArray("player", UUIDUtil.uuidToIntArray(entry.getKey()));
-            playerTag.putLongArray("chunks", entry.getValue().stream().mapToLong(ChunkPos::toLong).toArray());
+            playerTag.putLongArray("chunks", entry.getValue().stream().mapToLong(ChunkPos::pack).toArray());
             loadedChunksPerPlayerTag.add(playerTag);
         }
         compound.put("loadedChunksPerPlayer", loadedChunksPerPlayerTag);
@@ -126,7 +126,7 @@ public class ChunkLoadingCapability {
                 this.availableChunksPerPlayer.putIfAbsent(cache.owner, new HashSet<>());
                 for(int x = -range + 1; x < range; x++){
                     for(int z = -range + 1; z < range; z++){
-                        this.availableChunksPerPlayer.get(cache.owner).add(new ChunkPos(cache.chunkPos.x + x, cache.chunkPos.z + z));
+                        this.availableChunksPerPlayer.get(cache.owner).add(new ChunkPos(cache.chunkPos.x() + x, cache.chunkPos.z() + z));
                     }
                 }
             }
@@ -138,7 +138,7 @@ public class ChunkLoadingCapability {
             playerTag -> {
                 //noinspection OptionalGetWithoutIsPresent
                 UUID player = UUIDUtil.uuidFromIntArray(playerTag.getIntArray("player").get());
-                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks").orElseGet(() -> new long[0])).mapToObj(ChunkPos::new).toList();
+                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks").orElseGet(() -> new long[0])).mapToObj(ChunkPos::unpack).toList();
                 this.loadedChunksPerPlayer.putIfAbsent(player, new HashSet<>());
                 this.loadedChunksPerPlayer.get(player).addAll(chunks);
                 for(ChunkPos chunk : chunks){
