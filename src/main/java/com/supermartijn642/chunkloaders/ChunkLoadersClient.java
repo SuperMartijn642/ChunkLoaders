@@ -48,14 +48,14 @@ public class ChunkLoadersClient {
         if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.consumeClick() && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
             Player player = ClientUtils.getPlayer();
             if(ChunkLoadersConfig.canPlayersUseMap.get())
-                ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(new ChunkPos(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11)));
+                ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(ChunkPos.containing(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11)));
             else
-                player.displayClientMessage(TextComponents.translation("chunkloaders.gui.disabled").color(ChatFormatting.RED).get(), true);
+                player.sendOverlayMessage(TextComponents.translation("chunkloaders.gui.disabled").color(ChatFormatting.RED).get());
         }
     }
 
     public static void openChunkLoaderScreen(ChunkLoaderBlockEntity entity){
         int size = entity.getChunkLoaderType().getGridSize() + 2;
-        ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(new ChunkPos(entity.getBlockPos()), entity.getOwner(), entity.getBlockPos().getY(), size, size)));
+        ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(ChunkPos.containing(entity.getBlockPos()), entity.getOwner(), entity.getBlockPos().getY(), size, size)));
     }
 }

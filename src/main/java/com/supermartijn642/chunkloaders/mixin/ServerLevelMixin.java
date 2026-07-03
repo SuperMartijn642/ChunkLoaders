@@ -5,7 +5,6 @@ import com.supermartijn642.chunkloaders.capability.ChunkLoadingCapabilitySaveDat
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.RandomSequences;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -29,7 +28,7 @@ public class ServerLevelMixin {
         method = "<init>",
         at = @At("TAIL")
     )
-    private void constructor(MinecraftServer minecraftServer, Executor executor, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey<Level> resourceKey, LevelStem levelStem, boolean bl, long l, List<CustomSpawner> list, boolean bl2, RandomSequences randomSequences, CallbackInfo ci){
+    private void constructor(MinecraftServer minecraftServer, Executor executor, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey<Level> resourceKey, LevelStem levelStem, boolean bl, long l, List<CustomSpawner> list, boolean bl2, CallbackInfo ci){
         //noinspection DataFlowIssue
         ServerLevel level = (ServerLevel)(Object)this;
         ChunkLoadingCapabilitySaveData.init(level, ChunkLoadingCapability.get(level));

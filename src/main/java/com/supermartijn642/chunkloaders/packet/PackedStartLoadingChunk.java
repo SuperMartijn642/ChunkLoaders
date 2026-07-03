@@ -30,14 +30,14 @@ public class PackedStartLoadingChunk implements BasePacket {
     @Override
     public void write(FriendlyByteBuf buffer){
         buffer.writeUUID(this.player);
-        buffer.writeLong(this.pos.toLong());
+        buffer.writeLong(this.pos.pack());
         buffer.writeBoolean(this.active);
     }
 
     @Override
     public void read(FriendlyByteBuf buffer){
         this.player = buffer.readUUID();
-        this.pos = new ChunkPos(buffer.readLong());
+        this.pos = ChunkPos.unpack(buffer.readLong());
         this.active = buffer.readBoolean();
     }
 

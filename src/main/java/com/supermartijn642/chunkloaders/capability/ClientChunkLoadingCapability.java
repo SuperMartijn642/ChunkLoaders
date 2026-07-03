@@ -20,7 +20,7 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
     }
 
     public void addChunkLoader(BlockPos pos, UUID owner, ChunkLoaderType type){
-        ChunkPos chunkPos = new ChunkPos(pos);
+        ChunkPos chunkPos = ChunkPos.containing(pos);
         this.chunkLoadersPerChunk.putIfAbsent(chunkPos, new HashSet<>());
         this.chunkLoadersPerChunk.get(chunkPos).add(pos);
         this.chunkLoadersPerPlayer.putIfAbsent(owner, new HashSet<>());
@@ -38,7 +38,7 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
     }
 
     public void removeChunkLoader(BlockPos pos, UUID owner, ChunkLoaderType type){
-        ChunkPos chunkPos = new ChunkPos(pos);
+        ChunkPos chunkPos = ChunkPos.containing(pos);
         Set<BlockPos> chunkLoadersPerChunk = this.chunkLoadersPerChunk.get(chunkPos);
         if(chunkLoadersPerChunk != null && chunkLoadersPerChunk.contains(pos)){
             chunkLoadersPerChunk.remove(pos);
@@ -58,12 +58,12 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
             for(int x = -radius + 1; x < radius; x++){
                 loop:
                 for(int z = -radius + 1; z < radius; z++){
-                    ChunkPos otherChunk = new ChunkPos(chunkPos.x + x, chunkPos.z + z);
+                    ChunkPos otherChunk = new ChunkPos(chunkPos.x() + x, chunkPos.z() + z);
                     if(this.chunkLoadersPerPlayer.containsKey(owner)){
                         for(BlockPos chunkLoaderPos : this.chunkLoadersPerPlayer.get(owner)){
                             int chunkLoaderChunkX = chunkLoaderPos.getX() >> 4, chunkLoaderChunkZ = chunkLoaderPos.getZ() >> 4;
                             ChunkLoaderType otherType = this.chunkLoaderCacheMap.get(chunkLoaderPos).chunkLoaderType;
-                            if(Math.abs(chunkLoaderChunkX - otherChunk.x) < otherType.getRange() && Math.abs(chunkLoaderChunkZ - otherChunk.z) < otherType.getRange())
+                            if(Math.abs(chunkLoaderChunkX - otherChunk.x()) < otherType.getRange() && Math.abs(chunkLoaderChunkZ - otherChunk.z()) < otherType.getRange())
                                 continue loop;
                         }
                     }
@@ -172,7 +172,7 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
                 this.availableChunksPerPlayer.putIfAbsent(cache.owner, new HashSet<>());
                 for(int x = -range + 1; x < range; x++){
                     for(int z = -range + 1; z < range; z++){
-                        this.availableChunksPerPlayer.get(cache.owner).add(new ChunkPos(cache.chunkPos.x + x, cache.chunkPos.z + z));
+                        this.availableChunksPerPlayer.get(cache.owner).add(new ChunkPos(cache.chunkPos.x() + x, cache.chunkPos.z() + z));
                     }
                 }
             }
@@ -184,7 +184,7 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
             playerTag -> {
                 //noinspection OptionalGetWithoutIsPresent
                 UUID player = UUIDUtil.uuidFromIntArray(playerTag.getIntArray("player").get());
-                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks").orElseGet(() -> new long[0])).mapToObj(ChunkPos::new).toList();
+                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks").orElseGet(() -> new long[0])).mapToObj(ChunkPos::unpack).toList();
                 this.loadedChunksPerPlayer.putIfAbsent(player, new HashSet<>());
                 this.loadedChunksPerPlayer.get(player).addAll(chunks);
                 for(ChunkPos chunk : chunks){
@@ -200,7 +200,7 @@ public class ClientChunkLoadingCapability extends ChunkLoadingCapability {
             playerTag -> {
                 //noinspection OptionalGetWithoutIsPresent
                 UUID player = UUIDUtil.uuidFromIntArray(playerTag.getIntArray("player").get());
-                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks").orElseGet(() -> new long[0])).mapToObj(ChunkPos::new).toList();
+                Collection<ChunkPos> chunks = Arrays.stream(playerTag.getLongArray("chunks").orElseGet(() -> new long[0])).mapToObj(ChunkPos::unpack).toList();
                 this.loadedChunksPerPlayer.putIfAbsent(player, new HashSet<>());
                 this.loadedChunksPerPlayer.get(player).addAll(chunks);
                 for(ChunkPos chunk : chunks){

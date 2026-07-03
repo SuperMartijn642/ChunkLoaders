@@ -56,7 +56,7 @@ public class ChunkGrid extends BaseWidget {
             for(int column = 0; column < this.columns; column++){
                 int cellX = this.x + 1 + column * 18;
                 int cellY = this.y + 1 + row * 18;
-                ChunkPos pos = new ChunkPos(this.topLeftChunk.x + column, this.topLeftChunk.z + row);
+                ChunkPos pos = new ChunkPos(this.topLeftChunk.x() + column, this.topLeftChunk.z() + row);
                 int finalRow = row, finalColumn = column;
                 this.addWidget(new ChunkGridCell(cellX, cellY, pos, this.loaderYLevel, this.player,
                     (hOffset, vOffset) -> this.isChunkLoaded(finalRow + vOffset, finalColumn + hOffset),
@@ -92,7 +92,7 @@ public class ChunkGrid extends BaseWidget {
     public void update(){
         for(int row = 0; row < this.rows; row++){
             for(int column = 0; column < this.columns; column++){
-                ChunkPos pos = new ChunkPos(this.topLeftChunk.x + column, this.topLeftChunk.z + row);
+                ChunkPos pos = new ChunkPos(this.topLeftChunk.x() + column, this.topLeftChunk.z() + row);
                 ChunkLoadingCapability capability = ChunkLoadingCapability.get(ClientUtils.getWorld());
                 this.loadedChunks[row][column] = capability.isChunkLoadedByPlayer(this.player, pos);
                 this.withinRangeChunks[row][column] = capability.canPlayerLoadChunk(this.player, pos);

@@ -177,11 +177,11 @@ public class PlayerActivityTracker {
             throw new AssertionError("Timeout must be greater than 0!");
         // Send message
         Component header = TextComponents.translation("chunkloaders.inactivity.header").color(ChatFormatting.GOLD).get();
-        player.displayClientMessage(TextComponents.translation(
+        player.sendOverlayMessage(TextComponents.translation(
             "chunkloaders.inactivity.notification",
             header,
             timeoutText.get()
-        ).get(), false);
+        ).get());
     }
 
     private static CompoundTag write(){
