@@ -39,7 +39,7 @@ public class ChunkLoaderScreen extends BaseWidget {
     @Override
     protected void addWidgets(){
         // Create a new chunk grid
-        ChunkPos topLeftChunk = new ChunkPos(this.pos.x - (this.mapWidth - 1) / 2, this.pos.z - (this.mapHeight - 1) / 2);
+        ChunkPos topLeftChunk = new ChunkPos(this.pos.x() - (this.mapWidth - 1) / 2, this.pos.z() - (this.mapHeight - 1) / 2);
         this.grid = this.addWidget(new ChunkGrid(6, 6, this.mapHeight, this.mapWidth, topLeftChunk, this.chunkLoaderOwner, this.mapYLevel));
     }
 

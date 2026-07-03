@@ -29,13 +29,13 @@ public class PacketToggleChunk implements BasePacket {
     @Override
     public void write(FriendlyByteBuf buffer){
         buffer.writeUUID(this.owner);
-        buffer.writeLong(this.pos.toLong());
+        buffer.writeLong(this.pos.pack());
     }
 
     @Override
     public void read(FriendlyByteBuf buffer){
         this.owner = buffer.readUUID();
-        this.pos = new ChunkPos(buffer.readLong());
+        this.pos = ChunkPos.unpack(buffer.readLong());
     }
 
     @Override

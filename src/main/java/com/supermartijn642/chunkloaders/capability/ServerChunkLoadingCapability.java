@@ -34,7 +34,7 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
         BlockPos pos = entity.getBlockPos();
         UUID owner = entity.getOwner();
         if(!this.chunkLoadersPerPlayer.containsKey(owner) || !this.chunkLoadersPerPlayer.get(owner).contains(pos)){
-            ChunkPos chunkPos = new ChunkPos(pos);
+            ChunkPos chunkPos = ChunkPos.containing(pos);
             this.chunkLoadersPerChunk.putIfAbsent(chunkPos, new HashSet<>());
             this.chunkLoadersPerChunk.get(chunkPos).add(pos);
             this.chunkLoadersPerPlayer.putIfAbsent(owner, new HashSet<>());
@@ -56,7 +56,7 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
 
     public void removeChunkLoader(ChunkLoaderBlockEntity entity){
         BlockPos pos = entity.getBlockPos();
-        ChunkPos chunkPos = new ChunkPos(pos);
+        ChunkPos chunkPos = ChunkPos.containing(pos);
         Set<BlockPos> chunkLoadersPerChunk = this.chunkLoadersPerChunk.get(chunkPos);
         if(chunkLoadersPerChunk != null && chunkLoadersPerChunk.contains(pos)){
             chunkLoadersPerChunk.remove(pos);
@@ -75,12 +75,12 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
             for(int x = -radius + 1; x < radius; x++){
                 loop:
                 for(int z = -radius + 1; z < radius; z++){
-                    ChunkPos otherChunk = new ChunkPos(chunkPos.x + x, chunkPos.z + z);
+                    ChunkPos otherChunk = new ChunkPos(chunkPos.x() + x, chunkPos.z() + z);
                     if(this.chunkLoadersPerPlayer.containsKey(owner)){
                         for(BlockPos chunkLoaderPos : this.chunkLoadersPerPlayer.get(owner)){
                             int chunkLoaderChunkX = chunkLoaderPos.getX() >> 4, chunkLoaderChunkZ = chunkLoaderPos.getZ() >> 4;
                             ChunkLoaderType type = this.chunkLoaderCacheMap.get(chunkLoaderPos).chunkLoaderType;
-                            if(Math.abs(chunkLoaderChunkX - otherChunk.x) < type.getRange() && Math.abs(chunkLoaderChunkZ - otherChunk.z) < type.getRange())
+                            if(Math.abs(chunkLoaderChunkX - otherChunk.x()) < type.getRange() && Math.abs(chunkLoaderChunkZ - otherChunk.z()) < type.getRange())
                                 continue loop;
                         }
                     }
@@ -220,7 +220,7 @@ public class ServerChunkLoadingCapability extends ChunkLoadingCapability {
         for(Map.Entry<UUID,Set<ChunkPos>> entry : this.loadedChunksPerPlayer.entrySet()){
             CompoundTag playerTag = new CompoundTag();
             playerTag.putIntArray("player", UUIDUtil.uuidToIntArray(entry.getKey()));
-            playerTag.putLongArray("chunks", entry.getValue().stream().mapToLong(ChunkPos::toLong).toArray());
+            playerTag.putLongArray("chunks", entry.getValue().stream().mapToLong(ChunkPos::pack).toArray());
             if(PlayerActivityTracker.isPlayerActive(entry.getKey()))
                 loadedChunksPerActivePlayerTag.add(playerTag);
             else

@@ -3,20 +3,34 @@ package com.supermartijn642.chunkloaders;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
-import com.supermartijn642.core.util.Holder;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.client.model.data.ModelData;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Quaternionf;
+
+import java.util.List;
 
 /**
  * Created 8/18/2020 by SuperMartijn642
  */
-public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer<ChunkLoaderBlockEntity,Holder<Integer>> {
+public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer<ChunkLoaderBlockEntity,ChunkLoaderBlockEntityRenderer.State> {
+
+    private static final Matrix4fc IDENTITY_MATRIX = new Matrix4f().identity();
+    private static final RandomSource RANDOM_SOURCE = RandomSource.create();
 
     private final Block block;
     private final boolean fullRotation;
@@ -27,21 +41,36 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
     }
 
     @Override
-    public Holder<Integer> createStateHolder(){
-        return new Holder<>(0);
+    public State createStateHolder(){
+        return new State();
     }
 
     @Override
-    public void updateState(Holder<Integer> state, ChunkLoaderBlockEntity entity, UpdateContext context){
-        state.set(entity.animationOffset);
+    public void updateState(State state, ChunkLoaderBlockEntity entity, UpdateContext context){
+        state.animationOffset = entity.animationOffset;
+        if(!state.hasBlockRenderState){
+            BlockState blockState = this.block.defaultBlockState();
+            BlockStateModel model = ClientUtils.getMinecraft().getModelManager().getBlockStateModelSet().get(blockState);
+            ModelData modelData = model.getModelData(BlockAndTintGetter.EMPTY, BlockPos.ZERO, blockState, ModelData.EMPTY);
+            List<BlockStateModelPart> parts = state.blockRenderState.setupModel(IDENTITY_MATRIX, model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT));
+            RANDOM_SOURCE.setSeed(blockState.getSeed(BlockPos.ZERO));
+            model.collectParts(RANDOM_SOURCE, parts, modelData);
+            IntList tintLayers = state.blockRenderState.tintLayers();
+            for(BlockTintSource tintSource : ClientUtils.getMinecraft().getBlockColors().getTintSources(blockState))
+                tintLayers.add(tintSource.colorInWorld(blockState, BlockAndTintGetter.EMPTY, BlockPos.ZERO));
+            state.hasBlockRenderState = true;
+        }
     }
 
     @Override
-    public void submit(SubmitNodeCollector output, Holder<Integer> state, RenderContext context){
+    public void submit(SubmitNodeCollector output, State state, RenderContext context){
+        if(!state.hasBlockRenderState)
+            return;
+
         PoseStack poseStack = context.poseStack();
         poseStack.pushPose();
 
-        int animationOffset = state.get();
+        int animationOffset = state.animationOffset;
         double offset = Math.sin((System.currentTimeMillis() + animationOffset) % 5000 / 5000f * 2 * Math.PI) * 0.1;
         poseStack.translate(0, offset, 0);
 
@@ -59,12 +88,15 @@ public class ChunkLoaderBlockEntityRenderer implements CustomBlockEntityRenderer
         }
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        //noinspection deprecation
-        RenderType renderType = ItemBlockRenderTypes.getRenderType(this.block.defaultBlockState());
-        BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(this.block.defaultBlockState());
         ModelFeatureRenderer.CrumblingOverlay breakingOverlay = context.breakingOverlay();
-        output.submitBlockModel(poseStack, renderType, model, 1, 1, 1, context.packedLight(), breakingOverlay == null ? OverlayTexture.NO_OVERLAY : breakingOverlay.progress(), 0);
+        state.blockRenderState.submit(poseStack, output, context.packedLight(), breakingOverlay == null ? OverlayTexture.NO_OVERLAY : breakingOverlay.progress(), 0);
 
         poseStack.popPose();
+    }
+
+    public static class State {
+        private final BlockModelRenderState blockRenderState = new BlockModelRenderState();
+        private boolean hasBlockRenderState = false;
+        private int animationOffset;
     }
 }
