@@ -40,7 +40,7 @@ dependencies {
 
     // Core library
 //    implementation "curse.maven:supermartijn642s-core-lib-454372:${core_library_file}"
-    implementation "a:supermartijn642corelib:1.1.21-forge-mc26.1"
+    implementation "a:supermartijn642corelib:1.1.21-forge-mc26.2"
     // Config library
     implementation "curse.maven:supermartijn642s-config-lib-438332:${config_library_file}"
 
