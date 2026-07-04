@@ -41,7 +41,7 @@ public class ChunkLoadersClient implements ClientModInitializer {
     }
 
     public static void onKey(){
-        if(ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
+        if(ClientUtils.getWorld() != null && ClientUtils.getMinecraft().gui.screen() == null){
             Player player = ClientUtils.getPlayer();
             if(ChunkLoadersConfig.canPlayersUseMap.get())
                 ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(ChunkPos.containing(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11)));
