@@ -45,7 +45,7 @@ public class ChunkLoadersClient {
     }
 
     public static void onKey(InputEvent.Key e){
-        if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.consumeClick() && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().screen == null){
+        if(CHUNK_LOADING_SCREEN_KEY != null && CHUNK_LOADING_SCREEN_KEY.consumeClick() && ClientUtils.getWorld() != null && ClientUtils.getMinecraft().gui.screen() == null){
             Player player = ClientUtils.getPlayer();
             if(ChunkLoadersConfig.canPlayersUseMap.get())
                 ClientUtils.displayScreen(WidgetScreen.of(new ChunkLoaderScreen(ChunkPos.containing(player.blockPosition()), player.getUUID(), player.blockPosition().getY(), 15, 11)));
