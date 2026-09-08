@@ -19,7 +19,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "chunkloaders:ultimate_chunk_loader"
+        "recipes": "chunkloaders:ultimate_chunk_loader"
       }
     },
     "recipe_condition": {

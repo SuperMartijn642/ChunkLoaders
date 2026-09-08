@@ -33,7 +33,7 @@ public class ServerChunkCacheMixin {
     private final Set<ChunkPos> tickingChunksSet = new HashSet<>();
 
     @Inject(
-        method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V",
+        method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/server/level/ChunkMap;collectSpawningChunks(Ljava/util/List;)V",

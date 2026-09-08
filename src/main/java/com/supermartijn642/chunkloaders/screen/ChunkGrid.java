@@ -132,7 +132,7 @@ public class ChunkGrid extends BaseWidget {
 
     @Override
     public boolean mousePressed(int mouseX, int mouseY, MouseButtonInfo info, boolean isDoubleClick, boolean hasBeenHandled){
-        if(info.button() == 0){
+        if(info.button() == 1){
             for(ChunkGridCell cell : this.cells){
                 if(cell.isFocused()){
                     this.doDrag = true;
@@ -149,7 +149,7 @@ public class ChunkGrid extends BaseWidget {
 
     @Override
     public boolean mouseReleased(int mouseX, int mouseY, MouseButtonInfo info, boolean hasBeenHandled){
-        if(info.button() == 0)
+        if(info.button() == 1)
             this.doDrag = false;
         return super.mouseReleased(mouseX, mouseY, info, hasBeenHandled);
     }
