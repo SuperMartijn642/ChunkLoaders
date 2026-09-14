@@ -2,7 +2,7 @@ plugins {
     id "eclipse"
     id "idea"
     id "java-library"
-    id "net.neoforged.moddev" version "2.0.141"
+    id "net.neoforged.moddev" version "2.0.147"
     id "me.modmuss50.mod-publish-plugin" version "2.0.0"
 }
 
@@ -19,6 +19,7 @@ compileJava.options.compilerArgs.add '-parameters'
 
 repositories {
     flatDir { dirs "libs" }
+    mavenLocal()
     maven { url "https://www.cursemaven.com" }
     exclusiveContent {
         forRepository {
@@ -30,9 +31,11 @@ repositories {
 
 dependencies {
     // Core library
-    implementation "curse.maven:supermartijn642s-core-lib-454372:${core_library_file}"
+//    implementation "curse.maven:supermartijn642s-core-lib-454372:${core_library_file}"
+    implementation "a:supermartijn642corelib:1.1.24-neoforge-mc26.3"
     // Config library
-    implementation "curse.maven:supermartijn642s-config-lib-438332:${config_library_file}"
+//    implementation "curse.maven:supermartijn642s-config-lib-438332:${config_library_file}"
+    implementation "a:supermartijn642configlib:1.1.8-neoforge-mc26.3"
 
     // Just Enough Items
 //    runtimeOnly "curse.maven:jei-238222:${just_enough_items_file}"
